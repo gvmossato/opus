@@ -5,7 +5,6 @@ from django.db import models
 # Tabela auxiliar de usuários
 class UserData(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    deleted = models.BooleanField(default=False)
     picture = models.URLField(max_length=255, null=True)
 
 # Tabela de usuários (nativa do Django)
@@ -16,7 +15,6 @@ class Lists(models.Model):
     name = models.CharField(max_length=255)
     symbol = models.CharField(max_length=2)
     description = models.CharField(max_length=255, null=True)
-    deleted = models.BooleanField(default=False)
     user = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Jobs')
 
 # Tabela auxiliar de cargos
@@ -35,7 +33,6 @@ class Tasks(models.Model):
     origin = models.IntegerField()
     name = models.CharField(max_length=255)
     done = models.BooleanField(default=False)
-    deleted = models.BooleanField(default=False)
 
 class Tags(models.Model):
     task = models.ForeignKey(Tasks, on_delete=models.CASCADE)

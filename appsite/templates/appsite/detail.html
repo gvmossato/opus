@@ -5,7 +5,17 @@
 {% block content %}
 
 <h1>DETAIL</h1>
-{{ user.pk }}
+{{ user.username }}
 <a href="{% url 'logout' %}">Log out</a>
+
+
+<section class="lista-de-cards">
+    {% for list in user.list_set.all %}
+    <article class="card">
+        <h2>{{ list.name }}</h2>
+    </article>
+    {% endfor %}
+</section>
+
 
 {% endblock content %}

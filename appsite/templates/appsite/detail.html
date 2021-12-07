@@ -1,30 +1,36 @@
 {% extends 'base.html' %}
 
-{% block title %} Perfil {% endblock title %}
+{% block title %} profile_user.name {% endblock title %}
 
 {% block content %}
 
-<h1><a href="{% url 'appsite:list_create' %}">Criar lista</a></h1>
-{{ user.username }}
-<a href="{% url 'logout' %}">Log out</a>
+{% if current_user.id == profile_user.id %}
+    <h1><a href="{% url 'appsite:list_create' %}">Criar lista</a></h1>
 
-<!-- crap implementation O(n^2) of list of lists and list of invites in the user's profile -->
-<section class="lista-de-listas">
-    {% for list in user.list_set.all %}
-        {% for job in user.job_set.all %}
-            {% if job.list_id == list.id and not job.active_invite %} <a href="{% url 'appsite:list_detail' list.id %}"> {{ list.name }}  </a> {% endif %}
+    {{ current_user.username }}
+    <a href="{% url 'logout' %}">Log out</a>
+
+    <!-- crap implementation O(n^2) of list of lists and list of invites in the user's profile -->
+    <section class="lista-de-listas">
+        {% for list in current_user.list_set.all %}
+            {% for job in current_user.job_set.all %}
+                {% if job.list_id == list.id and not job.active_invite %} <a href="{% url 'appsite:list_detail' list.id %}"> {{ list.name }}  </a> {% endif %}
+            {% endfor %}
         {% endfor %}
-    {% endfor %}
-</section>
-<!--job.active_invite = 1 means that the user is invited to follow that list (shown in invitations)-->
-<!--job.active_invite = 0 means that the user is already member of that list (not shown in invitations, but in lists)-->
-<section class="lista-de-invites">
-    {% for list in user.list_set.all %}
-        {% for job in user.job_set.all %}
-            {% if job.list_id == list.id and job.active_invite %} {{ list.name }} {% endif %}
+    </section>
+    <!--job.active_invite = 1 means that the user is invited to follow that list (shown in invitations)-->
+    <!--job.active_invite = 0 means that the user is already member of that list (not shown in invitations, but in lists)-->
+    <section class="lista-de-invites">
+        {% for list in current_user.list_set.all %}
+            {% for job in current_user.job_set.all %}
+                {% if job.list_id == list.id and job.active_invite %} {{ list.name }} {% endif %}
+            {% endfor %}
         {% endfor %}
-    {% endfor %}
-</section>
-    
+    </section>
+{% else %}
+
+    <p>perfil de {{ profile_user }}</p>
+
+{% endif %}
 
 {% endblock content %}

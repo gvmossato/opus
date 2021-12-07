@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.contrib.auth.models import User
 from django.views import generic
 
 from .forms import UserForm
@@ -15,4 +16,4 @@ class CreateUserView(generic.CreateView):
     template_name = 'registration/index.html'
 
     def get_success_url(self):
-        return reverse_lazy('appsite:detail', args=(self.object.id, ))
+        return reverse_lazy('login')

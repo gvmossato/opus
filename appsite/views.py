@@ -29,3 +29,11 @@ class ListDetailView(generic.DetailView):
     model = List
     template_name = 'appsite/list_detail.html'
     context_object_name = 'list'
+
+class ListUpdateView(generic.UpdateView):
+    model = List
+    form_class = ListForm
+    template_name = 'appsite/list_update.html'
+
+    def get_success_url(self):
+        return reverse_lazy('appsite:list_detail', args=(self.object.id, )) #redirecting to lists' page

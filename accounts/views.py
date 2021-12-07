@@ -1,7 +1,14 @@
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.views import generic
 
 from .forms import UserForm
-from django.views import generic
+
+
+@login_required
+def login_redirect(request):
+    return redirect('appsite:detail', pk=request.user.pk)
 
 class CreateUserView(generic.CreateView):
     form_class = UserForm
@@ -9,5 +16,3 @@ class CreateUserView(generic.CreateView):
 
     def get_success_url(self):
         return reverse_lazy('appsite:detail', args=(self.object.id, ))
-
-    #success_message = "Your profile was created successfully"

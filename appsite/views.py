@@ -1,4 +1,4 @@
-from .models import List
+from .models import List, Job
 from django.views import generic
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
@@ -20,7 +20,9 @@ class ListCreateView(generic.CreateView):
     template_name = 'appsite/list_create.html'
 
     def get_success_url(self):
-        #cadastrar usuario criador da lista na lista recém criada
+        # registering recently created list to the user that created it 
+        job = Job(active_invite = 0, list_id = self.object.id, user_id = self.request.user.id)
+        job.save()
         return reverse_lazy('appsite:list_detail', args=(self.object.id, ))
 
 class ListDetailView(generic.DetailView):

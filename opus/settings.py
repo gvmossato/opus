@@ -55,6 +55,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'opus.urls'
 
 LOGIN_REDIRECT_URL = 'accounts:redirect'
+LOGOUT_REDIRECT_URL = 'accounts:index'
 
 TEMPLATES = [
     {

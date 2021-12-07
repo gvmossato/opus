@@ -1,7 +1,8 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
+app_name='appsite'
+
 urlpatterns = [
-    path('', views.UserCreateView.as_view(), name='index'),
-    path('users/<int:pk>/', views.UserDetailView.as_view(), name='detail'),
+    path('<int:pk>/', views.UserDetailView.as_view(), name='detail'),
 ]

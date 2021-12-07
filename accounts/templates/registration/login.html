@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %} Login {% endblock title %}
+
+{% block content %}
+<h1>Login de Usuário</h1>
+
+{% if form.errors %}
+<p>Sua senha e nome de usuário não correspondem. Tente novamente.</p>
+{% endif %}
+
+{% if next %}
+    {% if user.is_authenticated %}
+    <p>Sua conta não possui acesso a esta página. Para prosseguir, faça um login com uma conta que tenha.</p>
+    {% else %}
+    <p>Faça o login para ver esta página.</p>
+    {% endif %}
+{% endif %}
+
+<form method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+    {{ form.as_p}}
+    <button type="submit" value="login">Entrar</button>
+    <input type="hidden" name="next" value="{{ next }}">
+</form>
+
+<p>Não possui usuário? <a href="{% url 'signup' %}">Cadastre-se</a></p>
+{% endblock %}

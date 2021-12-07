@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'appsite.apps.AppsiteConfig'
+    'appsite.apps.AppsiteConfig',
+    'accounts.apps.AccountsConfig'
 ]
 
 MIDDLEWARE = [
@@ -52,6 +53,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'opus.urls'
+
+LOGIN_REDIRECT_URL = 'index'
 
 TEMPLATES = [
     {

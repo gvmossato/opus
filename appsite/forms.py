@@ -1,20 +1,20 @@
 from django.forms import ModelForm
-from .models import UserData, Lists, Tasks, Tags
+from .models import List, Task, Tag
 
 
-class UserDataForm(ModelForm):
-    class Meta:
-        model = UserData
-        fields = [
-            'picture'
-        ]
-        labels = {
-            'picture' : 'Foto (URL)'
-        }
+#class UserDataForm(ModelForm):
+#    class Meta:
+#        model = UserData
+#        fields = [
+#            'picture'
+#        ]
+#        labels = {
+#            'picture' : 'Foto (URL)'
+#        }
 
 class ListForm(ModelForm):
     class Meta:
-        model = Lists
+        model = List
         fields = [
             'name',
             'symbol',
@@ -28,7 +28,7 @@ class ListForm(ModelForm):
 
 class TaskForm(ModelForm):
     class Meta:
-        model = Tasks
+        model = Task
         fields = [
             'name',
         ]
@@ -38,7 +38,7 @@ class TaskForm(ModelForm):
 
 class TagsForms(ModelForm):
     class Meta:
-        model = Tags
+        model = Tag
         fields = [
             'name',
             'value'

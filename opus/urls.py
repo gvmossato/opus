@@ -21,7 +21,9 @@ from django.urls import path
 
 
 urlpatterns = [
-    path('', include('appsite.urls')),
+    path('', include('accounts.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('app/', include('appsite.urls')),
     path('admin/', admin.site.urls),
     url(r'^favicon\.ico$', RedirectView.as_view(url='/static/images/favicon.ico')), # fix favicon
 ]

@@ -17,16 +17,16 @@ class List(models.Model):
     description = models.CharField(max_length=255, null=True)
     user = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Job')
 
+# Tabela auxiliar de cargos
+class JobType(models.Model):
+    name = models.CharField(max_length=255)
+
 # Tabela intermediária de Users e Lists (NxN)
 class Job(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     list = models.ForeignKey(List, on_delete=models.CASCADE)
     active_invite = models.BooleanField()
-
-# Tabela auxiliar de cargos
-class JobType(models.Model):
-    job = models.OneToOneField(Job, on_delete=models.CASCADE, primary_key=True)
-    name = models.CharField(max_length=255)
+    type = models.ForeignKey(JobType, on_delete=models.CASCADE)
 
 class Task(models.Model):
     list = models.ForeignKey(List, on_delete=models.CASCADE)

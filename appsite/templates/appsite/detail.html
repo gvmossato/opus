@@ -8,14 +8,22 @@
 {{ user.username }}
 <a href="{% url 'logout' %}">Log out</a>
 
-
-<section class="lista-de-cards">
+<!-- crap implementation O(n^2) of list of lists and list of invites in the user's profile -->
+<section class="lista-de-listas">
     {% for list in user.list_set.all %}
-    <article class="card">
-        <h2>{{ list.name }}</h2>
-    </article>
+        {% for job in user.job_set.all %}
+            {% if job.list_id == list.id and not job.active_invite %} {{ list.name }} {% endif %}
+        {% endfor %}
     {% endfor %}
 </section>
 
+<section class="lista-de-invites">
+    {% for list in user.list_set.all %}
+        {% for job in user.job_set.all %}
+            {% if job.list_id == list.id and job.active_invite %} {{ list.name }} {% endif %}
+        {% endfor %}
+    {% endfor %}
+</section>
+    
 
 {% endblock content %}

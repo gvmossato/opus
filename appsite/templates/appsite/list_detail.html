@@ -5,7 +5,19 @@
 {% block content %}
 
 <!--Just testing, but actually in this page the tasks and tags of the list would be rendered-->
-<h2>{{ list.name }}</h2>
-    
+<h2>Nome: {{ list.name }}</h2>
+<h2>Símbolo: {{ list.symbol }}</h2>
+<h3>Descrição: {{ list.description }}</h3>
+
+<section class="lista-de-tasks">
+    {% for task in list.task_set.all %}
+        <p>{{ task.name}}</p>
+        <ul>
+            {% for tag in task.tag_set.all %}
+                <li>{{ tag.name }} : {{ tag.value}}</li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+</section>
 
 {% endblock content %}

@@ -12,7 +12,7 @@
 <section class="lista-de-listas">
     {% for list in user.list_set.all %}
         {% for job in user.job_set.all %}
-            {% if job.list_id == list.id and not job.active_invite %} {{ list.name }} {% endif %}
+            {% if job.list_id == list.id and not job.active_invite %} <a href="{% url 'appsite:list_detail' list.id %}"> {{ list.name }}  </a> {% endif %}
         {% endfor %}
     {% endfor %}
 </section>

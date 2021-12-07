@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %} Criar lista {% endblock title %}
+
+{% block content %}
+<h1>Criar lista</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Criar</button>
+</form>
+
+{% endblock content %}

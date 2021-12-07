@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %} Lista {% endblock title %}
+
+{% block content %}
+
+<h2>Nome: {{ list.name }}</h2>
+<h2>Símbolo: {{ list.symbol }}</h2>
+<h3>Descrição: {{ list.description }}</h3>
+<h3><a href="{% url 'appsite:list_update' list.id %}">Editar lista</a></h1>
+
+<!--External loop: rendering lists' tasks (adds a new line for the "table")-->
+<!--Internal loop: rendering tags of each list (expands the "table" horizontally)-->
+<section class="lista-de-tasks">
+    {% for task in list.task_set.all %}
+        <p>{{ task.name}}</p>
+        <ul>
+            {% for tag in task.tag_set.all %}
+                <li>{{ tag.name }} : {{ tag.value}}</li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+</section>
+
+{% endblock content %}

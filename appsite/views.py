@@ -22,8 +22,8 @@ class ListCreateView(generic.CreateView):
     def get_success_url(self):
         # registering recently created list to the user that created it 
         job = Job(active_invite = 0, list_id = self.object.id, user_id = self.request.user.id)
-        job.save()
-        return reverse_lazy('appsite:list_detail', args=(self.object.id, ))
+        job.save() #saving the user and list to jobs
+        return reverse_lazy('appsite:list_detail', args=(self.object.id, )) #redirecting to lists' page
 
 class ListDetailView(generic.DetailView):
     model = List

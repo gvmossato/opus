@@ -16,7 +16,8 @@
         {% endfor %}
     {% endfor %}
 </section>
-
+<!--job.active_invite = 1 means that the user is invited to follow that list (shown in invitations)-->
+<!--job.active_invite = 0 means that the user is already member of that list (not shown in invitations, but in lists)-->
 <section class="lista-de-invites">
     {% for list in user.list_set.all %}
         {% for job in user.job_set.all %}

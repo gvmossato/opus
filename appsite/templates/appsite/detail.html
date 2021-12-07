@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<h1>DETAIL</h1>
+<h1><a href="{% url 'appsite:list_create' %}">Criar lista</a></h1>
 {{ user.username }}
 <a href="{% url 'logout' %}">Log out</a>
 

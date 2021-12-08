@@ -108,9 +108,16 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
 
 def invite_up(request, pk):
     job = Job.objects.get(pk=pk)
-    job.active_invite = False #accepting request
+    job.active_invite = False #accepting invite
     job.type = 2
     job.save()
     
+    return HttpResponseRedirect(
+        reverse('appsite:detail', args=(job.user_id, )))
+
+def invite_down(request, pk):
+    job = Job.objects.get(pk=pk)
+    job.delete() # refusing invite
+
     return HttpResponseRedirect(
         reverse('appsite:detail', args=(job.user_id, )))

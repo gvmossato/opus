@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import List, Job
-from .forms import ListForm, InviteForm
+from .forms import ListForm, InviteForm, JobForm
 
 # ====== #
 # CREATE #
@@ -16,13 +16,13 @@ class ListCreateView(LoginRequiredMixin, generic.CreateView):
 
     def get_success_url(self):
         # Vincula criador e lista no banco de dados
-        job = Job(active_invite=False, list_id=self.object.id, user_id=self.request.user.id, type=0)
+        job = Job(active_invite=False, list_id=self.object.id, user_id=self.request.user.id, type=4)
         job.save()
 
         return reverse_lazy('appsite:list_detail', args=(self.object.id, ))
 
 
-class InviteCreateView(generic.CreateView):
+class InviteCreateView(LoginRequiredMixin, generic.CreateView):
     form_class = InviteForm
     template_name = 'appsite/invite.html'
     
@@ -31,7 +31,7 @@ class InviteCreateView(generic.CreateView):
         self.object = form.save(commit=False) # Retém dados enviados pelo usuário
         self.object.list = List.objects.get(pk=self.kwargs['pk'])
         self.object.active_invite = True
-        self.object.type = 3
+        self.object.type = 1
         self.object.save()
 
         return super(InviteCreateView, self).form_valid(form)
@@ -66,18 +66,18 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
     context_object_name = 'list'
 
     def get_context_data(self, **kwargs):        
-        context = super().get_context_data(**kwargs)     # Obtém context padrão
-        keys = ['creator', 'admin', 'follower', 'guest'] # Mapeia um número para cada cargo
+        context = super().get_context_data(**kwargs)           # Obtém context padrão
+        keys = [None, 'guest', 'follower', 'admin', 'creator'] # Mapeia um número para cada cargo
 
-        for type in range(0, 4):            
-            user_job = Job.objects.filter(list_id=self.kwargs['pk'], type=type) # Obtém usuários com um cargo específico
-            user_id = user_job.values_list('user_id', flat=True)                # Utiliza o cargo para obter o id do usuário
+        for job_type in range(1, 5):            
+            user_job = Job.objects.filter(list_id=self.kwargs['pk'], type=job_type) # Obtém usuários com um cargo específico
+            user_id = user_job.values_list('user_id', flat=True)                    # Utiliza o cargo para obter o id do usuári
             try:
-                user = User.objects.get(pk__in=user_id) # Obtém o objeto usuário atavés do id
-            except:
+                user = User.objects.filter(pk__in=user_id) # Obtém o objeto usuário atavés do id
+            except:                
                 user = None # Caso não existam usuários com o cargo da iteração
 
-            context[keys[type]] = user # Atualiza context
+            context[keys[job_type]] = user # Atualiza context
 
         return context
 
@@ -85,10 +85,18 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
 # UPDATE #
 # ====== #
 
-class ListUpdateView(generic.UpdateView):
+class ListUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = List
     form_class = ListForm
     template_name = 'appsite/list_update.html'
 
     def get_success_url(self):
-        return reverse_lazy('appsite:list_detail', args=(self.object.id, )) #redirecting to lists' page
+        return reverse_lazy('appsite:list_detail', args=(self.object.id, )) # Redireciona para a página da lista
+
+class JobUpdateViews(LoginRequiredMixin, generic.UpdateView):
+    model = Job
+    form_class = JobForm
+    template_name = 'appsite/jobs.html'
+
+    def get_success_url(self):
+        return reverse_lazy('appsite:list_detail', args=(self.object.id, )) # Redireciona para a página da lista

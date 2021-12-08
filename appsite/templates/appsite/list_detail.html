@@ -7,8 +7,17 @@
 <h2>Nome: {{ list.name }}</h2>
 <h2>Símbolo: {{ list.symbol }}</h2>
 <h3>Descrição: {{ list.description }}</h3>
-<h4>Criador: {{ creator_user }}</h4>
+<h4>Criador: {{ creator.first.username }}</h4>
 <h3><a href="{% url 'appsite:list_update' list.id %}"> Editar lista </a></h1>
+
+{% for f in guest %}
+
+<li>{{ f.username }}</li>
+<li>{{ f.email }}</li>
+<li>{{ f.picture }}</li>
+<br>
+
+{% endfor %}
 
 <a href="{% url 'appsite:invite' list.id %}"><button>Convidar</button></a>
 

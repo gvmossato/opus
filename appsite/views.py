@@ -1,7 +1,8 @@
 from django.views import generic
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect
 
 from .models import List, Job
 from .forms import ListForm, InviteForm, JobForm
@@ -100,3 +101,16 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('appsite:list_detail', args=(self.object.id, )) # Redireciona para a página da lista
+
+# ====== #
+# CUSTOM #
+# ====== #
+
+def invite_up(request, pk):
+    job = Job.objects.get(pk=pk)
+    job.active_invite = False #accepting request
+    job.type = 2
+    job.save()
+    
+    return HttpResponseRedirect(
+        reverse('appsite:detail', args=(job.user_id, )))

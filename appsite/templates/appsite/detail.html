@@ -23,7 +23,10 @@
     <section class="lista-de-invites">
         {% for list in current_user.list_set.all %}
             {% for job in current_user.job_set.all %}
-                {% if job.list_id == list.id and job.active_invite %} {{ list.name }} {% endif %}
+                {% if job.list_id == list.id and job.active_invite %}
+                {{ list.name }}
+                <a href="{% url 'appsite:invite_up' job.id %}">Aceitar invite</a>
+                {% endif %}
             {% endfor %}
         {% endfor %}
     </section>

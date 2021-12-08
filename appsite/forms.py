@@ -62,8 +62,10 @@ class JobForm(ModelForm):
     class Meta:
         model = Job
         fields = [
+            'user',
             'type'
         ]
         labels = {
+            'user' : 'Usuário',
             'type' : 'Cargos'
         }

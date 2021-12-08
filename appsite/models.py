@@ -23,7 +23,7 @@ class List(models.Model):
 
 # Tabela intermediária de Users e Lists (NxN)
 class Job(models.Model):
-    job_choices = [(1, 'Guest'), (2, 'Follower'), (3, 'Admin'), (4, 'Creator')]
+    job_choices = [(1, 'Convidado'), (2, 'Seguidor'), (3, 'Administrador'), (4, 'Criador')]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     list = models.ForeignKey(List, on_delete=models.CASCADE)

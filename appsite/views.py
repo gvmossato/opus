@@ -93,10 +93,10 @@ class ListUpdateView(LoginRequiredMixin, generic.UpdateView):
     def get_success_url(self):
         return reverse_lazy('appsite:list_detail', args=(self.object.id, )) # Redireciona para a página da lista
 
-class JobUpdateViews(LoginRequiredMixin, generic.UpdateView):
+class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Job
     form_class = JobForm
-    template_name = 'appsite/jobs.html'
+    template_name = 'appsite/job_update.html'
 
     def get_success_url(self):
         return reverse_lazy('appsite:list_detail', args=(self.object.id, )) # Redireciona para a página da lista

@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from .models import List, Task, Tag
+from .models import List, Task, Tag, Job
 
 
 #class UserDataForm(ModelForm):
@@ -46,4 +46,14 @@ class TagsForms(ModelForm):
         labels = {
             'name' : 'Coluna',
             'value' : 'Tag'
+        }
+
+class InviteForm(ModelForm):
+    class Meta:
+        model = Job
+        fields = [
+            'user'
+        ]
+        labels = {
+            'user' : 'Convidado'
         }

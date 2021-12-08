@@ -1,13 +1,16 @@
 {% extends 'base.html' %}
 
-{% block title %} Lista {% endblock title %}
+{% block title %} {{ list.name }} {% endblock title %}
 
 {% block content %}
 
 <h2>Nome: {{ list.name }}</h2>
 <h2>Símbolo: {{ list.symbol }}</h2>
 <h3>Descrição: {{ list.description }}</h3>
-<h3><a href="{% url 'appsite:list_update' list.id %}">Editar lista</a></h1>
+<h4>Criador: {{ creator_user }}</h4>
+<h3><a href="{% url 'appsite:list_update' list.id %}"> Editar lista </a></h1>
+
+<a href="{% url 'appsite:invite' list.id %}"><button>Convidar</button></a>
 
 <!--External loop: rendering lists' tasks (adds a new line for the "table")-->
 <!--Internal loop: rendering tags of each list (expands the "table" horizontally)-->

@@ -36,7 +36,7 @@ class TaskForm(ModelForm):
             'name' : 'Tarefa',
         }
 
-class TagsForms(ModelForm):
+class TagForm(ModelForm):
     class Meta:
         model = Tag
         fields = [
@@ -56,4 +56,16 @@ class InviteForm(ModelForm):
         ]
         labels = {
             'user' : 'Convidado'
+        }
+
+class JobForm(ModelForm):
+    class Meta:
+        model = Job
+        fields = [
+            'user',
+            'type'
+        ]
+        labels = {
+            'user' : 'Usuário',
+            'type' : 'Cargos'
         }

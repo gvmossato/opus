@@ -12,4 +12,5 @@ urlpatterns = [
     path('list/<int:pk>/jobs/', views.JobUpdateView.as_view(), name='job_update'),
     path('list/<int:pk>/invite_up/', views.invite_up, name='invite_up'),
     path('list/<int:pk>/invite_down/', views.invite_down, name='invite_down'),
+    #path('list/<int:pk>/follow_detail/', views.FollowDetailView.as_view(), name='follow_detail')
 ]

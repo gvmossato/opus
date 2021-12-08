@@ -25,7 +25,7 @@
             {% for job in current_user.job_set.all %}
                 {% if job.list_id == list.id and job.active_invite %}
                 {{ list.name }}
-                <a href="{% url 'appsite:invite_up' job.id %}">Aceitar invite</a>
+                <a href="{% url 'appsite:invite_up' list.id %}">Aceitar invite</a>
                 <a href="{% url 'appsite:invite_down' job.id %}">Recusar invite</a>
                 {% endif %}
             {% endfor %}

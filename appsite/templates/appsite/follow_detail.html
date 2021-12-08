@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %} {% endblock title %}
+
+{% block content %}
+
+<section class="lista-de-tasks">
+    <ul>
+        {% if lists %}
+            {% for list in lists %}
+                <h2>Seguir com: {{ list.name }} </h2>
+                {% for tag in tags %}
+                    <li>{{ tag.name }} : {{ tag.value }}</a></li>
+                {% endfor %}
+            {% endfor %}
+        {% else %}
+            <p>Você não possui nenhuma lista.</p>
+        {% endif %}
+    </ul>
+</section>
+
+{% endblock content %}

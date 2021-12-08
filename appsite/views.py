@@ -3,6 +3,7 @@ from django.urls import reverse_lazy, reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
+from django.shortcuts import render
 
 from .models import List, Job
 from .forms import ListForm, InviteForm, JobForm
@@ -39,6 +40,7 @@ class InviteCreateView(LoginRequiredMixin, generic.CreateView):
 
     def get_success_url(self):
         return reverse_lazy('appsite:invite', args=(self.kwargs['pk'], )) #redirecting to invite page
+
 
 # ==== #
 # READ #
@@ -82,6 +84,11 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
 
         return context
 
+#class FollowDetailView(LoginRequiredMixin, generic.DetailView):
+    #model = List
+    #template_name = 'appsite/follow_detail.html'
+    #context_object_name = 'list'
+
 # ====== #
 # UPDATE #
 # ====== #
@@ -107,17 +114,38 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
 # ====== #
 
 def invite_up(request, pk):
-    job = Job.objects.get(pk=pk)
-    job.active_invite = False #accepting invite
-    job.type = 2
-    job.save()
+    list = List.objects.get(pk=pk)
+
+    # ====== #
+
+    # THE CODE BELOW SHOULD BE IMPLEMENTED
+    # AT THE END OF THE FOLLOWING PROCESS
+    # IN ORDER TO PREVENT DATABASE ERRORS 
+
+    #job.active_invite = False #accepting request
+    #job.type = 2
+    #job.save()
     
-    return HttpResponseRedirect(
-        reverse('appsite:detail', args=(job.user_id, )))
+    # ====== #
+
+    tags = []
+    for task in list.task_set.all():
+        for tag in task.tag_set.all():
+           if tag not in tags:
+               tags.append(tag)
+    jobs = request.user.job_set.filter(type = 4)
+    lists = []
+    for job in jobs:
+        lists.append( List.objects.get(pk = job.list_id) )
+    context = {'lists': lists, 'tags': tags}
+    return render(request, 'appsite/follow_detail.html', context)
+    
+    #return HttpResponseRedirect(
+        #reverse('appsite:follow_detail', args=(list.id, )))
 
 def invite_down(request, pk):
     job = Job.objects.get(pk=pk)
-    job.delete() # refusing invite
+    job.delete() # refusing request
 
     return HttpResponseRedirect(
         reverse('appsite:detail', args=(job.user_id, )))

@@ -112,27 +112,34 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
 
 def follow_tag(request, tag_id, source_id, list_id):
     tag = get_object_or_404(Tag, pk=tag_id)
-    source = get_object_or_404(List, pk=source_id)
     list = get_object_or_404(List, pk=list_id)
 
+    # getting all tasks that have the tag and come from the followed list
     tasks = tag.task.filter(list_id=source_id)
+    # adding each of these tags to the user's list
     for task in tasks:
+        # checking if the task is original in the list of destination
         task_filter = list.task_set.filter(original_id=task.original_id)
         if (task_filter):
             pass # not adding tasks that share the same original_id
         else:
+            # adding the tag to the list
             task2 = Task.objects.create(list_id=list_id, original_id = task.original_id, name = task.name, done = task.done)
             task2.save()
+            # linking the tag to this newly created list
             tag.task.add(task2)
     
+    # creating new follow object of following list, tag being followed and followed list id
     follow = Follow(list=List.objects.get(pk=list_id),tag=Tag.objects.get(pk=tag_id),source_id=source_id)
     follow.save()
     
+    # updating user's permission to follower and removing list invite
     job = Job.objects.get(list_id=source_id, user_id=request.user.id)
     job.active_invite = False
     job.type = 2
     job.save()
 
+    # redirecting to user's page
     return HttpResponseRedirect(reverse_lazy('appsite:detail', args=(request.user.id, )))
 
 

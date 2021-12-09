@@ -123,10 +123,10 @@ def follow_tag(request, tag_id, source_id, list_id):
         if (task_filter):
             pass # not adding tasks that share the same original_id
         else:
-            # adding the tag to the list
+            # adding the task to the list
             task2 = Task.objects.create(list_id=list_id, original_id = task.original_id, name = task.name, done = task.done)
             task2.save()
-            # linking the tag to this newly created list
+            # linking the tag to this newly created task
             tag.task.add(task2)
     
     # creating new follow object of following list, tag being followed and followed list id
@@ -148,29 +148,27 @@ def follow_tag(request, tag_id, source_id, list_id):
 # ====== #
 
 def invite_up(request, pk):
+    # list that will be followed
     list = List.objects.get(pk=pk)
 
-    # ====== #
-
-    # THE CODE BELOW SHOULD BE IMPLEMENTED
-    # AT THE END OF THE FOLLOWING PROCESS
-    # IN ORDER TO PREVENT DATABASE ERRORS 
-
-    #job.active_invite = False #accepting request
-    #job.type = 2
-    #job.save()
-    
-    # ====== #
-
+    # creating list to store tags
     tags = []
+    
+    # creating loop to store tags of the followed list
     for task in list.task_set.all():
         for tag in task.tag_set.all():
            if tag not in tags:
                tags.append(tag)
+    # selecting lists of the where he is the creator (job.type = 4)
     jobs = request.user.job_set.filter(type = 4)
+    # creating list to store user's lists
     lists = []
+    # appending this lists
     for job in jobs:
         lists.append( List.objects.get(pk = job.list_id) )
+    # passing as context the lists of the user,
+    # the tags that he can follow
+    # and also the list that will be followed
     context = {'lists': lists, 'tags': tags, 'source': list}
     return render(request, 'appsite/follow_detail.html', context)
     

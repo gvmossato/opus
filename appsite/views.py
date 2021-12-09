@@ -113,12 +113,17 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
 def follow_tag(request, tag_id, source_id, list_id):
     tag = get_object_or_404(Tag, pk=tag_id)
     source = get_object_or_404(List, pk=source_id)
+    list = get_object_or_404(List, pk=list_id)
 
     tasks = tag.task.filter(list_id=source_id)
     for task in tasks:
-        task2 = Task.objects.create(list_id=list_id, original_id = task.original_id, name = task.name, done = task.done)
-        task2.save()
-        tag.task.add(task2)
+        task_filter = list.task_set.filter(original_id=task.original_id)
+        if (task_filter):
+            pass # not adding tasks that share the same original_id
+        else:
+            task2 = Task.objects.create(list_id=list_id, original_id = task.original_id, name = task.name, done = task.done)
+            task2.save()
+            tag.task.add(task2)
     
     follow = Follow(list=List.objects.get(pk=list_id),tag=Tag.objects.get(pk=tag_id),source_id=source_id)
     follow.save()

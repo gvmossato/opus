@@ -1,15 +1,48 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %} Registrar {% endblock title %}
 
 {% block content %}
-<h1>Registrar</h1>
 
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Criar</button>
-</form>
-<a href="{% url 'login' %}"><button>Entrar</button></a>
+<article class="form-page">
+    <header class="form-header">
+        <img class="form-logo" src="{% static 'images/logo.png' %}" alt="logo" />
+        <p class="form-text">
+            Colabore, gerencie projetos e alcance novos picos de produtividade.
+            Seu jeito de trabalhar é único e a Opus tem todos!
+        </p>
+    </header>
+
+    <section class="form-window">
+        <aside class="form-left">
+            <img src="{% static 'images/signup.png' %}" class="form-img" alt="register" />
+            <h1 class="form-title">SIGN UP</h1>
+        </aside>
+        <form class="" method="POST">
+            {% csrf_token %}
+            <div class="form-field">
+                <img src="{% static 'images/icons/user-round.svg' %}" class="form-icon" alt="user-icon" />
+                {{ form.username }}
+            </div>
+            <div class="form-field">
+                <img src="{% static 'images/icons/email-round.svg' %}" class="form-icon" alt="email-icon" />            
+                {{ form.email }}
+            </div>
+            <div class="form-field">
+                <img src="{% static 'images/icons/key-round.svg' %}" class="form-icon" alt="password1-icon" />
+                {{ form.password1 }}
+            </div>
+            <div class="form-field">
+                <img src="{% static 'images/icons/check-round.svg' %}" class="form-icon" alt="password2-icon" />            
+                {{ form.password2 }}
+            </div>
+            <div class="form-buttons">
+                <a href="{% url 'login' %}"><button type="button" class="secondary-button">Entrar</button></a>
+                <button type="submit" class="primary-button">Registrar</button>
+            </div>
+        </form>
+    </section>
+</article>
 
 {% endblock content %}

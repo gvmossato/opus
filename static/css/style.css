@@ -1,0 +1,193 @@
+/* ===== */
+/* FONTS */
+/* ===== */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,700;1,400&display=swap');
+
+/* ========= */
+/* VARIABLES */
+/* ========= */
+
+:root {
+    --color-blue1: #048ABF;
+    --color-blue2: #04BFBF;
+    --color-blue3: #04BF9D;
+    --color-pink1: #F20574;
+    --color-pink2: #F26398;
+    --color-yellow1: #F2CB05;
+    --color-yellow2: #F2AC29;
+    --color-white2: #f0f0f0;
+
+    --gradient1: linear-gradient(90deg, var(--color-blue1) 0%, var(--color-blue2) 100%);
+    --gradient2: linear-gradient(90deg, var(--color-blue2) 0%, var(--color-blue3) 100%);
+}
+
+/* ======= */
+/* GENERAL */
+/* ======= */
+
+body {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin: 0 auto;
+  font-family: Nunito, Arial, monospace;  
+  background-image: url(/static/images/abstract.png);
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  width: 80vw;
+  height: 100vh;
+  margin: 0 auto;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    padding: 2vw;
+    justify-content: center;
+}
+
+button {
+    font-family: Nunito, Arial, monospace;  
+    font-size: clamp(8pt, 1.5vw, 12pt);
+    font-weight: 700;
+    width: clamp(110px, 6vw, 150px);
+    border-radius: 100vw;
+    padding: clamp(10px, 0.5vw, 15px);
+    cursor: pointer;
+    border: solid 2px transparent;
+    background-image: linear-gradient(transparent, transparent), var(--gradient1);
+    background-origin: border-box;
+    box-shadow: 1000px 1000px 0 #FFFFFF inset;
+}
+
+button:hover {
+    background-image: linear-gradient(transparent, transparent), var(--gradient2);
+    box-shadow: none;
+    color: white;
+}
+
+input[type='text'],
+input[type='email'],
+input[type='password'] {
+    font-family: Nunito, Arial, monospace;
+    font-size: 12pt;
+    outline: none;
+    background-color: var(--color-white2);
+    border: solid 2px var(--color-white2);
+    padding: clamp(15px, 0.8vw, 20px);
+    margin: 8px 0;
+    border-radius: clamp(10px, 0.8vw, 20px);
+}
+
+input[type='text']:focus,
+input[type='email']:focus,
+input[type='password']:focus {
+    border: solid 2px var(--color-blue1);
+}
+
+a {
+    display: inline-block;
+    text-decoration: none;
+    color: unset;
+}
+
+/*======= */
+/* COMMON */
+/* ====== */
+
+.page-fade {
+    background-color: rgba(0, 0, 0, 0.50);
+}
+
+.primary-button {
+    box-shadow: none;
+    color: white;
+}
+
+.secondary-button {
+    color: var(--color-blue1);
+}
+
+/* ================ */
+/* REGISTER & LOGIN */
+/* ================ */
+
+.form-page {
+    margin: auto;
+    width: clamp(700px, 44vw, 1000px);
+}
+
+.form-header {
+    display: flex;
+}
+
+.form-logo {
+    width: auto;
+    height: clamp(80px, 5vw, 100px);
+}
+
+.form-text {
+    text-align: center;
+    margin: auto 1.2vw;    
+    font-weight: 700;
+    color: white;
+}
+
+.form-window {
+    display: flex;
+    background-color: white;    
+    border-radius: 10vw 25px 25px 10vw;
+    height: clamp(400px, 25vw, 600px);
+}
+
+.form-left{
+    display: flex;
+    position: relative;
+}
+
+.form-img {
+    height: 100%;
+}
+
+.form-title {
+    position: absolute;
+    text-align: center;
+    font-family: Montserrat, Arial, sans-serif;
+    width: 100%;
+    margin: 20px 0;
+    font-size: clamp(50pt, 4.2vw, 60pt);
+    font-weight: 700;
+    color: white;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.212);
+}
+
+.form-field {
+    display: flex;
+}
+
+.form-icon {
+    width: clamp(30px, 2vw, 50px);
+    margin-right: 8px;
+}
+
+input[name='username'],
+input[name='email'],
+input[name='password1'],
+input[name='password2'] {
+    width: clamp(220px, 13.5vw, 600px);
+}
+
+.form-buttons {
+    display: flex;
+    margin-top: 1vw;
+    justify-content: flex-end;
+}
+
+button[type="button"] {
+    margin-right: 1vw;
+}

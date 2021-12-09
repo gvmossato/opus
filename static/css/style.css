@@ -177,6 +177,7 @@ a {
 
 input[name='username'],
 input[name='email'],
+input[name='password'],
 input[name='password1'],
 input[name='password2'] {
     width: clamp(220px, 13.5vw, 600px);

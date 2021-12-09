@@ -32,7 +32,7 @@ class Job(models.Model):
 
 class Task(models.Model):
     list = models.ForeignKey(List, on_delete=models.CASCADE)
-    origin = models.IntegerField()
+    original_id = models.IntegerField()
     name = models.CharField(max_length=255)
     done = models.BooleanField(default=False)
 
@@ -40,4 +40,13 @@ class Tag(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     value = models.CharField(max_length=255)
-    user = models.ManyToManyField(User) # Tabela intermediária de Users e Tags (NxN)
+    list = models.ManyToManyField(List, through='Follow') 
+    
+# Tabela intermediária de Users e Tags (NxN)
+class Follow(models.Model):
+    list = models.ForeignKey(List, on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    source_id = models.IntegerField()
+    
+
+

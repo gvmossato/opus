@@ -69,3 +69,13 @@ class JobForm(ModelForm):
             'user' : 'Usuário',
             'type' : 'Cargos'
         }
+
+class TagForm(ModelForm):
+    class Meta:
+        model = Tag
+        fields = [
+            'list'
+        ]
+        labels = {
+            'list': 'Listas'
+        }

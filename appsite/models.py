@@ -17,6 +17,9 @@ class List(models.Model):
     description = models.CharField(max_length=255, null=True)
     user = models.ManyToManyField(User, through='Job')
 
+    def __str__(self):
+        return self.name
+
 # Tabela auxiliar de cargos
 # class JobType(models.Model):
 #     name = models.CharField(max_length=255)
@@ -35,18 +38,26 @@ class Task(models.Model):
     original_id = models.IntegerField()
     name = models.CharField(max_length=255)
     done = models.BooleanField(default=False)
+    #tag = models.ManyToManyField(Tag)
+
+    def __str__(self):
+        return self.name
 
 class Tag(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    task = models.ManyToManyField(Task)
     name = models.CharField(max_length=255)
     value = models.CharField(max_length=255)
     list = models.ManyToManyField(List, through='Follow') 
-    
+
+    def __str__(self):
+        return self.name
+
 # Tabela intermediária de Users e Tags (NxN)
 class Follow(models.Model):
     list = models.ForeignKey(List, on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
     source_id = models.IntegerField()
+
     
 
 

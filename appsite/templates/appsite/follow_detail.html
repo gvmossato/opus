@@ -10,7 +10,7 @@
             {% for list in lists %}
                 <h2>Seguir com: {{ list.name }} </h2>
                 {% for tag in tags %}
-                    <li>{{ tag.name }} : {{ tag.value }}</a></li>
+                    <li><a href="{% url 'appsite:follow_tag' tag.id source.id list.id %}">{{ tag.name }} : {{ tag.value }}</a></li>
                 {% endfor %}
             {% endfor %}
         {% else %}

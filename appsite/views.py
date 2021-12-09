@@ -3,10 +3,10 @@ from django.urls import reverse_lazy, reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
-from .models import List, Job
-from .forms import ListForm, InviteForm, JobForm
+from .models import List, Job, Tag, Follow, Task
+from .forms import ListForm, InviteForm, JobForm, TagForm
 
 # ====== #
 # CREATE #
@@ -109,6 +109,28 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
     def get_success_url(self):
         return reverse_lazy('appsite:list_detail', args=(self.object.id, )) # Redireciona para a página da lista
 
+
+def follow_tag(request, tag_id, source_id, list_id):
+    tag = get_object_or_404(Tag, pk=tag_id)
+    source = get_object_or_404(List, pk=source_id)
+
+    tasks = tag.task.filter(list_id=source_id)
+    for task in tasks:
+        task2 = Task.objects.create(list_id=list_id, original_id = task.original_id, name = task.name, done = task.done)
+        task2.save()
+        tag.task.add(task2)
+    
+    follow = Follow(list=List.objects.get(pk=list_id),tag=Tag.objects.get(pk=tag_id),source_id=source_id)
+    follow.save()
+    
+    job = Job.objects.get(list_id=source_id, user_id=request.user.id)
+    job.active_invite = False
+    job.type = 2
+    job.save()
+
+    return HttpResponseRedirect(reverse_lazy('appsite:detail', args=(request.user.id, )))
+
+
 # ====== #
 # CUSTOM #
 # ====== #
@@ -137,7 +159,7 @@ def invite_up(request, pk):
     lists = []
     for job in jobs:
         lists.append( List.objects.get(pk = job.list_id) )
-    context = {'lists': lists, 'tags': tags}
+    context = {'lists': lists, 'tags': tags, 'source': list}
     return render(request, 'appsite/follow_detail.html', context)
     
     #return HttpResponseRedirect(

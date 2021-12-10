@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Adicionar tags à task {{ task.name }}</h2>
+
+{% for tag in tags %}
+
+    {% if tag in task.tag_set.all %}
+        <p>{{ tag.value }} Adicionada!</p>
+    {% else %}
+        <a href="{% url 'appsite:tag_add' task.id tag.id %}">{{ tag.value }}</a>
+    {% endif %}
+{% endfor %}
+
+<h2><a href="{% url 'appsite:list_detail' task.list_id %}">Voltar à lista</a></h2>
+
+{% endblock content %}

@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
 
-# Label to placeholder
+# Transforma labels em placeholders
 class PlaceholderMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

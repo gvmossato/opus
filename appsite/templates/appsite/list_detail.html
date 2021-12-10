@@ -8,7 +8,6 @@
 <h2>Símbolo: {{ list.symbol }}</h2>
 <h3>Descrição: {{ list.description }}</h3>
 <h4>Criador: {{ creator.first.username }}</h4>
-<h3><a href="{% url 'appsite:list_update' list.id %}"> Editar lista </a></h1>
 
 <ul>
 {% for f in guest %}
@@ -19,8 +18,19 @@
 {% endfor %}
 </ul>
 
-<a href="{% url 'appsite:invite' list.id %}"><button>Convidar</button></a>
-<a href="{% url 'appsite:job_update' list.id %}"><button>Cargos</button></a>
+{% if current_user in creator or current_user in admin  %}
+    <a href="{% url 'appsite:tag_create' list.id %}"><button>Criar tag</button></a>
+    <a href="{% url 'appsite:task_create' list.id %}"><button>Criar task</button></a>
+    <a href="{% url 'appsite:list_update' list.id %}"><button>Editar lista</button></a>
+    <a href="{% url 'appsite:invite' list.id %}"><button>Convidar</button></a>
+    <a href="{% url 'appsite:job_update' list.id %}"><button>Cargos</button></a>
+{% endif %}
+{% if current_user in follower or current_user in admin %}
+    <a href="{% url 'appsite:tag_follow' list.id %}">Seguir!</a>
+{% endif %}
+{% if current_user not in follower and current_user not in admin and current_user not in creator %}
+    <a href="{% url 'appsite:tag_follow' list.id %}"><button>Seguir!</button></a>
+{% endif %}
 
 <!--External loop: rendering lists' tasks (adds a new line for the "table")-->
 <!--Internal loop: rendering tags of each list (expands the "table" horizontally)-->

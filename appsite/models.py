@@ -7,9 +7,11 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     picture = models.URLField(max_length=255, null=True)
 
+
 # Tabela de usuários (nativa do Django)
 # class Users(models.Model):
 # ...
+
 
 class List(models.Model):
     name = models.CharField(max_length=255)
@@ -17,9 +19,9 @@ class List(models.Model):
     description = models.CharField(max_length=255, null=True)
     user = models.ManyToManyField(User, through='Job')
 
-# Tabela auxiliar de cargos
-# class JobType(models.Model):
-#     name = models.CharField(max_length=255)
+    def __str__(self):
+        return self.name
+
 
 # Tabela intermediária de Users e Lists (NxN)
 class Job(models.Model):
@@ -30,14 +32,31 @@ class Job(models.Model):
     active_invite = models.BooleanField()
     type = models.IntegerField(choices=job_choices)
 
+
 class Task(models.Model):
     list = models.ForeignKey(List, on_delete=models.CASCADE)
-    origin = models.IntegerField()
+    # original_id is set to null so we can assign the original_id = id
+    # when creating the task
+    original_id = models.IntegerField(blank=True, null=True) 
     name = models.CharField(max_length=255)
     done = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.name
+
+
 class Tag(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    task = models.ManyToManyField(Task)
     name = models.CharField(max_length=255)
     value = models.CharField(max_length=255)
-    user = models.ManyToManyField(User) # Tabela intermediária de Users e Tags (NxN)
+    list = models.ManyToManyField(List, through='Follow') 
+
+    def __str__(self):
+        return self.name
+
+
+# Tabela intermediária de Users e Tags (NxN)
+class Follow(models.Model):
+    list = models.ForeignKey(List, on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    source_id = models.IntegerField()

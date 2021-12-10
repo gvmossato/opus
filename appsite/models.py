@@ -6,6 +6,7 @@ from django.db import models
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     picture = models.URLField(max_length=255, null=True)
+    description = models.TextField(max_length=255, null=True)
 
 
 # Tabela de usuários (nativa do Django)
@@ -16,6 +17,7 @@ class Profile(models.Model):
 class List(models.Model):
     name = models.CharField(max_length=255)
     symbol = models.CharField(max_length=2)
+    picture = models.URLField(max_length=255)
     description = models.CharField(max_length=255, null=True)
     user = models.ManyToManyField(User, through='Job')
 

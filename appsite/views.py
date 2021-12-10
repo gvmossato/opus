@@ -47,6 +47,7 @@ def task_create(request, list_id):
         form = TaskForm(request.POST)
         if form.is_valid():
             task_name = form.cleaned_data['name']
+            # how to put original id?
             task_new = Task(name = task_name, list_id = list_id, original_id = list_id)
             task_new.save()
             tags = list.tag_set.all()
@@ -57,6 +58,24 @@ def task_create(request, list_id):
     context = {'form': form, 'list': list}
     return render(request,'appsite/task_create.html', context)
 
+def task_recurrent(follows,task_new, tag):
+    for follow in follows:
+        list_child = get_object_or_404(List, pk = follow.list_id)
+        # seeing if the task is original
+        task_filter = list_child.task_set.filter(original_id=task_new.original_id)
+        if (task_filter):
+            pass # Not adding tasks that share the same original_id
+        else:
+            # Adding the task to the list
+            task2_new = Task.objects.create(list_id=list_child.id, original_id = task_new.original_id, name = task_new.name, done = task_new.done)
+            task2_new.save()
+            # Linking the tag to this newly created task
+            tag.task.add(task2_new)
+
+            follows2 = tag.follow_set.filter(source_id = list_child.id)
+            task_recurrent(follows2, task2_new, tag)
+    return True
+
 def tag_add(request, task_id, tag_id):
     task_new = get_object_or_404(Task, pk=task_id)
     list = get_object_or_404(List, pk=task_new.list_id)
@@ -64,6 +83,10 @@ def tag_add(request, task_id, tag_id):
     
     tag.task.add(task_new)
     
+    # recurrently adding created task to all lists that follow
+    follows = tag.follow_set.filter(source_id = list.id)
+    task_recurrent(follows,task_new, tag)
+
     tags = list.tag_set.all()
     context = {'task': task_new, 'tags': tags, 'user': request.user}
     return render(request, 'appsite/tag_add.html', context)

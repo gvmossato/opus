@@ -19,3 +19,4 @@ urlpatterns = [
     path('list/<int:pk>/tag/', views.TagCreateView.as_view(), name='tag_create'),
     path('list/<int:pk>/follow/', views.TagFollowView.as_view(), name='tag_follow'),
 ]
+ 

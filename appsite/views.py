@@ -41,16 +41,39 @@ class InviteCreateView(LoginRequiredMixin, generic.CreateView):
     def get_success_url(self):
         return reverse_lazy('appsite:invite', args=(self.kwargs['pk'], )) #redirecting to invite page
 
+# ============= #
+# TASK_CREATION #
+# ============= #
+
+# The code below is not easy to understand, but I will try to do my best
+# to explain it to you, dear reader
+
+# Three functions are necessary in order for the task creation to successful:
+# task_create is the most basic one and just creates the task in the mother-list,
+# tag_add is also simple and just add the tag(s) (each tag added calls this function once),
+# that were specified in the creation proccess of the task.
+
+# Task_recurrent is the hardest one: it will create a copy of the task created, as well its tags
+# in each list that follows the mother list.
+
+# But then, once the child_lists have the new task, it will copy the task and its tags
+# to the lists that follow the child_lists and so on. The algorithm stops when it reaches 
+# a point where not list follows the current list being analyzed.
+
+
+# creating the task
 def task_create(request, list_id):
     list = get_object_or_404(List, pk=list_id)
     if request.method == 'POST':
         form = TaskForm(request.POST)
         if form.is_valid():
             task_name = form.cleaned_data['name']
-            # how to put original id?
+            # original_id can now be NULL, so task_new is created without an original id
             task_new = Task.objects.create(name = task_name, list_id = list_id)
+            # and then the original id is provided to the new task
             task_new.original_id = task_new.id
             task_new.save()
+            # listing all tags in mother-list (its importatn so we can list the tags in tag_add.html)
             tags = list.tag_set.all()
             context = {'task':task_new, 'tags':tags, 'user': request.user}
             return render(request, 'appsite/tag_add.html', context)
@@ -59,8 +82,10 @@ def task_create(request, list_id):
     context = {'form': form, 'list': list}
     return render(request,'appsite/task_create.html', context)
 
+# read tag_add first and then return here
 def task_recurrent(follows,task_new, tag):
     for follow in follows:
+        # getting one of the child-lists of the mother-list provided
         list_child = get_object_or_404(List, pk = follow.list_id)
         # seeing if the task is original
         task_filter = list_child.task_set.filter(original_id=task_new.original_id)
@@ -72,20 +97,25 @@ def task_recurrent(follows,task_new, tag):
             task2_new.save()
             # Linking the tag to this newly created task
             tag.task.add(task2_new)
-
+            # finding the lists that follow
             follows2 = tag.follow_set.filter(source_id = list_child.id)
             task_recurrent(follows2, task2_new, tag)
     return True
 
+# giving a of mother-list tag to the new created task
 def tag_add(request, task_id, tag_id):
+    # getting the object of the new created task (in mother-list)
     task_new = get_object_or_404(Task, pk=task_id)
+    # getting the object for mother-list
     list = get_object_or_404(List, pk=task_new.list_id)
+    # getting the tag to be added 
     tag = get_object_or_404(Tag, pk=tag_id)
-    
+    # adding new task and tag together
     tag.task.add(task_new)
     
-    # recurrently adding created task to all lists that follow
+    # recurrently adding created task to all lists that follow mother-lists' tag
     follows = tag.follow_set.filter(source_id = list.id)
+    # entering in task_recurrent function, let's go there ^
     task_recurrent(follows,task_new, tag)
 
     tags = list.tag_set.all()

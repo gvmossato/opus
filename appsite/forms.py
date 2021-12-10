@@ -2,16 +2,6 @@ from django.forms import ModelForm
 from .models import List, Task, Tag, Job
 
 
-#class UserDataForm(ModelForm):
-#    class Meta:
-#        model = UserData
-#        fields = [
-#            'picture'
-#        ]
-#        labels = {
-#            'picture' : 'Foto (URL)'
-#        }
-
 class ListForm(ModelForm):
     class Meta:
         model = List
@@ -26,6 +16,7 @@ class ListForm(ModelForm):
             'description' : 'Descrição',
         }
 
+
 class TaskForm(ModelForm):
     class Meta:
         model = Task
@@ -35,6 +26,7 @@ class TaskForm(ModelForm):
         labels = {
             'name' : 'Tarefa',
         }
+
 
 class TagForm(ModelForm):
     class Meta:
@@ -48,6 +40,7 @@ class TagForm(ModelForm):
             'value' : 'Tag'
         }
 
+
 class InviteForm(ModelForm):
     class Meta:
         model = Job
@@ -57,6 +50,7 @@ class InviteForm(ModelForm):
         labels = {
             'user' : 'Convidado'
         }
+
 
 class JobForm(ModelForm):
     class Meta:
@@ -69,13 +63,3 @@ class JobForm(ModelForm):
             'user' : 'Usuário',
             'type' : 'Cargos'
         }
-
-#class TagForm(ModelForm):
- #   class Meta:
-  #      model = Tag
-  #      fields = [
-   #         'list'
-   #     ]
-   #     labels = {
-   #         'list': 'Listas'
-   #     }

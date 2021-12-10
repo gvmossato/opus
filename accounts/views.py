@@ -1,7 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.contrib.auth.models import User
 from django.views import generic
 
 from .forms import UserForm

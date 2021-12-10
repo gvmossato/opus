@@ -13,5 +13,7 @@ urlpatterns = [
     path('list/<int:pk>/invite_up/', views.invite_up, name='invite_up'),
     path('list/<int:pk>/invite_down/', views.invite_down, name='invite_down'),
     #path('list/<int:pk>/follow_detail/', views.FollowDetailView.as_view(), name='follow_detail')
-    path('follow_tag/<int:tag_id>/<int:source_id>/<int:list_id>/', views.follow_tag, name='follow_tag')
+    path('follow_tag/<int:tag_id>/<int:source_id>/<int:list_id>/', views.follow_tag, name='follow_tag'),
+    path('list/task_create/<int:list_id>/', views.task_create, name='task_create'),
+    path('list/tag_add/<int:task_id>/<int:tag_id>/', views.tag_add, name='tag_add')
 ]

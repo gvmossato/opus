@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Nova task de {{ list.name }}</h2>
+
+<form action="{% url 'appsite:task_create' list.id %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Criar task</button>
+</form>
+
+<p><a href="{% url 'appsite:list_detail' list.id %}">Voltar para a página da lista</a></p>
+{% endblock content %}

@@ -38,7 +38,6 @@ class Task(models.Model):
     original_id = models.IntegerField()
     name = models.CharField(max_length=255)
     done = models.BooleanField(default=False)
-    #tag = models.ManyToManyField(Tag)
 
     def __str__(self):
         return self.name

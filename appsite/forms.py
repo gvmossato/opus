@@ -70,12 +70,12 @@ class JobForm(ModelForm):
             'type' : 'Cargos'
         }
 
-class TagForm(ModelForm):
-    class Meta:
-        model = Tag
-        fields = [
-            'list'
-        ]
-        labels = {
-            'list': 'Listas'
-        }
+#class TagForm(ModelForm):
+ #   class Meta:
+  #      model = Tag
+  #      fields = [
+   #         'list'
+   #     ]
+   #     labels = {
+   #         'list': 'Listas'
+   #     }

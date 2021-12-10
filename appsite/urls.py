@@ -15,5 +15,7 @@ urlpatterns = [
     #path('list/<int:pk>/follow_detail/', views.FollowDetailView.as_view(), name='follow_detail')
     path('follow_tag/<int:tag_id>/<int:source_id>/<int:list_id>/', views.follow_tag, name='follow_tag'),
     path('list/task_create/<int:list_id>/', views.task_create, name='task_create'),
-    path('list/tag_add/<int:task_id>/<int:tag_id>/', views.tag_add, name='tag_add')
+    path('list/tag_add/<int:task_id>/<int:tag_id>/', views.tag_add, name='tag_add'),
+    path('list/<int:pk>/tag/', views.TagCreateView.as_view(), name='tag_create'),
+    path('list/<int:pk>/follow/', views.TagFollowView.as_view(), name='tag_follow'),
 ]

@@ -35,7 +35,9 @@ class Job(models.Model):
 
 class Task(models.Model):
     list = models.ForeignKey(List, on_delete=models.CASCADE)
-    original_id = models.IntegerField()
+    # original_id is set to null so we can assign the original_id = id
+    # when creating the task
+    original_id = models.IntegerField(blank=True, null=True) 
     name = models.CharField(max_length=255)
     done = models.BooleanField(default=False)
 

@@ -48,7 +48,8 @@ def task_create(request, list_id):
         if form.is_valid():
             task_name = form.cleaned_data['name']
             # how to put original id?
-            task_new = Task(name = task_name, list_id = list_id, original_id = list_id)
+            task_new = Task.objects.create(name = task_name, list_id = list_id)
+            task_new.original_id = task_new.id
             task_new.save()
             tags = list.tag_set.all()
             context = {'task':task_new, 'tags':tags, 'user': request.user}
@@ -226,3 +227,102 @@ def invite_down(request, pk):
 
     return HttpResponseRedirect(
         reverse('appsite:detail', args=(job.user_id, )))
+
+class TagCreateView(LoginRequiredMixin, generic.CreateView):
+    form_class = TagForm
+    template_name = "appsite/tag_create.html"
+
+    def get_success_url(self):       
+        # Obtém lista em que foi criada a tag
+        list_id = self.kwargs['pk']
+        list = List.objects.get(pk=list_id)
+
+        # Obtém tag recém criada  
+        tag = Tag.objects.get(pk=self.object.id)
+        
+        # Linka a mova tag com a lista, através de Follow
+        follow = Follow(list=list, tag=tag, source_id=list_id)
+        follow.save()
+        return reverse_lazy('appsite:list_detail', args=(list_id, ))
+
+# ====== #
+# FOLLOW #
+# ====== #
+
+class TagFollowView(LoginRequiredMixin, generic.CreateView):
+    template_name = 'appsite/tag_follow.html'
+    form_class = TagForm
+
+    # Exibir (tag.name) e (tag.value) da lista a ser seguida
+    # Exibir todas as listas em que o usuário é criador
+
+    def get_context_data(self, **kwargs):
+        current_user = self.request.user
+        jobs = Job.objects.filter(user=current_user, type__gte=3)
+        lists_id = jobs.values_list('list_id', flat=True)
+        lists = List.objects.filter(pk__in=lists_id)
+
+        # Obtém a lista atual
+        list = List.objects.get(pk=self.kwargs['pk'])
+
+        # Obtém todas as tagas da lista
+        tags = Tag.objects.filter(list=list)
+
+        context = {
+            'source': list,
+            'user_allowed_lists' : lists,
+            'source_tags' : tags
+        }
+
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        # Obtém dados do formulário (frontend)
+        post_data = dict(request.POST.lists())
+        post_data.pop('csrfmiddlewaretoken')
+
+        ids = [int(id) for id in list(post_data.keys())]
+
+        list_id = ids[0]
+        tags_id = ids[1:]
+        source_id = self.kwargs['pk']
+
+        list_obj = get_object_or_404(List,pk=list_id)
+        source_obj = get_object_or_404(List,pk=source_id)
+        tags = Tag.objects.filter(pk__in=tags_id) 
+
+        for tag in tags:
+            # Getting all tasks that have the tag and come from the followed list
+            tasks = tag.task.filter(list_id=source_id)
+            # Adding each of these tags to the user's list
+            for task in tasks:
+                # Checking if the task is original in the list of destination
+                if list_obj.task_set.filter(original_id=task.original_id):
+                    pass # Not adding tasks that share the same original_id
+                else:
+                    # Adding the task to the list
+                    task_copy = Task.objects.create(list_id=list_id, original_id=task.original_id, name =task.name, done=False)
+                    task_copy.save()
+                    # Linking all the tags of the task that are followed
+                    # to this newly created task (task_copy)
+                    for tag_copy in [task_og for task_og in task.tag_set.filter() if task_og in tags]:
+                        tag_copy.task.add(task_copy)
+        
+            # Creating new follow object of following list, tag being followed and followed list id
+            # checking if the user has already followed the list with the same list
+            if Follow.objects.filter(list=List.objects.get(pk=list_id), tag=Tag.objects.get(pk=tag.id), source_id=source_id):
+                pass
+            else:
+                follow = Follow(list=List.objects.get(pk=list_id), tag=Tag.objects.get(pk=tag.id), source_id=source_id)
+                follow.save()
+        
+        # Updating user's permission to follower and removing list invite
+        #job = Job.objects.get(list_id=source_id, user_id=request.user.id)
+        if Job.objects.filter(list=source_obj, user=request.user):
+            pass
+        else:
+            job = Job.objects.create(list=source_obj, user=request.user, active_invite= False, type=2)
+            job.save()
+
+        # Redirecting to user's page
+        return HttpResponseRedirect(reverse_lazy('appsite:list_detail', args=(source_id, )))

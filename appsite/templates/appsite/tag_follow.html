@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %} Seguir lista {% endblock title %}
+
+{% block content %}
+
+<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
+<script type='text/javascript'>
+    $(document).ready(function () {
+    $('input[type=radio]').change(function() {
+        $('input[type=radio]:checked').not(this).prop('checked', false);
+    });
+})
+</script>
+
+<h1>Suas listas</h1>
+
+<h1>Tags da lista</h1>
+
+
+
+<form method="POST" action="{% url 'appsite:tag_follow' source.id %}">
+    {% csrf_token %}
+
+    {% for list in user_allowed_lists %}
+        <input type="radio" name="{{ list.id }}">{{ list.name }}</input>
+    {% endfor %}  
+
+    {% for tag in source_tags %}
+        <input type="checkbox" name="{{ tag.id }}">{{ tag.name }} : {{ tag.value }}</input>
+    {% endfor %}
+
+    <button type="submit">Seguir</button>
+</form>
+
+{% endblock content %}

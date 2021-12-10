@@ -5,8 +5,54 @@
 {% block content %}
 
 
+<header class="profile-header">
+    <img src="" alt="profile-pic">
+    <section class="profile-text">
+        <h1>Usuário</h1>
+        <p>Descrição</p>
+    </section>
+</header>
+
+<article class="profile-menus">
+
+    <section class="lists-menu">
+        <div class="lists-menu-title gradient-blue1">
+            <h2>Listas</h2>
+        </div>
+        <div class="lists-menu-cards">
+            <a href="{% url 'appsite:list_create' %}"><button class="blue-button">Criar lista</button></a>
+            {% for list in lists_confirmed %}
+
+            {% include 'components/list_card.html' with
+                card_id=list.id
+                card_pic=list.picture
+                card_symbol=list.symbol
+                card_name=list.name %}
+
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="lists-menu">
+        <div class="lists-menu-title gradient-pink"><h2>Convites</h2></div>
+        <div class="lists-menu-cards">
+            ...
+        </div>
+    </section>
+</article>
+
+
+
+<form method="POST" action="{% url 'appsite:invite_update' profile_user.id %}">
+    {%csrf_token%}
+    <p>{{ list.name }}</p>
+    <input type="submit" name="accept">Aceitar</input>
+    <input type="submit" name="refuse">Recusar</input>
+    <input type="hidden" name="{{ list.id }}" />
+</form>
+
 {% if current_user.id == profile_user.id %}
-    <h1><a href="{% url 'appsite:list_create' %}">Criar lista</a></h1>
+    
 
     {{ current_user.username }}
     <a href="{% url 'logout' %}">Log out</a>
@@ -23,15 +69,7 @@
     <!--job.active_invite = 0 means that the user is already member of that list (not shown in invitations, but in lists)-->
     <section class="lista-de-invites">
 
-        {% for list in lists_pending %}
-        <form method="POST" action="{% url 'appsite:invite_update' profile_user.id %}">
-            {%csrf_token%}
-            <p>{{ list.name }}</p>
-            <input type="submit" name="accept">Aceitar</input>
-            <input type="submit" name="refuse">Recusar</input>
-            <input type="hidden" name="{{ list.id }}" />
-        </form>
-        {% endfor %}
+
 
     </section>
 {% else %}

@@ -1,0 +1,15 @@
+<div class="list-card-wrapper">
+    <a href="{% url 'appsite:list_detail' card_id %}">
+        <section class="list-card">
+            <aside class="list-card-left">
+                <img src="card_pic" alt="list-card-pic" />
+                <div class="round">
+                    <h3>{{ card_symbol }}</h3>
+                </div>
+            </aside>            
+            <div class="list-card-text">
+                <h3>{{ card_name }}</h3>
+            </div>
+        </section>
+    </a>
+</div>

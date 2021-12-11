@@ -25,12 +25,11 @@
     <a href="{% url 'appsite:invite' list.id %}"><button>Convidar</button></a>
     <a href="{% url 'appsite:job_update' list.id %}"><button>Cargos</button></a>
 {% endif %}
-{% if current_user in follower or current_user in admin %}
+{% if current_user in guest or current_user in follower or current_user in admin%}
     <a href="{% url 'appsite:tag_follow' list.id %}">Seguir!</a>
 {% endif %}
-{% if current_user not in follower and current_user not in admin and current_user not in creator %}
-    <a href="{% url 'appsite:tag_follow' list.id %}"><button>Seguir!</button></a>
-{% endif %}
+
+<a href="{% url 'appsite:detail' current_user.id %}"><button>Voltar</button></a>
 
 <!--External loop: rendering lists' tasks (adds a new line for the "table")-->
 <!--Internal loop: rendering tags of each list (expands the "table" horizontally)-->

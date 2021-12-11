@@ -91,6 +91,7 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
         # Obtém dados do formulário (frontend)
         post_data = dict(request.POST.lists())
         post_data.pop('csrfmiddlewaretoken')
+        print(post_data)
 
         ids = [int(id) for id in list(post_data.keys())]
 
@@ -487,6 +488,22 @@ class TagUnfollowView(LoginRequiredMixin, generic.UpdateView):
         list_id = self.kwargs['pk']
         # Redirecting to lists's page
         return HttpResponseRedirect(reverse_lazy('appsite:list_detail', args=(list_id, )))
+
+class ListUntrackView(LoginRequiredMixin, generic.UpdateView):
+    model = List
+    template_name = 'appsite/list_untrack.html'
+
+    def get_context_data(self, **kwargs):        
+        context = super().get_context_data(**kwargs)        
+        context['list_id'] = self.kwargs['pk']
+        return context
+
+    def get_success_url(self):
+        #lists = self.request.user.list_set.all()
+        Follow.objects.filter(source_id = self.kwargs['pk'],
+         list_id__in = self.request.user.list_set.values_list('id', flat = True)).delete()
+        Job.objects.get(list_id=self.kwargs['pk'], user_id = self.request.user).delete()
+        return reverse_lazy('appsite:detail', args=(self.request.user.id, ))
 
         
 

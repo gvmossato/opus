@@ -31,6 +31,7 @@
 {% endif %}
 {% if current_user in guest or current_user in follower or current_user in admin%}
     <a href="{% url 'appsite:tag_follow' list.id %}">Seguir!</a>
+    <a href="{% url 'appsite:list_untrack' list.id%}">Untrack</a>
 {% endif %}
 
 <a href="{% url 'appsite:detail' current_user.id %}"><button>Voltar</button></a>

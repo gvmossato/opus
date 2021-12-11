@@ -354,9 +354,6 @@ class ProfileUpdateView(LoginRequiredMixin, generic.UpdateView):
     form_class = ProfileForm
     template_name = 'appsite/profile_update.html'
 
-    #def get_context_data(self, **kwargs):
-        #return super().get_context_data(**kwargs)
-
     def get_success_url(self):
         return reverse_lazy('appsite:detail', args=(self.request.user.id, )) 
 
@@ -412,12 +409,15 @@ class TagUnfollowView(LoginRequiredMixin, generic.UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        #context['list'] = List.objects.get(pk = self.kwargs['pk'])
-        #context['follows'] = Follow.objects.filter(list_id = self.kwargs['pk'])
         follows = Follow.objects.filter(list_id = self.kwargs['pk'])
+
+        # Creating a list that each item will be a list of [tag,list,follow]
+        # So we can unpack the three together in the front-end, in order to obtain tag.name, list.name and follow.id
         follows_list = []
         for follow in follows:
             follows_list.append([Tag.objects.get(pk=follow.tag_id), List.objects.get(pk=follow.source_id), follow])
+        
+        # Passing this list of lists in context (to the front)
         context['follows_list'] = follows_list
         print(follows_list)
         return context
@@ -427,7 +427,7 @@ class TagUnfollowView(LoginRequiredMixin, generic.UpdateView):
         post_data = dict(request.POST)
         post_data.pop('csrfmiddlewaretoken')
 
-        # deleting selected follows_objects
+        # Deleting selected follows_objects
         follow_ids = [int(id) for id in list(post_data.keys())]
         Follow.objects.filter(pk__in=follow_ids).delete()
         

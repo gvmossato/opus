@@ -88,12 +88,12 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
         return context
     
     def post(self, request, *args, **kwargs):
-        # Obtém dados do formulário (frontend)
-        post_data = dict(request.POST.lists())
-        post_data.pop('csrfmiddlewaretoken')
-        print(post_data)
+        # Obtém dados do formulário (frontend) e remove token
+        post_data = list( dict(request.POST.lists()).keys() )
+        post_data = post_data[1:]
 
-        ids = [int(id) for id in list(post_data.keys())]
+        # Recorta valor numérico dos ids de lista e tag
+        ids = [int(id[1:]) for id in post_data]
 
         list_id = ids[0]
         tags_id = ids[1:]

@@ -338,5 +338,18 @@ class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
     form_class = TaskForm
     template_name = 'appsite/task_update.html'
 
+    def get_context_data(self, **kwargs):        
+        context = super().get_context_data(**kwargs)        
+        context['task_id'] = self.kwargs['pk']
+        context['list_id'] = Task.objects.get(pk = self.kwargs['pk']).list_id
+        return context
+
     def get_success_url(self):
         return reverse_lazy('appsite:list_detail', args=(Task.objects.get(pk = self.kwargs['pk']).list_id, ))
+
+class TaskDeleteView(LoginRequiredMixin, generic.DeleteView):
+    model = Task
+    template_name = 'appsite/task_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('appsite:list_detail', args=(Task.objects.get(pk = self.kwargs['list_id']).list_id, ))

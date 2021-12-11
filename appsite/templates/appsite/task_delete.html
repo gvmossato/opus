@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %} Task {% endblock title %}
+
+{% block content %}
+<h1>Deletar task</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    <p>Você tem certeza que deseja deletar essa task?</p>
+    <button type="submit">Deletar</button>
+</form>
+
+{% endblock content %}

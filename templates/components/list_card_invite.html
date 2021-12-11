@@ -10,6 +10,12 @@
             <div class="list-card-text">
                 <h2>{{ card_name }}</h2>
             </div>
+            <form method="POST" action="{% url 'appsite:invite_update' user_id %}">
+                {%csrf_token%}
+                <input type="submit" class="action-button accept" name="accept" value="" />
+                <input type="submit" class="action-button refuse" name="refuse" value="" />
+                <input type="hidden" name="{{ card_id }}" />
+            </form>
         </section>
     </a>
 </div>

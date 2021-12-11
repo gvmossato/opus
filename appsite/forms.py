@@ -8,11 +8,13 @@ class ListForm(ModelForm):
         fields = [
             'name',
             'symbol',
+            'picture',
             'description',
         ]
         labels = {
             'name' : 'Nome',
             'symbol' : 'Ícone',
+            'picture' : 'Imagem (URL)',
             'description' : 'Descrição',
         }
 

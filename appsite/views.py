@@ -318,10 +318,9 @@ class InviteUpdateView(LoginRequiredMixin, generic.UpdateView):
         elif response == 'refuse':
             job.delete()
         else:
-            raise ValueError("Expected 'accept' or 'refuse' for invite update response.")
+            pass
             
-        return super().post(request, *args, **kwargs)
+        return HttpResponseRedirect( reverse_lazy('appsite:detail', args=(self.kwargs['pk'], )) )
 
-    def get_success_url(self):
-        self.request.POST.get
-        return reverse_lazy('appsite:detail', args=(self.object.id, ))
+    # def get_success_url(self):
+    #     return reverse_lazy('appsite:detail', args=(self.object.id, ))

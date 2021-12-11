@@ -1,16 +1,22 @@
 {% extends 'base.html' %}
 
-{% block title %} profile_user.name {% endblock title %}
+{% block title %} @{{ profile_user.username }} {% endblock title %}
 
 {% block content %}
 
 
 <header class="profile-header">
-    <img src="" alt="profile-pic">
+    <div class="round">
+        <img src="{{ profile_user.profile.picture }}" alt="profile-pic">
+    </div>
     <section class="profile-text">
-        <h1>Usuário</h1>
-        <p>Descrição</p>
+        <div class="profile-header-upper">
+            <h1 class="color-light-gray">@</h1><h1>{{ profile_user.username }}</h1>
+            <a href="{% url 'logout' %}"><button class="blue-button logout-button">Sair</button></a>
+        </div>
+        <p>{{ profile_user.profile.description }}</p>
     </section>
+    <button class="profile-edit-button">O</button>
 </header>
 
 <article class="profile-menus">
@@ -19,8 +25,10 @@
         <div class="lists-menu-title gradient-blue1">
             <h2>Listas</h2>
         </div>
+        <a href="{% url 'appsite:list_create' %}">
+            <button class="blue-button list-create-button">Criar lista</button>
+        </a>
         <div class="lists-menu-cards">
-            <a href="{% url 'appsite:list_create' %}"><button class="blue-button">Criar lista</button></a>
             {% for list in lists_confirmed %}
 
             {% include 'components/list_card.html' with
@@ -34,9 +42,23 @@
     </section>
 
     <section class="lists-menu">
-        <div class="lists-menu-title gradient-pink"><h2>Convites</h2></div>
+        <div class="lists-menu-title gradient-pink">
+            <h2>Convites</h2>
+        </div>
+        <a href="{% url 'appsite:list_create' %}">
+            <button class="blue-button list-create-button">Criar lista</button>
+        </a>
         <div class="lists-menu-cards">
-            ...
+            {% for list in lists_pending %}
+
+            {% include 'components/list_card_invite.html' with
+                card_id=list.id
+                card_pic=list.picture
+                card_symbol=list.symbol
+                card_name=list.name
+                user_id=profile_user.id %}
+
+            {% endfor %}
         </div>
     </section>
 </article>
@@ -55,7 +77,7 @@
     
 
     {{ current_user.username }}
-    <a href="{% url 'logout' %}">Log out</a>
+    <a >Log out</a>
 
     <!-- crap implementation O(n^2) of list of lists and list of invites in the user's profile -->
     <section class="lista-de-listas">

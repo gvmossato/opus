@@ -404,3 +404,37 @@ class ListDeleteView(LoginRequiredMixin, generic.DeleteView):
         Task.objects.filter(list_id=self.kwargs['pk']).delete()
         Job.objects.filter(list_id=self.kwargs['pk']).delete()
         return reverse_lazy('appsite:detail', args=(self.request.user.id, ))
+
+class TagUnfollowView(LoginRequiredMixin, generic.UpdateView):
+    model = List
+    form_class = ListForm
+    template_name = 'appsite/tag_unfollow.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        #context['list'] = List.objects.get(pk = self.kwargs['pk'])
+        #context['follows'] = Follow.objects.filter(list_id = self.kwargs['pk'])
+        follows = Follow.objects.filter(list_id = self.kwargs['pk'])
+        follows_list = []
+        for follow in follows:
+            follows_list.append([Tag.objects.get(pk=follow.tag_id), List.objects.get(pk=follow.source_id), follow])
+        context['follows_list'] = follows_list
+        print(follows_list)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        # Obtém dados do formulário (frontend)
+        post_data = dict(request.POST)
+        post_data.pop('csrfmiddlewaretoken')
+
+        # deleting selected follows_objects
+        follow_ids = [int(id) for id in list(post_data.keys())]
+        Follow.objects.filter(pk__in=follow_ids).delete()
+        
+        list_id = self.kwargs['pk']
+        # Redirecting to lists's page
+        return HttpResponseRedirect(reverse_lazy('appsite:list_detail', args=(list_id, )))
+
+        
+
+    

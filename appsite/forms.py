@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from .models import List, Task, Tag, Job
+from .models import List, Task, Tag, Job, Profile
 
 
 class ListForm(ModelForm):
@@ -64,4 +64,16 @@ class JobForm(ModelForm):
         labels = {
             'user' : 'Usuário',
             'type' : 'Cargos'
+        }
+
+class ProfileForm(ModelForm):
+    class Meta:
+        model = Profile
+        fields = [
+            'picture',
+            'description'
+        ]
+        labels = {
+            'picture' : 'Foto do perfil',
+            'type' : 'Descrição'
         }

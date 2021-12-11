@@ -20,7 +20,7 @@
         <p>{{ profile_user.profile.description }}</p>
     </section>
     {% if current_user.id == profile_user.id %}
-        <button class="profile-edit-button">O</button>
+        <a href="{% url 'appsite:profile_update' profile_user.profile.id %}"><button class="profile-edit-button">O</button></a>
     {% endif %}
 </header>
 

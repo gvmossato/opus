@@ -6,6 +6,7 @@ app_name='appsite'
 urlpatterns = [
     path('user/<int:pk>/', views.UserDetailView.as_view(), name='detail'),
     path('user/<int:pk>/invite', views.InviteUpdateView.as_view(), name='invite_update'),
+    path('user/<int:pk>/update', views.ProfileUpdateView.as_view(), name='profile_update'),
 
     path('list_create/',          views.ListCreateView.as_view(), name='list_create'),    
     path('list_update/<int:pk>/', views.ListUpdateView.as_view(), name='list_update'),

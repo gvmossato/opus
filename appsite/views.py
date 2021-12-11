@@ -5,8 +5,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 
-from .models import List, Job, Tag, Follow, Task
-from .forms import ListForm, InviteForm, JobForm, TagForm, TaskForm
+from .models import List, Job, Profile, Tag, Follow, Task
+from .forms import ListForm, InviteForm, JobForm, ProfileForm, TagForm, TaskForm
 
 # ====== #
 # CREATE #
@@ -242,7 +242,7 @@ class UserDetailView(LoginRequiredMixin, generic.DetailView):
             'current_user'    : current_user,
             'profile_user'    : profile_user,
             'lists_pending'   : lists_pending,
-            'lists_confirmed' : lists_confirmed
+            'lists_confirmed' : lists_confirmed,
         }
 
         return context
@@ -321,3 +321,14 @@ class InviteUpdateView(LoginRequiredMixin, generic.UpdateView):
             pass
             
         return HttpResponseRedirect( reverse_lazy('appsite:detail', args=(self.kwargs['pk'], )) )
+
+class ProfileUpdateView(LoginRequiredMixin, generic.UpdateView):
+    model = Profile
+    form_class = ProfileForm
+    template_name = 'appsite/profile_update.html'
+
+    #def get_context_data(self, **kwargs):
+        #return super().get_context_data(**kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('appsite:detail', args=(self.request.user.id, )) 

@@ -273,6 +273,7 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
 
         return context
 
+
 # ====== #
 # UPDATE #
 # ====== #

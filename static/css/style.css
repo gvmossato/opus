@@ -100,6 +100,16 @@ a {
     color: unset;
 }
 
+h1 {
+    font-size: 25pt;
+    margin: 0;
+}
+
+h2 {
+    font-size: 20pt;
+    margin: 0;
+}
+
 p {
     margin: 0;
 }
@@ -275,6 +285,7 @@ img[alt="profile-pic"]{
 .profile-header-upper {
     display: flex;
     align-items: center;
+    margin-bottom: 1vw;
 }
 
 .profile-menus {
@@ -284,14 +295,19 @@ img[alt="profile-pic"]{
 
 .lists-menu {
     position: relative;
+    display: flex;
+    flex-direction: column;
     border-radius: var(--default-border-radius);
     background-color: white;
     width: 48%;
     height: 38vw;
+    align-items: center;
 }
 
 .lists-menu-title {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: absolute;
     top: 0;
     border-radius: var(--default-border-radius) var(--default-border-radius) 0 0;
@@ -302,9 +318,10 @@ img[alt="profile-pic"]{
 
 .lists-menu-buttons-container {
     display: flex;
-    justify-content: flex-end;
     align-items: center;
+    justify-content: space-between !important; 
     margin-top: 4.5vw;
+    width: 28vw;
     height: 4vw;
 }
 
@@ -313,9 +330,10 @@ img[alt="profile-pic"]{
     width: 10vw;
     border-radius:100vw;
     text-align: right;
-    margin-right: 4vw;
+
     padding: 0.5vw 2vw 0.5vw 0.5vw;
     color: white;
+    flex-grow: 1;
 }
 
 
@@ -344,6 +362,16 @@ img[alt="profile-pic"]{
 
 }
 
+.lists-menu-empty {
+    position: absolute;
+    bottom: 2vw;
+    text-align: center;
+    line-height: 40pt;
+    color: white;
+    padding:0.5vw;
+    width: 27vw;
+    border-radius: var(--default-border-radius);
+}
 
 .lists-menu-cards {
     display: flex;
@@ -355,23 +383,28 @@ img[alt="profile-pic"]{
 
 .logout-button {
     margin-left: 1vw;
-    width: 3vw;
+    width: 5vw;
     height: 1.5vw;
 }
 
-.profile-edit-button {
+.profile-config-button {
     position: absolute;
+    object-position: center;
     right: 1vw;
     top: 1vw;
     width: 2.5vw;
     height: 2.5vw;
     border-radius: 10vw;
+    padding:0.5vw;
 }
 
-.profile-edit-button:hover {
-    background-color: var(--color-white4);
+img[alt="profile-config-icon"] {
+    opacity: 0.5;
 }
 
+img[alt="profile-config-icon"]:hover {
+    opacity: 0.7;
+}
 
 /* ========= */
 /* LIST CARD */
@@ -379,7 +412,8 @@ img[alt="profile-pic"]{
 
 .list-card {
     display: flex;
-    width: 27vw;
+    width: 26vw;
+    margin-right: 1vw;
     height: var(--list-card-height);
     background-color: var(--color-white2);
     border-radius: calc(var(--default-border-radius) / 2);
@@ -456,3 +490,14 @@ img[alt="list-card-pic"] {
     background-color: rgb(199, 0, 0);
 }
 
+input[name="accept"] {
+    background-image: url("../images/icons/check.svg");
+    background-repeat: round;
+    margin: 3px auto;
+}
+
+input[name="refuse"] {
+    background-image: url("../images/icons/plus.svg");
+    background-repeat: round;
+    margin: 3px auto;
+}

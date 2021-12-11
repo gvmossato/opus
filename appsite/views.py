@@ -332,3 +332,11 @@ class ProfileUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('appsite:detail', args=(self.request.user.id, )) 
+
+class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
+    model = Task
+    form_class = TaskForm
+    template_name = 'appsite/task_update.html'
+
+    def get_success_url(self):
+        return reverse_lazy('appsite:list_detail', args=(Task.objects.get(pk = self.kwargs['pk']).list_id, ))

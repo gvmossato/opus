@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %} Perfil {% endblock title %}
+
+{% block content %}
+<h1>Editar perfil</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Editar</button>
+</form>
+
+{% endblock content %}

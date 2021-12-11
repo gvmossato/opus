@@ -59,8 +59,8 @@
             <div class="lists-menu-buttons-container">
                 <form method="POST" action="{% url 'appsite:invite_update_all' profile_user.id %}">
                     {%csrf_token%}
-                    <input type="submit" class="action-button accept" name="accept" value="Aceitar tudo" />
-                    <input type="submit" class="action-button refuse" name="refuse" value="Recusar tudo" />
+                    <input type="submit" class="accept lists-menu-button" name="accept" value="Aceitar tudo" />
+                    <input type="submit" class="refuse lists-menu-button" name="refuse" value="Recusar tudo" />
                 </form>
             </div>
         {% endif %}

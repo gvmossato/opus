@@ -16,6 +16,7 @@ urlpatterns = [
     path('list/<int:pk>/jobs/',   views.JobUpdateView.as_view(),    name='job_update'),
     path('list/<int:pk>/tag/',    views.TagCreateView.as_view(),    name='tag_create'),
     path('list/<int:pk>/follow/', views.TagFollowView.as_view(),    name='tag_follow'),
+    path('list/<int:pk>/delete/', views.ListDeleteView.as_view(),   name='list_delete'),
     
     path('list/tag_add/<int:task_id>/<int:tag_id>/', views.tag_add,     name='tag_add'),
     path('list/task_create/<int:list_id>/',          views.task_create, name='task_create'),

@@ -25,6 +25,9 @@
     <a href="{% url 'appsite:invite' list.id %}"><button>Convidar</button></a>
     <a href="{% url 'appsite:job_update' list.id %}"><button>Cargos</button></a>
 {% endif %}
+{% if current_user in creator %}
+    <a href="{% url 'appsite:list_delete' list.id %}"><button>Deletar lista</button></a>
+{% endif %}
 {% if current_user in guest or current_user in follower or current_user in admin%}
     <a href="{% url 'appsite:tag_follow' list.id %}">Seguir!</a>
 {% endif %}

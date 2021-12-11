@@ -347,6 +347,10 @@ class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
     def get_success_url(self):
         return reverse_lazy('appsite:list_detail', args=(Task.objects.get(pk = self.kwargs['pk']).list_id, ))
 
+# ====== #
+# DELETE #
+# ====== #
+
 class TaskDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Task
     template_name = 'appsite/task_delete.html'
@@ -358,3 +362,18 @@ class TaskDeleteView(LoginRequiredMixin, generic.DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('appsite:list_detail', args=(self.kwargs['list_id'], ))
+
+class ListDeleteView(LoginRequiredMixin, generic.DeleteView):
+    model = List
+    template_name = 'appsite/list_delete.html'
+
+    def get_context_data(self, **kwargs):        
+        context = super().get_context_data(**kwargs)        
+        context['list_id'] = self.kwargs['pk']
+        return context
+
+    def get_success_url(self):
+        Follow.objects.filter(list_id = self.kwargs['pk']).delete()
+        Task.objects.filter(list_id=self.kwargs['pk']).delete()
+        Job.objects.filter(list_id=self.kwargs['pk']).delete()
+        return reverse_lazy('appsite:detail', args=(self.request.user.id, ))

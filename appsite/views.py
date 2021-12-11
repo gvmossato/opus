@@ -77,7 +77,8 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
         list = List.objects.get(pk=self.kwargs['pk'])
 
         # Obtém todas as tagas da lista
-        tags = Tag.objects.filter(list=list)
+        #tags = Tag.objects.filter(list=list)
+        tags = list.tag_set.all().distinct()
 
         context = {
             'source': list,
@@ -121,7 +122,7 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
                         tag_copy.task.add(task_copy)
         
             # Creating new follow object of following list, tag being followed and followed list id
-            # checking if the user has already followed the list with the same list
+            # checking if the user has already followed the tag (from the same source id) with the same list
             if (Follow.objects.filter(list=List.objects.get(pk=list_id), tag=Tag.objects.get(pk=tag.id), source_id=source_id) ):
                 pass
             else:
@@ -172,9 +173,11 @@ def task_create(request, list_id):
 
 # Read tag_add first and then return here
 def task_recurrent(follows,task_new, tags_add):
-    
     # Iterating over each list the follows mother-list
     for follow in follows:
+
+        # Getting the id of mother-list:
+        source_id = task_new.list_id
 
         # Getting one of the child-lists that the mother-list provided
         list_child = get_object_or_404(List, pk = follow.list_id)
@@ -184,30 +187,34 @@ def task_recurrent(follows,task_new, tags_add):
         
         if (task_filter):
            
-            pass # Not adding tasks that share the same original_id
+            task2_new = Task.objects.get(original_id = task_new.original_id, list_id = list_child.id) # Not adding tasks that share the same original_id
         
         else:
             
-            # Adding the task to the list
+            # Adding the task to the list: now task_new refers to the task created on the child-list
+            # ( this is useful to shorten the length of the code )
             task2_new = Task.objects.create(list_id=list_child.id, original_id = task_new.original_id, name = task_new.name, done = task_new.done)
             task2_new.save()
             
-            # Finding the tags that the child list follow from the mother-list
-            temp_child_follows = Follow.objects.filter(list_id = list_child.id, source_id = task_new.list_id)
-            tags_child_follows = [Tag.objects.get(pk = follow.tag_id) for follow in temp_child_follows]
-            
-            # Filtering the tags that the new task from mother-list has AND this new list follows from the mother-list
-            tags_filtered = [tag for tag in tags_child_follows if tag in tags_add]
-            # Getting the ids of these filtered tasks
-            tags_filtered_id = [tag.id for tag in tags_filtered]
+        # Finding the tags that the child list follow from the mother-list
+        temp_child_follows = Follow.objects.filter(list_id = list_child, source_id = source_id)
+        tags_child_follows = [Tag.objects.get(pk = follow.tag_id) for follow in temp_child_follows]
+        
+        # Filtering the tags that the new task from mother-list has AND this new list follows from the mother-list
+        tags_filtered = [tag for tag in tags_child_follows if (tag in tags_add)]
+        # Getting the ids of these filtered tasks
+        tags_filtered_id = [tag.id for tag in tags_filtered]
+        # Finding the tags that have not been added yet to the new task
+        tags_filtered_new = [tag for tag in tags_filtered if tag not in task2_new.tag_set.all()]
 
-            # Linking the tags filtered to this newly created task
-            for tag in tags_filtered:
+        if (tags_filtered_new):
+            # Linking the filtered tags that haven't been linked yet to this newly created task
+            for tag in tags_filtered_new:
                 tag.task.add(task2_new)
         
             # Finding the lists that follow the tags of the new created task from child list
             follows2 = Follow.objects.filter(tag_id__in = tags_filtered_id, source_id = list_child.id).distinct()
-            
+        
             # Continuing the recurrence
             task_recurrent(follows2, task2_new, tags_filtered)
 
@@ -228,7 +235,7 @@ class TagAddView(LoginRequiredMixin, generic.CreateView):
         source = List.objects.get(pk = task_new.list_id)
         
         # Getting the tags that this mother-list follows
-        tags = source.tag_set.all()
+        tags = source.tag_set.all().distinct()
 
         # Getting the current user making the request
         user = self.request.user
@@ -384,7 +391,6 @@ class InviteUpdateAllView(LoginRequiredMixin, generic.UpdateView):
         # Obtém dados do formulário (frontend)
         post_data = dict(request.POST.lists()).keys()
         post_data = list(post_data)[1:]
-        print(post_data)
 
         response = post_data[0]
 
@@ -473,7 +479,6 @@ class TagUnfollowView(LoginRequiredMixin, generic.UpdateView):
         
         # Passing this list of lists in context (to the front)
         context['follows_list'] = follows_list
-        print(follows_list)
         return context
 
     def post(self, request, *args, **kwargs):

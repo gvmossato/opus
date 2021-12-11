@@ -137,74 +137,84 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
         # Redirecting to user's page
         return HttpResponseRedirect(reverse_lazy('appsite:list_detail', args=(source_id, )))
 
-
-# TASK CREATION
-#
-# The code below is not easy to understand, but I will try to do my best
-# to explain it to you, dear reader
-#
-# Three functions are necessary in order for the task creation to successful:
-# task_create is the most basic one and just creates the task in the mother-list,
-# tag_add is also simple and just add the tag(s) (each tag added calls this function once),
-# that were specified in the creation proccess of the task.
-#
-# Task_recurrent is the hardest one: it will create a copy of the task created, as well its tags
-# in each list that follows the mother list.
-#
-# But then, once the child_lists have the new task, it will copy the task and its tags
-# to the lists that follow the child_lists and so on. The algorithm stops when it reaches 
-# a point where not list follows the current list being analyzed.
-
+# This is the function responsible for adding a new task to a list
 def task_create(request, list_id):
+    # Getting the object that the new task will be created in
     list = get_object_or_404(List, pk=list_id)
-    if request.method == 'POST':
+
+    if request.method == 'POST': # If request method is POST (sent from the form)
         form = TaskForm(request.POST)
         if form.is_valid():
+
+            # Getting the data form the form 
             task_name = form.cleaned_data['name']
-            # original_id can now be NULL, so task_new is created without an original id
+
+            # Original_id can now be NULL, so task_new is created without an original id
             task_new = Task.objects.create(name = task_name, list_id = list_id)
-            # And then the original id is provided to the new task
+
+            # And then the original id is provided to the new task and the task is saved on the database
             task_new.original_id = task_new.id
             task_new.save()
-            # Listing all tags in mother-list (its importatn so we can list the tags in tag_add.html)
+
+            # Redirecting to the view that will be responsible for adding tags to this new task
             return HttpResponseRedirect(reverse_lazy('appsite:tag_add', args=(task_new.id, )))
-    else:
+
+    else: # If request method is not POST
+
+        # The form that will be rendered in the page
         form = TaskForm()
+
+    # Loading the page of task creation (a generic form)
     context = {'form': form, 'list': list}
     return render(request,'appsite/task_create.html', context)
 
+
 # Read tag_add first and then return here
 def task_recurrent(follows,task_new, tags_add):
+    
+    # Iterating over each list the follows mother-list
     for follow in follows:
-        # getting one of the child-lists that the mother-list provided
+
+        # Getting one of the child-lists that the mother-list provided
         list_child = get_object_or_404(List, pk = follow.list_id)
-        # seeing if the task is original
+
+        # Seeing if the task is original
         task_filter = list_child.task_set.filter(original_id=task_new.original_id)
+        
         if (task_filter):
+           
             pass # Not adding tasks that share the same original_id
+        
         else:
+            
             # Adding the task to the list
             task2_new = Task.objects.create(list_id=list_child.id, original_id = task_new.original_id, name = task_new.name, done = task_new.done)
             task2_new.save()
+            
             # Finding the tags that the child list follow from the mother-list
-            list_child_follows = Follow.objects.filter(list_id = list_child.id, source_id = task_new.list_id)
-            tags_filtered = [Tag.objects.get(pk = follow.tag_id) for follow in list_child_follows]
+            temp_child_follows = Follow.objects.filter(list_id = list_child.id, source_id = task_new.list_id)
+            tags_child_follows = [Tag.objects.get(pk = follow.tag_id) for follow in temp_child_follows]
+            
             # Filtering the tags that the new task from mother-list has AND this new list follows from the mother-list
-
-            #tags_filtered = [tag for tag in tags_add if tag in list_child.tag_set.filter(source_id = task_new.list_id)]
-
+            tags_filtered = [tag for tag in tags_child_follows if tag in tags_add]
             # Getting the ids of these filtered tasks
             tags_filtered_id = [tag.id for tag in tags_filtered]
+
             # Linking the tags filtered to this newly created task
             for tag in tags_filtered:
                 tag.task.add(task2_new)
+        
             # Finding the lists that follow the tags of the new created task from child list
             follows2 = Follow.objects.filter(tag_id__in = tags_filtered_id, source_id = list_child.id).distinct()
+            
             # Continuing the recurrence
             task_recurrent(follows2, task2_new, tags_filtered)
+
     return True
 
 class TagAddView(LoginRequiredMixin, generic.CreateView):
+    
+    # Basic generic class initial lines 
     template_name = 'appsite/tag_add.html'
     form_class = TaskForm
 
@@ -230,6 +240,7 @@ class TagAddView(LoginRequiredMixin, generic.CreateView):
         return context
 
     def post(self, request, *args, **kwargs):
+
         # Obtém dados do formulário (frontend)
         post_data = dict(request.POST.lists())
         post_data.pop('csrfmiddlewaretoken')

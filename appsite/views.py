@@ -449,6 +449,7 @@ class ListDeleteView(LoginRequiredMixin, generic.DeleteView):
         return context
 
     def get_success_url(self):
+        Follow.objects.filter(source_id = self.kwargs['pk']).delete()
         Follow.objects.filter(list_id = self.kwargs['pk']).delete()
         Task.objects.filter(list_id=self.kwargs['pk']).delete()
         Job.objects.filter(list_id=self.kwargs['pk']).delete()

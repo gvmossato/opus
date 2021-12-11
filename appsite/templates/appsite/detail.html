@@ -7,7 +7,7 @@
 
 <header class="profile-header">
     <div class="round">
-        <img src="{{ profile_user.profile.picture }}" alt="profile-pic">
+        <img src="{{ profile_user.profile.picture }}" alt="profile-pic" />
     </div>
     <section class="profile-text">
         <div class="profile-header-upper">
@@ -26,7 +26,7 @@
     </section>
     {% if current_user.id == profile_user.id %}
         <button class="profile-config-button">
-            <img src="{% static 'images/icons/cog.svg' %}" alt="profile-config-icon">
+            <img src="{% static 'images/icons/cog.svg' %}" alt="profile-config-icon" />
         </button>
     {% endif %}
 </header>

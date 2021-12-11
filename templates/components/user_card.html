@@ -1,0 +1,17 @@
+{% load static %}
+
+<section>
+    <button class="profile-config-button">
+        <img src="{% static 'images/icons/cog.svg' %}" alt="profile-config-icon" />
+    </button>
+    <a href="{% url 'appsite:detail' user_id %}">
+        <div class="user-card-profile">
+            <img src="{{ user_picture }}" alt="user-card-pic" />
+            <h2>{{ user_name }}</h2>
+        </div>
+    </a>    
+    <h3>{{ user_job }}</h3>
+    <a href="{% url 'logout' %}">
+        <button class="blue-button logout-button">Sair</button>
+    </a>
+</section>

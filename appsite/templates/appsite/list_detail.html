@@ -1,22 +1,66 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %} {{ list.name }} {% endblock title %}
 
 {% block content %}
 
-<h2>Nome: {{ list.name }}</h2>
-<h2>Símbolo: {{ list.symbol }}</h2>
-<h3>Descrição: {{ list.description }}</h3>
-<h4>Criador: {{ creator.first.username }}</h4>
+<header class="list-header">
+    <div class="list-header-upper">
+        <div class="round">
+            <span>{{ list.symbol }}</span>
+        </div>
+        <div class="list-header-info">
+            <h1 class="list-title">{{ list.name }}</h1>
+            <p>Criado por @{{ creator.first.name }} em {{ list.date }}</p>
+        </div>
+        <a href="{% url 'appsite:tag_follow' list.id %}">
+            <button class="blue-button logout-button">Sair</button>
+        </a>
+    </div>
+    <p>{{ list.description }}</p>
+</header>
 
-<ul>
-{% for f in guest %}
-    <li>{{ f.username }}</li>
-    <li>{{ f.email }}</li>
-    <li>{{ f.picture }}</li>
-    <br>
-{% endfor %}
-</ul>
+
+<article>
+    A LISTA VAI AQUI
+</article>
+
+
+<aside class="list-right">
+
+    <article class="list-user-card">        
+        {% include 'components/user_card.html' with 
+            user_id=current_user.id
+            user_picture=current_user.profile.picture
+            user_name=current_user.username
+            user_job='' %}
+    </article>
+
+    <article class="list-social">
+        <section class="list-social-creator">
+            <h3>Criador</h3>
+            <img src="{{ creator.first.profile.picture }}"/>         
+        </section>
+        <section class="list-social-admins">
+            <h3>Administradores</h3>
+            {% for user in admin|slice:":4" %}
+                <img src="{{ user.profile.picture }}"/>
+            {% endfor %}            
+        </section>
+        <section class="list-social-followers">
+            <h3>Seguidores</h3>
+            {% for user in follower|slice:":10" %}
+                <img src="{{ user.profile.picture }}"/>
+            {% endfor %} 
+        </section>
+    </article>
+
+</aside>
+
+
+
+
 
 {% if current_user in creator or current_user in admin  %}
     <a href="{% url 'appsite:tag_create' list.id %}"><button>Criar tag</button></a>

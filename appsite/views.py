@@ -212,6 +212,7 @@ def task_recurrent(follows,task_new, tags_add):
 
     return True
 
+# Add tags to new task 
 class TagAddView(LoginRequiredMixin, generic.CreateView):
     
     # Basic generic class initial lines 

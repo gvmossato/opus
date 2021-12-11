@@ -351,5 +351,10 @@ class TaskDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Task
     template_name = 'appsite/task_delete.html'
 
+    def get_context_data(self, **kwargs):        
+        context = super().get_context_data(**kwargs)        
+        context['task_id'] = self.kwargs['pk']
+        return context
+
     def get_success_url(self):
-        return reverse_lazy('appsite:list_detail', args=(Task.objects.get(pk = self.kwargs['list_id']).list_id, ))
+        return reverse_lazy('appsite:list_detail', args=(self.kwargs['list_id'], ))

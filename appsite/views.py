@@ -322,6 +322,33 @@ class InviteUpdateView(LoginRequiredMixin, generic.UpdateView):
             
         return HttpResponseRedirect( reverse_lazy('appsite:detail', args=(self.kwargs['pk'], )) )
 
+class InviteUpdateAllView(LoginRequiredMixin, generic.UpdateView):
+    model = Job
+    form_class = JobForm
+    template_name = 'appsite/detail.html'
+
+    def post(self, request, *args, **kwargs):
+        # Obtém dados do formulário (frontend)
+        post_data = dict(request.POST.lists()).keys()
+        post_data = list(post_data)[1:]
+        print(post_data)
+
+        response = post_data[0]
+
+        user = User.objects.get(pk=self.kwargs['pk'])
+        jobs = Job.objects.filter(user=user, active_invite = True)
+
+        if response == 'accept':  
+            for job in jobs:
+                job.active_invite = False
+                job.save()          
+        elif response == 'refuse':
+            jobs.delete()
+        else:
+            pass
+            
+        return HttpResponseRedirect( reverse_lazy('appsite:detail', args=(self.kwargs['pk'], )) )
+
 class ProfileUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Profile
     form_class = ProfileForm

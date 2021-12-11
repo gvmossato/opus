@@ -1,9 +1,8 @@
 {% extends 'base.html' %}
 
-{% block title %} @{{ profile_user.username }} {% endblock title %}
+{% block title %} {{ profile_user.username }} {% endblock title %}
 
 {% block content %}
-
 
 <header class="profile-header">
     <div class="round">
@@ -12,12 +11,19 @@
     <section class="profile-text">
         <div class="profile-header-upper">
             <h1 class="color-light-gray">@</h1><h1>{{ profile_user.username }}</h1>
-            <a href="{% url 'logout' %}"><button class="blue-button logout-button">Sair</button></a>
+            {% if current_user.id == profile_user.id %}
+                <a href="{% url 'logout' %}"><button class="blue-button logout-button">Sair</button></a>
+            {% else %}
+            <a href="{% url 'appsite:detail' current_user.id %}"><button class="blue-button logout-button">Voltar</button></a>
+            {% endif %}
         </div>
         <p>{{ profile_user.profile.description }}</p>
     </section>
-    <button class="profile-edit-button">O</button>
+    {% if current_user.id == profile_user.id %}
+        <button class="profile-edit-button">O</button>
+    {% endif %}
 </header>
+
 
 <article class="profile-menus">
 
@@ -25,9 +31,13 @@
         <div class="lists-menu-title gradient-blue1">
             <h2>Listas</h2>
         </div>
-        <a href="{% url 'appsite:list_create' %}">
-            <button class="blue-button list-create-button">Criar lista</button>
-        </a>
+        {% if current_user.id == profile_user.id %}
+            <div class="lists-menu-buttons-container">
+                <a href="{% url 'appsite:list_create' %}">
+                    <button class="blue-button create lists-menu-button">Criar lista</button>
+                </a>
+            </div>
+        {% endif %}
         <div class="lists-menu-cards">
             {% for list in lists_confirmed %}
 
@@ -45,9 +55,14 @@
         <div class="lists-menu-title gradient-pink">
             <h2>Convites</h2>
         </div>
-        <a href="{% url 'appsite:list_create' %}">
-            <button class="blue-button list-create-button">Criar lista</button>
-        </a>
+        {% if current_user.id == profile_user.id %}
+            <div class="lists-menu-buttons-container">
+                <a href="{% url 'appsite:list_create' %}">
+                    <button class="accept lists-menu-button">Aceitar tudo</button>
+                    <button class="refuse lists-menu-button">Recusar tudo</button>
+                </a>
+            </div>
+        {% endif %}
         <div class="lists-menu-cards">
             {% for list in lists_pending %}
 
@@ -56,48 +71,13 @@
                 card_pic=list.picture
                 card_symbol=list.symbol
                 card_name=list.name
-                user_id=profile_user.id %}
+                prof_user_id=profile_user.id
+                curr_user_id=current_user.id %}
 
             {% endfor %}
         </div>
     </section>
+
 </article>
-
-
-
-<form method="POST" action="{% url 'appsite:invite_update' profile_user.id %}">
-    {%csrf_token%}
-    <p>{{ list.name }}</p>
-    <input type="submit" name="accept">Aceitar</input>
-    <input type="submit" name="refuse">Recusar</input>
-    <input type="hidden" name="{{ list.id }}" />
-</form>
-
-{% if current_user.id == profile_user.id %}
-    
-
-    {{ current_user.username }}
-    <a >Log out</a>
-
-    <!-- crap implementation O(n^2) of list of lists and list of invites in the user's profile -->
-    <section class="lista-de-listas">
-        {% for list in current_user.list_set.all %}
-            {% for job in current_user.job_set.all %}
-                {% if job.list_id == list.id and not job.active_invite %} <a href="{% url 'appsite:list_detail' list.id %}"> {{ list.name }}  </a> {% endif %}
-            {% endfor %}
-        {% endfor %}
-    </section>
-    <!--job.active_invite = 1 means that the user is invited to follow that list (shown in invitations)-->
-    <!--job.active_invite = 0 means that the user is already member of that list (not shown in invitations, but in lists)-->
-    <section class="lista-de-invites">
-
-
-
-    </section>
-{% else %}
-
-    <p>perfil de {{ profile_user }}</p>
-
-{% endif %}
 
 {% endblock content %}

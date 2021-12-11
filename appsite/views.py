@@ -321,6 +321,3 @@ class InviteUpdateView(LoginRequiredMixin, generic.UpdateView):
             pass
             
         return HttpResponseRedirect( reverse_lazy('appsite:detail', args=(self.kwargs['pk'], )) )
-
-    # def get_success_url(self):
-    #     return reverse_lazy('appsite:detail', args=(self.object.id, ))

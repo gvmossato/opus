@@ -32,7 +32,8 @@
     --gradient-blue2: linear-gradient(90deg, var(--color-blue2) 0%, var(--color-blue3) 100%);
     --gradient-pink-yellow: linear-gradient(90deg, var(--color-pink1) 0%, var(--color-yellow1) 100%);
 
-    --profile-header-h: 8vw
+    --profile-header-height: 8vw;
+    --list-card-height: 6vw;
 }
 
 /* ======= */
@@ -53,7 +54,7 @@ body {
 main {
   display: flex;
   flex-direction: column;
-  width: 80vw;
+  width: 70vw;
   height: 100vh;
   margin: 0 auto;
 }
@@ -66,7 +67,8 @@ form {
 }
 
 button {
-    font-family: Comfortaa, Arial, monospace;  
+    font-family: Comfortaa, Arial, monospace;
+    font-size: 12pt;
     cursor: pointer;
     font-weight: 700;
     border: none;
@@ -96,6 +98,10 @@ a {
     height: fit-content;
     text-decoration: none;
     color: unset;
+}
+
+p {
+    margin: 0;
 }
 
 /*======= */
@@ -245,7 +251,7 @@ button[type="button"] {
     margin: 2vw 0;
     border-radius: var(--default-border-radius);
     background-color: white;
-    height: var(--profile-header-h);
+    height: var(--profile-header-height);
     align-items: center;
 }
 
@@ -253,8 +259,8 @@ button[type="button"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: calc(var(--profile-header-h) - 2vw);
-    height: calc(var(--profile-header-h) - 2vw);
+    width: calc(var(--profile-header-height) - 2vw);
+    height: calc(var(--profile-header-height) - 2vw);
     background-color: var(--color-blue-support);
     border-radius: 100vw;
     overflow: hidden;
@@ -263,7 +269,7 @@ button[type="button"] {
 
 img[alt="profile-pic"]{
     object-position: center;
-    width: calc(var(--profile-header-h) - 2vw);
+    width: calc(var(--profile-header-height) - 2vw);
 }
 
 .profile-header-upper {
@@ -281,8 +287,7 @@ img[alt="profile-pic"]{
     border-radius: var(--default-border-radius);
     background-color: white;
     width: 48%;
-    height: 20vw;
-    padding-top: 8vw;
+    height: 38vw;
 }
 
 .lists-menu-title {
@@ -292,13 +297,60 @@ img[alt="profile-pic"]{
     border-radius: var(--default-border-radius) var(--default-border-radius) 0 0;
     color: white;
     width: 100%;
+    height: 4.5vw;
 }
+
+.lists-menu-buttons-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 4.5vw;
+    height: 4vw;
+}
+
+.lists-menu-button {
+    position: relative;
+    width: 10vw;
+    border-radius:100vw;
+    text-align: right;
+    margin-right: 4vw;
+    padding: 0.5vw 2vw 0.5vw 0.5vw;
+    color: white;
+}
+
+
+.create::before {
+    display: flex;
+    position: absolute;
+    content: '+';
+    top: 0.1vw;
+    font-size: 25pt;
+}
+
+.accept::before {
+    display: flex;
+    position: absolute;
+    content: '✓';
+    top: 0.2vw;
+    font-size: 16pt;
+}
+
+.refuse::before {
+    display: flex;
+    position: absolute;
+    content: 'X';
+    top: 0.45vw;
+    font-size: 16pt;
+
+}
+
 
 .lists-menu-cards {
     display: flex;
     flex-direction: column;
     align-items: center;
     overflow-y: scroll;
+    height: 25vw;
 }
 
 .logout-button {
@@ -327,10 +379,10 @@ img[alt="profile-pic"]{
 
 .list-card {
     display: flex;
-    width: 35vw;
-    height: 7vw;
+    width: 27vw;
+    height: var(--list-card-height);
     background-color: var(--color-white2);
-    border-radius: var(--default-border-radius);
+    border-radius: calc(var(--default-border-radius) / 2);
     margin-bottom: 1vw;
     overflow: hidden;
 }
@@ -343,7 +395,7 @@ img[alt="profile-pic"]{
     position: relative;
     display: flex;
     justify-content: center;
-    width: 20%;
+    width: 25%;
     overflow: hidden;
     box-sizing: content-box
 }
@@ -361,8 +413,8 @@ img[alt="list-card-pic"] {
     justify-content: center;
     color: white;
     position: absolute;
-    width: 5vw;
-    height: 5vw;
+    width: calc(var(--list-card-height) - 1.5vw);
+    height: calc(var(--list-card-height) - 1.5vw);
     border-radius: 100vw;
     background-color: #ec5600;
     align-self: center;
@@ -375,13 +427,7 @@ img[alt="list-card-pic"] {
     flex-grow: 1;
 }
 
-.list-create-button {
-    position: absolute;
-    width: 6vw;
-    height: 2vw;
-    right: 2.2vw;
-    top: 4.6vw;
-}
+
 
 .action-button {
     align-self: flex-end;
@@ -395,14 +441,18 @@ img[alt="list-card-pic"] {
 }
 
 .accept {
-    background-color: rgb(0, 255, 0);
+    background-color: rgb(0, 240, 0);
+}
+
+.accept:hover {
+    background-color: rgb(0, 192, 0);
 }
 
 .refuse {
     background-color: red;
 }
 
-.action-button:hover {
-    transform: scale(1.1);
-    
+.refuse:hover {
+    background-color: rgb(199, 0, 0);
 }
+

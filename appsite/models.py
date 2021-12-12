@@ -17,6 +17,7 @@ class Profile(models.Model):
         max_length=255,
         null=True
     )
+    date = models.DateTimeField(auto_now_add=True)
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -39,6 +40,7 @@ class List(models.Model):
     picture = models.URLField(max_length=255)
     description = models.CharField(max_length=255, null=True)
     user = models.ManyToManyField(User, through='Job')
+    date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
@@ -61,6 +63,7 @@ class Task(models.Model):
     original_id = models.IntegerField(blank=True, null=True) 
     name = models.CharField(max_length=255)
     done = models.BooleanField(default=False)
+    date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
@@ -70,7 +73,7 @@ class Tag(models.Model):
     task = models.ManyToManyField(Task)
     name = models.CharField(max_length=255)
     value = models.CharField(max_length=255)
-    list = models.ManyToManyField(List, through='Follow') 
+    list = models.ManyToManyField(List, through='Follow')
 
     def __str__(self):
         return self.name

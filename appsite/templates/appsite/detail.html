@@ -1,43 +1,106 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %} profile_user.name {% endblock title %}
+{% block title %} {{ profile_user.username }} {% endblock title %}
 
 {% block content %}
 
-
-{% if current_user.id == profile_user.id %}
-    <h1><a href="{% url 'appsite:list_create' %}">Criar lista</a></h1>
-
-    {{ current_user.username }}
-    <a href="{% url 'logout' %}">Log out</a>
-
-    <!-- crap implementation O(n^2) of list of lists and list of invites in the user's profile -->
-    <section class="lista-de-listas">
-        {% for list in current_user.list_set.all %}
-            {% for job in current_user.job_set.all %}
-                {% if job.list_id == list.id and not job.active_invite %} <a href="{% url 'appsite:list_detail' list.id %}"> {{ list.name }}  </a> {% endif %}
-            {% endfor %}
-        {% endfor %}
+<header class="white-box profile-header">
+    <div class="profile-pic-mask">
+        <img src="{{ profile_user.profile.picture }}" alt="profile-pic" />
+    </div>
+    <section class="profile-text">
+        <div class="profile-header-upper">
+            <h1 class="color-light-gray">@</h1><h1>{{ profile_user.username }}</h1>
+            {% if current_user.id == profile_user.id %}
+                <a href="{% url 'logout' %}">
+                    <button class="blue-button profile-logout-button">Sair</button>
+                </a>
+            {% else %}
+            <a href="{% url 'appsite:detail' current_user.id %}">
+                <button class="blue-button profile-logout-button">Voltar</button>
+            </a>
+            {% endif %}
+        </div>
+        <p>{{ profile_user.profile.description }}</p>
     </section>
-    <!--job.active_invite = 1 means that the user is invited to follow that list (shown in invitations)-->
-    <!--job.active_invite = 0 means that the user is already member of that list (not shown in invitations, but in lists)-->
-    <section class="lista-de-invites">
+    {% if current_user.id == profile_user.id %}
+        <a href="{% url 'appsite:profile_update' profile_user.profile.id %}">
+            <button class="profile-config-button">
+                <img src="{% static 'images/icons/cog.svg' %}" alt="profile-config-icon" />
+            </button>
+        </a>
+    {% endif %}
+</header>
 
-        {% for list in lists_pending %}
-        <form method="POST" action="{% url 'appsite:invite_update' profile_user.id %}">
-            {%csrf_token%}
-            <p>{{ list.name }}</p>
-            <input type="submit" name="accept">Aceitar</input>
-            <input type="submit" name="refuse">Recusar</input>
-            <input type="hidden" name="{{ list.id }}" />
-        </form>
-        {% endfor %}
 
+<article class="profile-menus">
+
+    <section class="white-box lists-menu">
+        <div class="lists-menu-title gradient-blue1">
+            <h1>Listas</h1>
+        </div>
+        <div class="lists-menu-buttons-container">
+            {% if current_user.id == profile_user.id %}
+                <a href="{% url 'appsite:list_create' %}">
+                    <button class="blue-button create lists-menu-button">Criar lista</button>
+                </a>
+            {% endif %}
+        </div>
+        {% if lists_confirmed %}
+            <div class="lists-menu-cards">            
+                {% for list in lists_confirmed %}
+
+                {% include 'components/list_card.html' with
+                    card_id=list.id
+                    card_pic=list.picture
+                    card_symbol=list.symbol
+                    card_name=list.name %}
+
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="lists-menu-empty gradient-blue1">
+                <p>Ainda não existem listas criadas ou seguidas.</p>
+            </div>
+        {% endif %}        
     </section>
-{% else %}
 
-    <p>perfil de {{ profile_user }}</p>
+    <section class="white-box lists-menu">
+        <div class="lists-menu-title gradient-pink">
+            <h1>Convites</h1>
+        </div>
+        <div class="lists-menu-buttons-container">
+            {% if current_user.id == profile_user.id %}
+                <form method="POST" action="{% url 'appsite:invite_update_all' profile_user.id %}">
+                    {%csrf_token%}
+                    <input type="submit" class="accept lists-menu-button" name="accept" value="Aceitar tudo" />
+                    <input type="submit" class="refuse lists-menu-button" name="refuse" value="Recusar tudo" />
+                </form>
+            {% endif %}
+        </div>
+        {% if lists_pending %}
+            <div class="lists-menu-cards">            
+                {% for list in lists_pending %}
 
-{% endif %}
+                {% include 'components/list_card_invite.html' with
+                    card_id=list.id
+                    card_pic=list.picture
+                    card_symbol=list.symbol
+                    card_name=list.name
+                    prof_user_id=profile_user.id
+                    curr_user_id=current_user.id %}
+
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="lists-menu-empty gradient-pink">
+                <p>Sem novos convites por hoje!</p>
+            </div>
+        {% endif %}
+        
+    </section>
+
+</article>
 
 {% endblock content %}

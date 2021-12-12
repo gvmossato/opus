@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %} List {% endblock title %}
+
+{% block content %}
+<h1>Deletar lista</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    <p>Você tem certeza que deseja dar untrack nessa lista?</p>
+    <p>Se der untrack não mais poderá seguir as tags nem mesmo ver as tasks dessa lista.</p>
+    <p>A lista não aparecerá mais em minhas listas.</p>
+    <button type="submit">Deletar</button>
+</form>
+
+<a href="{% url 'appsite:list_detail' list_id %}"><button>Voltar</button></a>
+
+{% endblock content %}

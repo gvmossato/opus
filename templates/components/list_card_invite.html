@@ -1,0 +1,23 @@
+<div class="list-card-wrapper">
+    <a href="{% url 'appsite:list_detail' card_id %}">
+        <section class="list-card">
+            <aside class="list-card-left">
+                <img src="{{ card_pic }}" alt="list-card-pic" />
+                <div class="list-card-symbol-round">
+                    <h2>{{ card_symbol }}</h2>
+                </div>
+            </aside>            
+            <div class="list-card-text">
+                <h2>{{ card_name }}</h2>
+            </div>
+            {% if prof_user_id == curr_user_id %}
+            <form method="POST" action="{% url 'appsite:invite_update' prof_user_id %}">
+                {%csrf_token%}
+                <input type="submit" class="action-button accept" name="accept" value="" />
+                <input type="submit" class="action-button refuse" name="refuse" value="" />
+                <input type="hidden" name="{{ card_id }}" />
+            </form>
+            {% endif %}
+        </section>
+    </a>
+</div>

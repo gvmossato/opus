@@ -1,11 +1,31 @@
+from django.db.models.signals import post_save
 from django.contrib.auth.models import User
+from django.dispatch import receiver
 from django.db import models
 
 
 # Tabela auxiliar de usuários
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    picture = models.URLField(max_length=255, null=True)
+    picture = models.URLField(
+        default="https://avataaars.io/?avatarStyle=Transparent&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light",
+        max_length=255,
+        null=True
+    )
+    description = models.TextField(
+        default="Adicione uma descrição pra completar seu perfil.",
+        max_length=255,
+        null=True
+    )
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+  if created:
+    Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+  instance.profile.save()
 
 
 # Tabela de usuários (nativa do Django)
@@ -16,6 +36,7 @@ class Profile(models.Model):
 class List(models.Model):
     name = models.CharField(max_length=255)
     symbol = models.CharField(max_length=2)
+    picture = models.URLField(max_length=255)
     description = models.CharField(max_length=255, null=True)
     user = models.ManyToManyField(User, through='Job')
 

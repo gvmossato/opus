@@ -1,14 +1,33 @@
 {% extends 'base.html' %}
 
-{% block title %} Cargos {% endblock title %}
+{% block title %} Social {% endblock title %}
 
 {% block content %}
-<h1>Editar cargos</h1>
 
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Editar</button>
-</form>
+<article class="white-box form-box">
+    <h1>Convidar usuário</h1>
+    <form method="POST" action="{% url 'appsite:job_update' 1 %}">
+        {% csrf_token %}
+        <label id="invite" for="invite">@</label>
+        <input type="text" name="invite" placeholder="Usuário"/>
+        <button type="submit">Convidar</button>
+    </form>
+</article>
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li  {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<article class="white-box form-box">
+    <h1>Gerenciar participantes</h1>
+    <form method="POST" action="{% url 'appsite:job_update' 1 %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+    </form>
+</article>
 
 {% endblock content %}

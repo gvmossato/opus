@@ -1,0 +1,27 @@
+<table class="table">
+    <thead>
+        <tr>
+            {% for header in headers %}
+            <th>{{ header }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in data %}
+            <tr class="table-row-body">
+                <td>
+                    {% if row.0 %} <input type="checkbox" checked="checked" />
+                    {% else %} <input type="checkbox" />
+                    {% endif %}
+                </td>
+                {% for cell in row|slice:"1:" %}
+                <td>
+                    {% if cell %} <p>{{ cell }}</p>
+                    {% else %} <p>----</p>
+                    {% endif%}
+                </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

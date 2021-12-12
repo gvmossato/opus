@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
+from django.contrib import messages
 
 from .models import List, Job, Tag, Follow, Task
 from .forms import ListForm, InviteForm, JobForm, TagForm, TaskForm
@@ -254,23 +255,63 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
     context_object_name = 'list'
 
     def get_context_data(self, **kwargs):        
-        context = super().get_context_data(**kwargs)           # Obtém context padrão
+        context = super().get_context_data(**kwargs) # Obtém context padrão
+
+
+        ### Obtém usuários da lista separados por cargo ###
         keys = [None, 'guest', 'follower', 'admin', 'creator'] # Mapeia um número para cada cargo
 
         for job_type in range(1, 5):            
             user_job = Job.objects.filter(list_id=self.kwargs['pk'], type=job_type) # Obtém usuários com um cargo específico
-            user_id = user_job.values_list('user_id', flat=True)                    # Utiliza o cargo para obter o id do usuári
-            try:
-                user = User.objects.filter(pk__in=user_id) # Obtém o objeto usuário atavés do id
-            except:                
-                user = None # Caso não existam usuários com o cargo da iteração
+            user_id = user_job.values_list('user_id', flat=True)                    # Utiliza o cargo para obter o id do usuário
+
+            try: # Obtém o objeto usuário atavés do id
+                user = User.objects.filter(pk__in=user_id) 
+            except: # Caso não existam usuários com o cargo da iteração
+                user = None 
 
             context[keys[job_type]] = user # Atualiza context
 
-        # Obtém o usuário logado
-        current_user = self.request.user
-        context['current_user'] = current_user
 
+        ### Obtém cargo do usuário logado na lista atual ###        
+        current_user = self.request.user                  # Obtém o usuário logado 
+        list_obj = List.objects.get(pk=self.kwargs['pk']) # Obtém lista atual
+
+        try: # Obtém cargo do usuário na lista
+            curr_user_job_type = Job.objects.get(user=current_user, list=list_obj).type
+        except: # Caso usuário nem sequer pertença à lista
+            curr_user_job_type = 0
+
+
+        ### Obtém taks e tags da lista atual para construir a tabela ###  
+        tags_obj = Tag.objects.filter(list=list_obj)
+        tags_name = tags_obj.values_list('name', flat=True)
+
+        headers = list(set(tags_name))                # Remove headers duplicados
+        tasks = Task.objects.prefetch_related().all() # Obtém todas as tarefas da lista atual
+
+        table_data = []     
+
+        for task in tasks:
+            task_data = [task.done, task.name] # Dados obrigatórios da tarefa
+            tag_data = []                      # Dados opcionais da tarefa
+
+            for tag_name in headers:
+                tag_obj = Tag.objects.filter(list=list_obj, task=task, name=tag_name)
+                tag_data += [tag_obj.values_list('value', flat=True).first()] # Concatena Tag.value de cada header
+
+            row_data = task_data + tag_data # Une dados obrigatórios e opicionais
+            table_data.append(row_data)     # Adiciona linha à tabela
+
+
+        ### Constrói context ###        
+        keys_translate = [None, 'convidado', 'seguidor', 'administrador', 'criador'] # Cargos assim como renderizados no front
+
+        context['current_user'] = current_user
+        context['table_data'] = table_data
+        context['table_header'] = ['Concluído', 'Tarefa'] + headers
+        context['curr_user_job_type'] = [curr_user_job_type, keys_translate[curr_user_job_type]]     
+        
         return context
 
 
@@ -284,7 +325,7 @@ class ListUpdateView(LoginRequiredMixin, generic.UpdateView):
     template_name = 'appsite/list_update.html'
 
     def get_success_url(self):
-        return reverse_lazy('appsite:list_detail', args=(self.object.id, )) # Redireciona para a página da lista
+        return reverse_lazy('appsite:list_detail', args=(self.object.id, ))
 
 
 class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
@@ -292,8 +333,39 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
     form_class = JobForm
     template_name = 'appsite/job_update.html'
 
+    def get_form_kwargs(self):
+        # Atualiza os kwargs do formulário com os dados da requisição,
+        # permitindo filtrar os dados do formulário (vide forms.py)
+        kwargs = super(JobUpdateView, self).get_form_kwargs()
+        kwargs.update({
+            'user': self.request.user,
+            'list_pk':self.kwargs['pk']
+        })
+
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        ### Lida com o convite de novos usuários para a lista ###    
+        username = request.POST['invite']
+        list_obj = List.objects.get(pk=self.kwargs['pk'])
+
+        try: 
+            user = User.objects.get(username=username)
+        except:
+            messages.error(request, "O usuário em questão não existe.")
+            return super().post(request, *args, **kwargs)
+        
+        if user in list_obj.user.all():
+            messages.error(request, "O usuário em questão já faz parte dessa lista.")
+            return super().post(request, *args, **kwargs)
+        else:
+            Job.objects.create(user=user, list=list_obj, active_invite=True, type=1)
+            messages.success(request, "Convite enviado!")
+            return super().post(request, *args, **kwargs)
+
+
     def get_success_url(self):
-        return reverse_lazy('appsite:list_detail', args=(self.object.id, )) # Redireciona para a página da lista
+        return reverse_lazy('appsite:list_detail', args=(self.object.id, ))
 
 
 class InviteUpdateView(LoginRequiredMixin, generic.UpdateView):

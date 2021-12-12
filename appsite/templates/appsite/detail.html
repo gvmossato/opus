@@ -5,8 +5,8 @@
 
 {% block content %}
 
-<header class="profile-header">
-    <div class="round">
+<header class="white-box profile-header">
+    <div class="profile-pic-mask">
         <img src="{{ profile_user.profile.picture }}" alt="profile-pic" />
     </div>
     <section class="profile-text">
@@ -14,11 +14,11 @@
             <h1 class="color-light-gray">@</h1><h1>{{ profile_user.username }}</h1>
             {% if current_user.id == profile_user.id %}
                 <a href="{% url 'logout' %}">
-                    <button class="blue-button logout-button">Sair</button>
+                    <button class="blue-button profile-logout-button">Sair</button>
                 </a>
             {% else %}
             <a href="{% url 'appsite:detail' current_user.id %}">
-                <button class="blue-button logout-button">Voltar</button>
+                <button class="blue-button profile-logout-button">Voltar</button>
             </a>
             {% endif %}
         </div>
@@ -34,7 +34,7 @@
 
 <article class="profile-menus">
 
-    <section class="lists-menu">
+    <section class="white-box lists-menu">
         <div class="lists-menu-title gradient-blue1">
             <h1>Listas</h1>
         </div>
@@ -64,7 +64,7 @@
         {% endif %}        
     </section>
 
-    <section class="lists-menu">
+    <section class="white-box lists-menu">
         <div class="lists-menu-title gradient-pink">
             <h1>Convites</h1>
         </div>

@@ -5,88 +5,111 @@
 
 {% block content %}
 
-<header class="list-header">
-    <div class="list-header-upper">
-        <div class="round">
-            <span>{{ list.symbol }}</span>
+
+<div class="list-top">
+    <header class="white-box list-header">
+        <div class="list-header-upper">
+            <div class="list-symbol">
+                <h1>{{ list.symbol }}</h1>
+            </div>
+            <div class="list-header-info">
+                <h1 class="list-title">{{ list.name }}</h1>
+                <p>Criado por @{{ creator.first.username }} em {{ list.date }}</p>
+            </div>
+            {% if curr_user_job_type.0 == 1 %}
+            <a href="{% url 'appsite:tag_follow' list.id %}">
+                <button class="blue-button list-follow-button">Seguir</button>
+            </a>
+            {% elif curr_user_job_type.0 == 2 %}
+            <a href="">
+                <button class="blue-button list-follow-button">Deixar</button>
+            </a>
+            {% elif curr_user_job_type.0 >= 3 %}
+            <a href="{% url 'appsite:list_update' list.id %}">
+                <button class="blue-button list-follow-button">Editar</button>
+            </a>
+            {% endif %}
+
         </div>
-        <div class="list-header-info">
-            <h1 class="list-title">{{ list.name }}</h1>
-            <p>Criado por @{{ creator.first.name }} em {{ list.date }}</p>
-        </div>
-        <a href="{% url 'appsite:tag_follow' list.id %}">
-            <button class="blue-button logout-button">Sair</button>
-        </a>
-    </div>
-    <p>{{ list.description }}</p>
-</header>
-
-
-<article>
-    A LISTA VAI AQUI
-</article>
-
-
-<aside class="list-right">
-
-    <article class="list-user-card">        
+        <p class="list-header-description">{{ list.description }}</p>
+    </header>
+    <aside class="white-box list-user-card">        
         {% include 'components/user_card.html' with 
             user_id=current_user.id
             user_picture=current_user.profile.picture
             user_name=current_user.username
-            user_job='' %}
-    </article>
-
-    <article class="list-social">
-        <section class="list-social-creator">
-            <h3>Criador</h3>
-            <img src="{{ creator.first.profile.picture }}"/>         
-        </section>
-        <section class="list-social-admins">
-            <h3>Administradores</h3>
-            {% for user in admin|slice:":4" %}
-                <img src="{{ user.profile.picture }}"/>
-            {% endfor %}            
-        </section>
-        <section class="list-social-followers">
-            <h3>Seguidores</h3>
-            {% for user in follower|slice:":10" %}
-                <img src="{{ user.profile.picture }}"/>
-            {% endfor %} 
-        </section>
-    </article>
-
-</aside>
+            user_job=curr_user_job_type.1 %}
+    </aside>
+</div>
 
 
+{% if curr_user_job_type.0 >= 1 %}
+    <div class="list-bottom">
+        <article class="list-tasks white-box">
+            {% include 'components/task_table.html' with
+                headers=table_header 
+                data=table_data %}
 
+            {% if curr_user_job_type.0 >= 3 %}
+            <a href="{% url 'appsite:task_create' list.id %}">
+                <button class="blue-button new-task-button">Nova Tarefa</button>
+            </a>
+            {% endif %}
+        </article>
 
+        <aside class="white-box list-social">
+            <header class="list-social-header">
+                <h3>Social</h3>
+                {% if curr_user_job_type.0 >= 3 %}
+                    <a href="{% url 'appsite:job_update' list.id %}">
+                        <button class="list-social-jobs-button">
+                            <img src="{% static 'images/icons/user-cog.svg' %}" alt="list-social-jobs-button" />
+                        </button>
+                    </a>
+                {% endif %}
+            </header>
 
-{% if current_user in creator or current_user in admin  %}
-    <a href="{% url 'appsite:tag_create' list.id %}"><button>Criar tag</button></a>
-    <a href="{% url 'appsite:task_create' list.id %}"><button>Criar task</button></a>
-    <a href="{% url 'appsite:list_update' list.id %}"><button>Editar lista</button></a>
-    <a href="{% url 'appsite:invite' list.id %}"><button>Convidar</button></a>
-    <a href="{% url 'appsite:job_update' list.id %}"><button>Cargos</button></a>
+            <section class="list-social-creator">
+                <h3 class="job-title criador">Criador</h3>
+                <img src="{{ creator.first.profile.picture }}" alt="social-user-pic"/>         
+            </section>
+
+            <section class="list-social-admins">
+                <h3 class="job-title administrador">Administradores</h3>
+                {% if admin %}                    
+                    {% for user in admin|slice:":4" %}
+                        <img src="{{ user.profile.picture }}" alt="social-user-pic"/>
+                    {% endfor %}
+                {% else %}
+                    <div class="list-social-empty gradient-pink2">
+                        <p>A lista ainda não possui administradores.</p>
+                    </div>
+                {% endif %}         
+            </section>
+
+            <section class="list-social-followers">
+                <h3 class="job-title seguidor">Seguidores</h3>
+                {% if follower %}
+                    {% for user in follower|slice:":10" %}
+                        <img src="{{ user.profile.picture }}" alt="social-user-pic"/>
+                    {% endfor %}
+                {% else %}
+                    <div class="list-social-empty gradient-yellow">
+                        <p>Ninguém segue essa lista ainda.</p>
+                    </div>
+                {% endif %}
+            </section>
+
+        </aside>
+    </div>
+{% else %}
+    <section class="white-box forbidden">
+        <p>Parece que você ainda não foi convidado para acompanhar essa lista!</p>
+    </section>
 {% endif %}
-{% if current_user in follower or current_user in admin %}
-    <a href="{% url 'appsite:tag_follow' list.id %}">Seguir!</a>
-{% endif %}
-{% if current_user not in follower and current_user not in admin and current_user not in creator %}
-    <a href="{% url 'appsite:tag_follow' list.id %}"><button>Seguir!</button></a>
-{% endif %}
 
-<!--External loop: rendering lists' tasks (adds a new line for the "table")-->
-<!--Internal loop: rendering tags of each list (expands the "table" horizontally)-->
-<section class="lista-de-tasks">
-    {% for task in list.task_set.all %}
-        <p>{{ task.name}}</p>
-        <ul>
-            {% for tag in task.tag_set.all %}
-                <li>{{ tag.name }} : {{ tag.value}}</li>
-            {% endfor %}
-        </ul>
-    {% endfor %}
-</section>
+
+<a href="{% url 'appsite:tag_create' list.id %}"><button>Criar tag</button></a>
+<a href="{% url 'appsite:invite' list.id %}"><button>Convidar</button></a>
 
 {% endblock content %}

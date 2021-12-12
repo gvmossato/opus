@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %} Unfollow {% endblock title %}
+
+{% block content %}
+
+<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
+<script type='text/javascript'>
+    $(document).ready(function () {
+    $('input[type=radio]').change(function() {
+        $('input[type=radio]:checked').not(this).prop('checked', false);
+    });
+})
+</script>
+
+<h1>Parar de seguir tags</h1>
+
+<form method="POST" action="{% url 'appsite:tag_unfollow' list.id %}">
+    {% csrf_token %}
+
+    {% for tag,list,follow in follows_list %}
+        <input type="checkbox" name="{{ follow.id }}">{{ tag.name }} ({{ list.name }})</input>
+    {% endfor %}
+
+    <button type="submit">Unfollow</button>
+</form>
+
+{% endblock content %}

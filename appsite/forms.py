@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.forms import ModelForm
-from .models import List, Task, Tag, Job
+from .models import List, Task, Tag, Job, Profile
 from django import forms
 
 
@@ -91,3 +91,16 @@ class JobForm(ModelForm):
         # Seleciona apenas os usuários subordinados ao atual
         self.fields['user'].queryset = User.objects.filter(pk__in=subordinates_id)
         self.fields['type'] = forms.ChoiceField(choices=inferior_jobs)
+
+        
+class ProfileForm(ModelForm):
+    class Meta:
+        model = Profile
+        fields = [
+            'picture',
+            'description'
+        ]
+        labels = {
+            'picture' : 'Foto do perfil',
+            'type' : 'Descrição'
+        }

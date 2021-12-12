@@ -23,11 +23,11 @@
     {% csrf_token %}
 
     {% for list in user_allowed_lists %}
-        <input type="radio" name="list {{ list.id }}">{{ list.name }}</input>
+        <input type="radio" name="l{{ list.id }}">{{ list.name }}</input>
     {% endfor %}  
 
     {% for tag in source_tags %}
-        <input type="checkbox" name="tag {{ tag.id }}">{{ tag.name }} : {{ tag.value }}</input>
+        <input type="checkbox" name="t{{ tag.id }}">{{ tag.name }} : {{ tag.value }}</input>
     {% endfor %}
 
     <button type="submit">Seguir</button>

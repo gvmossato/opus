@@ -5,7 +5,6 @@
 
 {% block content %}
 
-
 <div class="list-top">
     <header class="white-box list-header">
         <div class="list-header-upper">
@@ -107,7 +106,6 @@
         <p>Parece que você ainda não foi convidado para acompanhar essa lista!</p>
     </section>
 {% endif %}
-
 
 <a href="{% url 'appsite:tag_create' list.id %}"><button>Criar tag</button></a>
 <a href="{% url 'appsite:invite' list.id %}"><button>Convidar</button></a>

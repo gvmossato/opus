@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %} Task {% endblock title %}
+
+{% block content %}
+<h1>Editar task</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Editar</button>
+</form>
+
+<a href="{% url 'appsite:task_delete' task_id list_id %}"><button>Deletar task</button></a>
+
+{% endblock content %}

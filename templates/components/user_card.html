@@ -1,0 +1,23 @@
+{% load static %}
+
+<section class="user-card-wrapper">
+    <button class="user-card-config-button">
+        <img src="{% static 'images/icons/cog.svg' %}" alt="profile-config-icon" />
+    </button>
+    
+    <a class="user-card-link" href="{% url 'appsite:detail' user_id %}">
+        <div class="user-card-round-mask">
+            <img src="{{ user_picture }}" alt="user-card-pic" />
+        </div>
+        <div class="user-card-username-wrapper">
+            <h2 class="color-light-gray user-card-username">@</h2>
+            <h2 class="user-card-username">{{ user_name }}</h2>
+        </div>
+    </a>
+
+    <h3 class="job-title {{ user_job }}">{% if user_job %} {{ user_job }} {% endif %}</h3>        
+    
+    <a href="{% url 'logout' %}">
+        <button class="blue-button user-card-logout-button">Sair</button>
+    </a>
+</section>

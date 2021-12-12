@@ -1,23 +1,43 @@
+<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
+<script>
+    for (const i of "{{ task_ids }}" ) {
+        $(document).ready(function(){
+            $("#form_task" + i).on("change", "input:checkbox", function(){
+                $("#form_task" + i).submit();
+            });
+        });
+    }
+</script>
+<script>
+function makeRowClickable() {
+    if (this.event.target.dataset.href) {
+        window.location = this.event.target.dataset.href
+    }    
+}
+</script>
+
 <table class="table">
     <thead>
-        <tr>
+        <tr class="header-row">
             {% for header in headers %}
-            <th>{{ header }}</th>
+                <th>{{ header }}</th>
             {% endfor %}
         </tr>
     </thead>
     <tbody>
         {% for row in data %}
-            <tr class="table-row-body">
+            <tr data-href="{% url 'appsite:task_update' row.0 %}" onclick="makeRowClickable()">
                 <td>
-                    {% if row.0 %} <input type="checkbox" checked="checked" />
-                    {% else %} <input type="checkbox" />
-                    {% endif %}
+                    <form id="form_task{{row.0}}" method="POST" action="{% url 'appsite:task_update' row.0 %}">
+                        {%csrf_token%}
+                        <input type="checkbox" value="1" {% if row.1 %} checked="checked" {% endif %} name="{{ row.0 }}" />
+                        <input type='hidden' value="0" name="{{ row.0 }}" />                     
+                    </form>
                 </td>
-                {% for cell in row|slice:"1:" %}
-                <td>
-                    {% if cell %} <p>{{ cell }}</p>
-                    {% else %} <p>----</p>
+                {% for cell in row|slice:"2:" %}
+                <td data-href="{% url 'appsite:task_update' row.0 %}">
+                    {% if cell %} <p data-href="{% url 'appsite:task_update' row.0 %}">{{ cell }}</p>
+                    {% else %} <p data-href="{% url 'appsite:task_update' row.0 %}">----</p>
                     {% endif%}
                 </td>
                 {% endfor %}

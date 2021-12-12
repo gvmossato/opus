@@ -347,14 +347,16 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
         tags_obj = Tag.objects.filter(list=list_obj)
         tags_name = tags_obj.values_list('name', flat=True)
 
-        headers = list(set(tags_name))                # Remove headers duplicados
-        tasks = Task.objects.prefetch_related().all() # Obtém todas as tarefas da lista atual
+        headers = list(set(tags_name))             # Remove headers duplicados
+        tasks = Task.objects.filter(list=list_obj) # Obtém todas as tarefas da lista atual
 
-        table_data = []     
+        table_data = []   
+        tasks_id = []  
 
         for task in tasks:
-            task_data = [task.done, task.name] # Dados obrigatórios da tarefa
-            tag_data = []                      # Dados opcionais da tarefa
+            task_data = [task.id, task.done, task.name] # Dados obrigatórios da tarefa            
+            tag_data = []                               # Dados opcionais da tarefa
+            tasks_id += [task.id]                       # Lista à parte, ids das tasks
 
             for tag_name in headers:
                 tag_obj = Tag.objects.filter(list=list_obj, task=task, name=tag_name)
@@ -363,17 +365,16 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
             row_data = task_data + tag_data # Une dados obrigatórios e opicionais
             table_data.append(row_data)     # Adiciona linha à tabela
 
-
         ### Constrói context ###        
         keys_translate = [None, 'convidado', 'seguidor', 'administrador', 'criador'] # Cargos assim como renderizados no front
 
         context['current_user'] = current_user
         context['table_data'] = table_data
         context['table_header'] = ['Concluído', 'Tarefa'] + headers
-        context['curr_user_job_type'] = [curr_user_job_type, keys_translate[curr_user_job_type]]     
+        context['curr_user_job_type'] = [curr_user_job_type, keys_translate[curr_user_job_type]] # [número_do_cargo, nome_do_cargo]
+        context['tasks_id'] = tasks_id
         
         return context
-
 
 # ====== #
 # UPDATE #
@@ -494,8 +495,21 @@ class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
     form_class = TaskForm
     template_name = 'appsite/task_update.html'
 
-    def get_context_data(self, **kwargs):        
-        context = super().get_context_data(**kwargs)        
+    def post(self, request, *args, **kwargs):
+        post_data = dict(request.POST)
+        post_data.pop('csrfmiddlewaretoken')
+        
+        task_id = int( list(post_data.keys())[0] )
+        status = bool(int( list(post_data.values())[0][0] ))
+
+        task = Task.objects.get(pk=task_id)
+        task.done = status
+        task.save()
+
+        return HttpResponseRedirect(reverse('appsite:list_detail', args=(self.kwargs['pk'], )))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         context['task_id'] = self.kwargs['pk']
         context['list_id'] = Task.objects.get(pk = self.kwargs['pk']).list_id
         return context
@@ -582,7 +596,4 @@ class ListUntrackView(LoginRequiredMixin, generic.UpdateView):
          list_id__in = self.request.user.list_set.values_list('id', flat = True)).delete()
         Job.objects.get(list_id=self.kwargs['pk'], user_id = self.request.user).delete()
         return reverse_lazy('appsite:detail', args=(self.request.user.id, ))
-
-        
-
     

@@ -45,10 +45,17 @@
 {% if curr_user_job_type.0 >= 1 %}
     <div class="list-bottom">
         <article class="list-tasks white-box">
-            {% include 'components/task_table.html' with
-                headers=table_header 
-                data=table_data %}
+            {% if tasks_id %}
+                {% include 'components/task_table.html' with
+                    headers=table_header 
+                    data=table_data
+                    tasks_id=tasks_id %}
 
+            {% else %}
+            <div class="list-tasks-empty">
+                <p>Sem tarefas criadas até agora!</p>
+            </div>
+            {% endif %}
             {% if curr_user_job_type.0 >= 3 %}
             <a href="{% url 'appsite:task_create' list.id %}">
                 <button class="blue-button new-task-button">Nova Tarefa</button>

@@ -5,9 +5,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
+from opus.settings import LOGIN_REDIRECT_URL
+
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 
 from .models import List, Job, Profile, Tag, Follow, Task
 from .forms import ListForm, InviteForm, JobForm, ProfileForm, TagForm, TaskForm
+
 
 # ====== #
 # CREATE #
@@ -282,10 +287,10 @@ class TagAddView(LoginRequiredMixin, generic.CreateView):
 # READ #
 # ==== #
 
-class UserDetailView(LoginRequiredMixin, generic.DetailView):
+class UserDetailView(generic.DetailView, APIView):
     model = User
     template_name = 'appsite/detail.html'
-
+    permission_classes = (IsAuthenticated,)
     # Envia para o template:
     # - Qual usuário está logado e qual perfil foi acessado
     # - As listas do perfil acessado

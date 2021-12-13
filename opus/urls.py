@@ -18,6 +18,11 @@ from django.contrib import admin
 from django.conf.urls import url
 from django.urls import include
 from django.urls import path
+from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 
 urlpatterns = [
@@ -27,4 +32,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^favicon\.ico$', RedirectView.as_view(url='/static/images/favicon.ico')), # fix favicon
     path('api/v1/', include('api.urls')),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    #url(r'^refresh-token/', refresh_jwt_token),
 ]

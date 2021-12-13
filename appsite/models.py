@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db import models
 
-
 # Tabela auxiliar de usuários
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

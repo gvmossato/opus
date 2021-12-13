@@ -12,7 +12,7 @@
     <section class="profile-text">
         <div class="profile-header-upper">
             <h1 class="color-light-gray">@</h1><h1>{{ profile_user.username }}</h1>
-            {% if current_user.id == profile_user.id %}
+            {% if current_user == profile_user %}
                 <a href="{% url 'logout' %}">
                     <button class="blue-button profile-logout-button">Sair</button>
                 </a>
@@ -24,7 +24,7 @@
         </div>
         <p>{{ profile_user.profile.description }}</p>
     </section>
-    {% if current_user.id == profile_user.id %}
+    {% if current_user == profile_user %}
         <a href="{% url 'appsite:profile_update' profile_user.profile.id %}">
             <button class="profile-config-button">
                 <img src="{% static 'images/icons/cog.svg' %}" alt="profile-config-icon" />
@@ -41,7 +41,7 @@
             <h1>Listas</h1>
         </div>
         <div class="lists-menu-buttons-container">
-            {% if current_user.id == profile_user.id %}
+            {% if current_user == profile_user %}
                 <a href="{% url 'appsite:list_create' %}">
                     <button class="blue-button create lists-menu-button">Criar lista</button>
                 </a>
@@ -71,7 +71,7 @@
             <h1>Convites</h1>
         </div>
         <div class="lists-menu-buttons-container">
-            {% if current_user.id == profile_user.id %}
+            {% if current_user == profile_user %}
                 <form method="POST" action="{% url 'appsite:invite_update_all' profile_user.id %}">
                     {%csrf_token%}
                     <input type="submit" class="accept lists-menu-button" name="accept" value="Aceitar tudo" />

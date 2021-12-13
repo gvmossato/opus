@@ -76,6 +76,8 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         current_user = self.request.user
+
+        # Obtém todas as listas em que o usuário atual é pelo menos admistrador
         jobs = Job.objects.filter(user=current_user, type__gte=3)
         lists_id = jobs.values_list('list_id', flat=True)
         lists = List.objects.filter(pk__in=lists_id)
@@ -83,8 +85,7 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
         # Obtém a lista atual
         list = List.objects.get(pk=self.kwargs['pk'])
 
-        # Obtém todas as tagas da lista
-        #tags = Tag.objects.filter(list=list)
+        # Obtém todas as tags da lista
         tags = list.tag_set.all().distinct()
 
         context = {
@@ -96,19 +97,19 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
         return context
     
     def post(self, request, *args, **kwargs):
-        # Obtém dados do formulário (frontend) e remove token
+        # Obtém dados do formulário e remove token
         post_data = list( dict(request.POST.lists()).keys() )
         post_data = post_data[1:]
 
-        # Recorta valor numérico dos ids de lista e tag
+        # Recorta o valor numérico dos ids de lista e tag
         ids = [int(id[1:]) for id in post_data]
 
-        list_id = ids[0]
-        tags_id = ids[1:]
-        source_id = self.kwargs['pk']
+        list_id = ids[0]              # ID da lista de destino
+        tags_id = ids[1:]             # ID das tags seguidas
+        source_id = self.kwargs['pk'] # ID da lista seguida
 
-        list_obj = get_object_or_404(List,pk=list_id)
-        source_obj = get_object_or_404(List,pk=source_id)
+        list_obj = List.objects.get(pk=list_id)
+        source_obj = List.objects.get(pk=source_id)
         tags = Tag.objects.filter(pk__in=tags_id) 
 
         for tag in tags:
@@ -116,31 +117,31 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
             tasks = tag.task.filter(list_id=source_id)
             # Adding each of these tags to the user's list
             for task in tasks:
-                # Checking if the task is original in the list of destination
+                # Checking if the task is originally from the destination list
                 if list_obj.task_set.filter(original_id=task.original_id):
-                    pass # Not adding tasks that share the same original_id
+                    pass # Skip them
                 else:
                     # Adding the task to the list
-                    task_copy = Task.objects.create(list_id=list_id, original_id=task.original_id, name =task.name, done=False)
+                    task_copy = Task.objects.create(list_id=list_id, original_id=task.original_id, name=task.name, done=False)
                     task_copy.save()
-                    # Linking all the tags of the task that are followed
-                    # to this newly created task (task_copy)
+                    # Linking all the tags of the task that are followed to this newly created task (task_copy)
                     for tag_copy in [task_og for task_og in task.tag_set.filter() if task_og in tags]:
                         tag_copy.task.add(task_copy)
         
             # Creating new follow object of following list, tag being followed and followed list id
-            # checking if the user has already followed the tag (from the same source id) with the same list
-            if (Follow.objects.filter(list=List.objects.get(pk=list_id), tag=Tag.objects.get(pk=tag.id), source_id=source_id) ):
+            # checking if the user has already followed the tag (from the same source_id) with the same list
+            if ( Follow.objects.filter(list=List.objects.get(pk=list_id), tag=Tag.objects.get(pk=tag.id), source_id=source_id) ):
                 pass
             else:
                 follow = Follow.objects.create(list=List.objects.get(pk=list_id), tag=Tag.objects.get(pk=tag.id), source_id=source_id)
         
         # Updating user's permission to follower and removing list invite
-        #job = Job.objects.get(list_id=source_id, user_id=request.user.id)
-        if Job.objects.filter(list=source_obj, user=request.user):
-            pass
+        if Job.objects.filter(list=source_obj, user=request.user, type__gte=2):
+            pass # Skip job update to follower if user isn't a guest
         else:
-            job = Job.objects.create(list=source_obj, user=request.user, active_invite= False, type=2)
+            job = Job.objects.get(list=source_obj, user=request.user)
+            job.active_invite = False
+            job.type=2
             job.save()
 
         # Redirecting to user's page
@@ -420,28 +421,44 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def post(self, request, *args, **kwargs):
         ### Lida com o convite de novos usuários para a lista ###
-
-        username = request.POST['invite']
+        post_data = request.POST
         list_obj = List.objects.get(pk=self.kwargs['pk'])
 
-        if username == "":
-            messages.error(request, f"Digite uma nome de usuário para convidar.")
-            return super().post(request, *args, **kwargs)
+        # Trata requisições do tipo "Convidar"
+        if 'invite' in post_data.keys():
+            username = post_data['invite']
 
-        try: 
-            user = User.objects.get(username=username)
-        except:
-            messages.error(request, f"O usuário '{username}' não existe.")
-            return super().post(request, *args, **kwargs)
+            if username == "": # Verifica se foi digitado um username
+                messages.error(request, f"Digite uma nome de usuário para convidar.")
+                return super().post(request, *args, **kwargs)
+
+            try: # Verifica se o usuário existe
+                user = User.objects.get(username=username)
+            except:
+                messages.error(request, f"O usuário '{username}' não existe.")
+                return super().post(request, *args, **kwargs)
+            
+            if user in list_obj.user.all(): # Verifica se o usuário faz parte da lista
+                messages.error(request, f"O usuário '{username}' já faz parte dessa lista.")
+                return super().post(request, *args, **kwargs)
+            else:
+                Job.objects.create(user=user, list=list_obj, active_invite=True, type=1)
+                messages.success(request, f"O usuário '{username}' recebeu um convite!")
+                return super().post(request, *args, **kwargs)
         
-        if user in list_obj.user.all():
-            messages.error(request, f"O usuário '{username}' já faz parte dessa lista.")
-            return super().post(request, *args, **kwargs)
+        # Trata requisições do tipo "Gerenciar"
         else:
-            Job.objects.create(user=user, list=list_obj, active_invite=True, type=1)
-            messages.success(request, f"O usuário '{username}' recebeu um convite!")
-            return super().post(request, *args, **kwargs)
+            target_id = post_data['user'] # ID do usuário a ter o cargo modificado
+            new_job = post_data['type']   # Novo cargo (pode ser igual ao atual)
 
+            target = User.objects.get(pk=target_id)
+
+            # Atualiza o cargo
+            job = Job.objects.get(user=target, list=list_obj)
+            job.type = new_job
+            job.save()
+
+            return HttpResponseRedirect( reverse_lazy('appsite:list_detail', args=(self.kwargs['pk'], )) )
 
     def get_success_url(self):
         return reverse_lazy('appsite:list_detail', args=(self.object.id, ))

@@ -848,3 +848,7 @@ input[type="color"] {
 .create-list-box {
     margin: 20px auto;
 }
+
+.edit-profile-box {
+    margin: 150px auto;
+}

@@ -91,15 +91,11 @@ class JobForm(ModelForm):
 
         super(JobForm, self).__init__(*args, **kwargs)
 
-        list_obj = List.objects.get(pk=self.list_id) # Obtém a lista
-
-        # Obtém cargo do usuário atual na lista
-        job = Job.objects.get(user=self.user, list=list_obj)
-        job_type = job.type
-
+        list_obj = List.objects.get(pk=self.list_id) # Obtém a lista atual
+        
         # Obtém todos os ids de seguidores e administradores
-        subordinates = Job.objects.filter(list=list_obj, type__in=[2, 3])
-        subordinates_id = subordinates.values_list('pk', flat=True)
+        subordinates_job = Job.objects.filter(list=list_obj, type__in=[2, 3])
+        subordinates_id = subordinates_job.values_list('user', flat=True)
 
         # Define as transições de cargo possíveis
         jobs_transitions = [(2, 'Seguidor'), (3, 'Administrador')]

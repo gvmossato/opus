@@ -667,9 +667,25 @@ class ListUntrackView(LoginRequiredMixin, generic.UpdateView):
         return context
 
     def get_success_url(self):
-        #lists = self.request.user.list_set.all()
-        Follow.objects.filter(source_id = self.kwargs['pk'],
-         list_id__in = self.request.user.list_set.values_list('id', flat = True)).delete()
-        Job.objects.get(list_id=self.kwargs['pk'], user_id = self.request.user).delete()
+        Follow.objects.filter(
+            source_id=self.kwargs['pk'],
+            list_id__in=self.request.user.list_set.values_list('id', flat=True)
+        ).delete()
+
+        Job.objects.get(list_id=self.kwargs['pk'], user_id=self.request.user).delete()
+
         return reverse_lazy('appsite:profile_detail', args=(self.request.user.id, ))
+
+class ListMenuTemplate(LoginRequiredMixin, generic.TemplateView):
+
+    template_name = "appsite/list_menu.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        list_id = self.kwargs['pk']
+        
+        context['list_id'] = list_id
+        
+        return context
     

@@ -36,6 +36,7 @@
     --gradient-p1p2: linear-gradient(90deg, var(--color-pink1)   0%, var(--color-pink2)   100%);
     --gradient-y1y2: linear-gradient(90deg, var(--color-yellow1) 0%, var(--color-yellow2) 100%);
     --gradient-p1y1: linear-gradient(90deg, var(--color-pink1)   0%, var(--color-yellow1) 100%);
+    --gradient-y1p2: linear-gradient(90deg, var(--color-yellow2) 0%, var(--color-pink2)   100%);
     --gradient-r1r2: linear-gradient(90deg, var(--color-error1)  0%, var(--color-error2)  100%);
     --gradient-r2r3: linear-gradient(90deg, var(--color-error1)  0%, var(--color-error1)  100%);
 
@@ -219,6 +220,14 @@ p {
     background-image: linear-gradient(transparent, transparent), var(--gradient-p1y1);
 }
 
+.yellow-overlay {
+    background-image: linear-gradient(transparent, transparent), var(--gradient-y1y2);
+}
+
+.yellow-overlay:hover {
+    background-image: linear-gradient(transparent, transparent), var(--gradient-y1p2);
+}
+
 .red-overlay {
     background-image: linear-gradient(transparent, transparent), var(--gradient-r1r2);
 }
@@ -244,6 +253,10 @@ p {
 
 .blue-button:hover {
     background-color: var(--color-blue1);
+}
+
+.large-button {
+    width: 150px;
 }
 
 /* Gradientes */
@@ -996,4 +1009,12 @@ input[type="checkbox"]:disabled {
 
 .tag-select-box {
     margin: 100px auto;
+}
+
+.list-menu-box {
+    margin: 150px auto;
+}
+
+.pad-top {
+    padding-top: 10px;
 }

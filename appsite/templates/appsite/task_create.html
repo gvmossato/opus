@@ -1,13 +1,33 @@
 {% extends 'base.html' %}
 
+{% block title %} Task {% endblock title %}
+
 {% block content %}
-<h2>Nova task de {{ list.name }}</h2>
 
-<form action="{% url 'appsite:task_create' list.id %}" method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Criar task</button>
-</form>
+<article class="white-box form-box edit-task-box">
+    <header class="create-list-title criador">
+        <h1>Criar tarefa</h1>
+    </header>
 
-<p><a href="{% url 'appsite:list_detail' list.id %}">Voltar para a página da lista</a></p>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-box-field">
+            {{ form.name.label }}
+            {{ form.name }}
+        </div>
+        <div class="form-box-field">
+            {{ form.due_date.label }}
+            <section class="due-date-field">                
+                {{ form.due_date }}
+            </section>
+        </div>
+        <div class="form-box-buttons">
+            <a href="{% url 'appsite:list_detail' list.id %}">
+                <button class="gradient-button secondary-button" type="button">Deixar</button>
+            </a>
+            <button class="gradient-button primary-button" type="submit">Próximo</button>
+        </div>
+    </form>
+</article>
+
 {% endblock content %}

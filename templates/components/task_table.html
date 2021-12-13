@@ -29,8 +29,7 @@ function makeRowClickable() {
 <table class="table">
     <thead>
         <tr class="header-row">
-            {% if curr_user_jobtype >= 3 %}<th>{{ headers.0 }}</th>{% endif %}
-            {% for header in headers|slice:"1:" %}
+            {% for header in headers %}
                 <th>{{ header }}</th>
             {% endfor %}
         </tr>
@@ -38,15 +37,19 @@ function makeRowClickable() {
     <tbody>
         {% for row in data %}
             <tr data-href="{% url 'appsite:task_update' row.0 %}" onclick="makeRowClickable()">
-                {% if curr_user_jobtype >= 3 %}
                     <td>
                         <form id="form_task{{row.0}}" method="POST" action="{% url 'appsite:task_update' row.0 %}">
                             {%csrf_token%}
-                            <input type="checkbox" value="1" {% if row.1 %} checked="checked" {% endif %} name="{{ row.0 }}" />
+                            <input
+                                type="checkbox"
+                                value="1"
+                                name="{{ row.0 }}" 
+                                {% if curr_user_jobtype < 3 %} disabled="disabled" {% endif %}
+                                {% if row.1 %} checked="checked" {% endif %}
+                            />
                             <input type='hidden' value="0" name="{{ row.0 }}" />                     
                         </form>
                     </td>
-                {% endif %}
                 {% for cell in row|slice:"2:" %}
                 <td data-href="{% url 'appsite:task_update' row.0 %}">
                     {% if cell %} <p data-href="{% url 'appsite:task_update' row.0 %}">{{ cell }}</p>

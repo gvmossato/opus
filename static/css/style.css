@@ -988,3 +988,12 @@ select[name="due_date_month"] {
     margin: 300px auto;
 
 }
+
+input[type="checkbox"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.tag-select-box {
+    margin: 100px auto;
+}

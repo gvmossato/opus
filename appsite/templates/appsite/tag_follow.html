@@ -5,7 +5,7 @@
 
 {% block content %}
 
-{% if user_allowed_lists %}
+{% if user_allowed_lists and source_tags %}
     <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
     <script type='text/javascript'>
         $(document).ready(function () {
@@ -34,7 +34,6 @@
                 <input type="radio" name="l{{ list.id }}">{{ list.name }}</input>
             </div>
             {% endfor %}
-
         </section>
 
         <section class="white-box form-box">    
@@ -63,7 +62,7 @@
     </form>
 {% else %}
     <section class="white-box forbidden">
-        <p>Parece que você ainda não possui listas para poder começar a seguir outras!</p>
+        <p>Parece que você ainda não possui listas para poder começar a seguir outras, ou então essa lista ainda não tem tags!</p>
     </section>
 {% endif %}
 

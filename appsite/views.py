@@ -45,24 +45,6 @@ class ListCreateView(LoginRequiredMixin, generic.CreateView):
         return reverse_lazy('appsite:list_detail', args=(self.object.id, ))
 
 
-class InviteCreateView(LoginRequiredMixin, generic.CreateView):
-    form_class = InviteForm
-    template_name = 'appsite/invite.html'
-    
-    # Define campos padrão do formulário
-    def form_valid(self, form):
-        self.object = form.save(commit=False) # Retém dados enviados pelo usuário
-        self.object.list = List.objects.get(pk=self.kwargs['pk'])
-        self.object.active_invite = True
-        self.object.type = 1
-        self.object.save()
-
-        return super(InviteCreateView, self).form_valid(form)
-
-    def get_success_url(self):
-        return reverse_lazy('appsite:invite', args=(self.kwargs['pk'], )) #redirecting to invite page
-
-
 class TagCreateView(LoginRequiredMixin, generic.CreateView):
     form_class = TagForm
     template_name = "appsite/tag_create.html"
@@ -624,7 +606,7 @@ class TaskDeleteView(LoginRequiredMixin, generic.DeleteView):
         task_id = self.kwargs['pk']
         task = Task.objects.get(pk=task_id)
         list_id = List.objects.get(task=task).id
-        
+
         return reverse_lazy('appsite:list_detail', args=(list_id, ))
 
 class ListDeleteView(LoginRequiredMixin, generic.DeleteView):

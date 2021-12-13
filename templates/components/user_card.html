@@ -1,9 +1,11 @@
 {% load static %}
 
 <section class="user-card-wrapper">
-    <button class="user-card-config-button">
-        <img src="{% static 'images/icons/cog.svg' %}" alt="profile-config-icon" />
-    </button>
+    <a href="{% url 'appsite:profile_update' user_id %}">
+        <button class="user-card-config-button">
+            <img src="{% static 'images/icons/cog.svg' %}" alt="profile-config-icon" />
+        </button>
+    </a>
     
     <a class="user-card-link" href="{% url 'appsite:detail' user_id %}">
         <div class="user-card-round-mask">

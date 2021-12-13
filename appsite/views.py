@@ -101,6 +101,19 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
         post_data = list( dict(request.POST.lists()).keys() )
         post_data = post_data[1:]
 
+        # Validação do POST
+        if not post_data: # Usuário não selecionou nada
+            messages.error(request, "Selecione uma e lista e pelo menos uma tag.")
+            return super().post(request, *args, **kwargs)
+
+        elif post_data[0][0] != 'l': # Usuário não selecionou uma lista
+            messages.error(request, "Selecione uma lista.")
+            return super().post(request, *args, **kwargs)
+
+        elif len(post_data) < 2: # Usuário selecionou uma lista, mas não uma tag
+            messages.error(request, "Selecione pelo menos uma tag.")
+            return super().post(request, *args, **kwargs)
+
         # Recorta o valor numérico dos ids de lista e tag
         ids = [int(id[1:]) for id in post_data]
 

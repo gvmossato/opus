@@ -21,6 +21,9 @@
 
     --color-blue-support: #00B1FF;
 
+    --color-error1: #ff0000;
+    --color-error2: #aa0000;
+
     /* Escala de cinza */
     --color-white2: #eeeeee;
     --color-white3: #dfdfdf;
@@ -33,6 +36,8 @@
     --gradient-p1p2: linear-gradient(90deg, var(--color-pink1)   0%, var(--color-pink2)   100%);
     --gradient-y1y2: linear-gradient(90deg, var(--color-yellow1) 0%, var(--color-yellow2) 100%);
     --gradient-p1y1: linear-gradient(90deg, var(--color-pink1)   0%, var(--color-yellow1) 100%);
+    --gradient-r1r2: linear-gradient(90deg, var(--color-error1)  0%, var(--color-error2)  100%);
+    --gradient-r2r3: linear-gradient(90deg, var(--color-error1)  0%, var(--color-error1)  100%);
 
     /* Dimensões de referência */
     --default-border-radius: 25px; /* Ou metade desse valor */
@@ -206,6 +211,22 @@ p {
     color: white;
 }
 
+.pink-overlay {
+    background-image: linear-gradient(transparent, transparent), var(--gradient-p1p2);
+}
+
+.pink-overlay:hover {
+    background-image: linear-gradient(transparent, transparent), var(--gradient-p1y1);
+}
+
+.red-overlay {
+    background-image: linear-gradient(transparent, transparent), var(--gradient-r1r2);
+}
+
+.red-overlay:hover {
+    background-image: linear-gradient(transparent, transparent), var(--gradient-r2r3);
+}
+
 .primary-button {
     box-shadow: none;
     color: white;
@@ -263,6 +284,10 @@ p {
 
 .seguidor {
     color: var(--color-yellow1);
+}
+
+.delete {
+    color: red;
 }
 
 /* Caixas */
@@ -856,6 +881,14 @@ input[type="color"] {
     margin: 20px auto;
 }
 
+.create-list-title {
+    display: flex;
+    justify-content: space-between;
+    padding:12px;
+    margin-bottom: 40px;
+
+}
+
 .edit-profile-box {
     margin: 150px auto;
 }
@@ -921,4 +954,37 @@ input[type="radio"]:checked:before {
     bottom: 20px;
     color: white;
     border-radius: 5px;
+}
+
+.due-date-field {
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+}
+
+select[name="due_date_day"],
+select[name="due_date_month"] {
+    margin-right: 10px;
+}
+
+.edit-task-box {
+    margin: 250px auto;
+}
+
+.delete-task-preview {
+    display: flex;
+    border-radius: 10px;
+
+    line-height: 20pt;
+    text-align: center;
+    justify-content: center;
+    padding: 20px;
+    margin: 20px 0;
+    background-color: var(--color-white2);
+
+}
+
+.delete-task-box {
+    margin: 300px auto;
+
 }

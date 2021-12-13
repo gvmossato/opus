@@ -113,6 +113,6 @@ class ProfileForm(ModelForm):
             'description'
         ]
         labels = {
-            'picture' : 'Foto do perfil',
+            'picture' : 'Foto (URL)',
             'type' : 'Descrição'
         }

@@ -17,7 +17,7 @@
                     <button class="blue-button profile-logout-button">Sair</button>
                 </a>
             {% else %}
-            <a href="{% url 'appsite:detail' current_user.id %}">
+            <a href="{% url 'appsite:profile_detail' current_user.id %}">
                 <button class="blue-button profile-logout-button">Voltar</button>
             </a>
             {% endif %}

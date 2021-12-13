@@ -3,15 +3,35 @@
 {% block title %} Task {% endblock title %}
 
 {% block content %}
-<h1>Editar task</h1>
 
-<form method="POST">
-    {% csrf_token %}
-    <input type="hidden" name="{{ task_id }}" />
-    {{ form.as_p }}
-    <button type="submit">Editar</button>
-</form>
+<article class="white-box form-box edit-task-box">
+    <header class="create-list-title criador">
+        <h1>Editar Tarefa</h1>
+        <a href="{% url 'appsite:task_delete' task_id %}">
+            <button class="gradient-button primary-button red-overlay" type="button">Apagar</button>
+        </a>
+    </header>
 
-<a href="{% url 'appsite:task_delete' task_id list_id %}"><button>Deletar task</button></a>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="{{ task_id }}" />
+        <div class="form-box-field">
+            {{ form.name.label }}
+            {{ form.name }}
+        </div>
+        <div class="form-box-field">
+            {{ form.due_date.label }}
+            <section class="due-date-field">                
+                {{ form.due_date }}
+            </section>
+        </div>
+        <div class="form-box-buttons">
+            <a href="{% url 'appsite:list_detail' list_id %}">
+                <button class="gradient-button secondary-button" type="button">Voltar</button>
+            </a>
+            <button class="gradient-button primary-button" type="submit">Salvar</button>
+        </div>
+    </form>
+</article>
 
 {% endblock content %}

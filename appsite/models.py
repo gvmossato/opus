@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from django.db import models
 
 
-# Tabela auxiliar de usuários
+# Tabela complementar de usuários
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     picture = models.URLField(
@@ -37,10 +37,14 @@ def save_user_profile(sender, instance, **kwargs):
 class List(models.Model):
     name = models.CharField(max_length=255)
     symbol = models.CharField(max_length=2)
-    picture = models.URLField(max_length=255)
-    description = models.CharField(max_length=255, null=True)
+    description = models.TextField(max_length=255, null=True)
     user = models.ManyToManyField(User, through='Job')
     date = models.DateTimeField(auto_now_add=True)
+    color = models.CharField(max_length=7, default="#F20574")
+    picture = models.URLField(
+        max_length=255,
+        default="https://images.unsplash.com/photo-1515847049296-a281d6401047?w=1920"
+    )
 
     def __str__(self):
         return self.name
@@ -63,7 +67,8 @@ class Task(models.Model):
     original_id = models.IntegerField(blank=True, null=True) 
     name = models.CharField(max_length=255)
     done = models.BooleanField(default=False)
-    date = models.DateTimeField(auto_now_add=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    due_date = models.CharField(max_length=10)
 
     def __str__(self):
         return self.name

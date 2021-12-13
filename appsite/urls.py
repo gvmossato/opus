@@ -9,7 +9,7 @@ urlpatterns = [
     path('user/<int:pk>/invite_all', views.InviteUpdateAllView.as_view(), name='invite_update_all'),
     path('user/<int:pk>/update', views.ProfileUpdateView.as_view(), name='profile_update'),
 
-    path('list_create/',          views.ListCreateView.as_view(), name='list_create'),    
+    path('list_create/<int:pk>',          views.ListCreateView.as_view(), name='list_create'),    
     path('list_update/<int:pk>/', views.ListUpdateView.as_view(), name='list_update'),
     path('list/<int:pk>/untrack/', views.ListUntrackView.as_view(), name='list_untrack'),
 

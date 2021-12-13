@@ -79,20 +79,32 @@ button {
 
 input[type='text'],
 input[type='email'],
-input[type='password'] {
+input[type='password'],
+input[type='url'],
+textarea {
     font-family: Comfortaa, Arial, monospace;
-    font-size: 12pt;
+    font-size: 11pt;
+    font-weight: 700;
     outline: none;
-    background-color: var(--color-white3);
-    border: solid 2px var(--color-white3);
+    background-color: var(--color-white2);
+    border: solid 2px var(--color-white2);
     padding: clamp(15px, 0.8vw, 20px);
     margin: 8px 0;
     border-radius: clamp(10px, 0.8vw, 20px);
 }
 
+textarea {
+    min-height: 50px;
+    height: 100px;
+    max-height: 200px;
+    resize: vertical;
+  }
+
 input[type='text']:focus,
 input[type='email']:focus,
-input[type='password']:focus {
+input[type='password']:focus,
+input[type='url']:focus,
+textarea:focus {
     border: solid 2px var(--color-blue1);
 }
 
@@ -127,14 +139,6 @@ table {
     border-spacing: 0 8px;
     margin: 0 auto;
     width: 95%;
-}
-
-tr:not(.header-row) {
-    cursor: pointer;
-}
-
-tr:hover:not(.header-row) {
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.205);
 }
 
 td {
@@ -332,8 +336,13 @@ p {
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.212);
 }
 
+.form-sign {
+    padding: 2vw;
+}
+
 .form-field {
     display: flex;
+    align-items: center;
 }
 
 .form-icon {
@@ -564,7 +573,6 @@ img[alt="list-card-pic"] {
     width: calc(var(--list-card-height) - 1.5vw);
     height: calc(var(--list-card-height) - 1.5vw);
     border-radius: 100vw;
-    background-color: #ec5600;
     align-self: center;
 }
 
@@ -606,7 +614,6 @@ img[alt="list-card-pic"] {
     width: 5vw;
     height: 5vw;
     border-radius: 100vw;
-    background-color: #ec5600;
 }
 
 .list-header-info {
@@ -767,4 +774,77 @@ img[alt="social-user-pic"] {
     color: white;
     border-radius: var(--default-border-radius);
     text-align: center;
+}
+
+.form-box {
+    display: flex;
+    flex-direction: column;
+    padding:2vw;
+    flex-grow: 1;
+    width: 50%;
+}
+
+.form-box-title {
+    padding:12px;
+    border-radius: 20px;
+    margin-bottom: 40px;
+}
+
+.form-box-messages {
+    margin:0 auto;
+    margin-top: 50px;
+    text-align: center;
+    padding: 15px;
+    bottom: 20px;
+    width: 25vw;
+    color: white;
+    border-radius: 100vw;
+}
+
+.form-box-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.form-box-field {
+    display: flex;
+    flex-direction: column;
+    margin: 8px 0;
+}
+
+select {
+    padding: 10px;
+    border-radius: 10px;
+    border: solid 4px var(--color-white2);
+    background-color: var(--color-white2);
+    font-family: Comfortaa, Arial, monospace;
+    font-size: 12pt;
+    margin-bottom: 10px;
+}
+
+label {
+    padding:5px
+}
+
+.two-forms-wrapper {
+    margin: auto;
+    display: flex;
+    width: 100%;
+}
+
+input[name="invite"]{
+    width: 100%;
+    background: var(--color-white2);
+    border: solid 2px var(--color-white2);
+}
+
+input[type="color"] {
+    border: solid 2px var(--color-white2);
+    width: 80px;
+    height: 50px;
+}
+
+.create-list-box {
+    margin: 20px auto;
 }

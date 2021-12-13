@@ -16,6 +16,12 @@ from .forms import ListForm, InviteForm, JobForm, ProfileForm, TagForm, TaskForm
 class ListCreateView(LoginRequiredMixin, generic.CreateView):
     form_class = ListForm
     template_name = 'appsite/list_create.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs) # Obtém context padrão
+        context['user_id'] = self.kwargs['pk']
+
+        return context
 
     def get_success_url(self):
         # Vincula criador e lista no banco de dados
@@ -151,9 +157,10 @@ def task_create(request, list_id):
 
             # Getting the data form the form 
             task_name = form.cleaned_data['name']
+            due_date = form.cleaned_data['due_date']
 
             # Original_id can now be NULL, so task_new is created without an original id
-            task_new = Task.objects.create(name = task_name, list_id = list_id)
+            task_new = Task.objects.create(name=task_name, list_id=list_id, due_date=due_date)
 
             # And then the original id is provided to the new task and the task is saved on the database
             task_new.original_id = task_new.id
@@ -354,9 +361,9 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
         tasks_id = []  
 
         for task in tasks:
-            task_data = [task.id, task.done, task.name] # Dados obrigatórios da tarefa            
-            tag_data = []                               # Dados opcionais da tarefa
-            tasks_id += [task.id]                       # Lista à parte, ids das tasks
+            task_data = [task.id, task.done, task.name, task.due_date] # Dados obrigatórios da tarefa            
+            tag_data = []                                              # Dados opcionais da tarefa
+            tasks_id += [task.id]                                      # Lista à parte, ids das tasks
 
             for tag_name in headers:
                 tag_obj = Tag.objects.filter(list=list_obj, task=task, name=tag_name)
@@ -370,7 +377,7 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
 
         context['current_user'] = current_user
         context['table_data'] = table_data
-        context['table_header'] = ['Concluído', 'Tarefa'] + headers
+        context['table_header'] = ['Concluído', 'Tarefa', 'Data'] + headers
         context['curr_user_job_type'] = [curr_user_job_type, keys_translate[curr_user_job_type]] # [número_do_cargo, nome_do_cargo]
         context['tasks_id'] = tasks_id
         
@@ -393,6 +400,12 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Job
     form_class = JobForm
     template_name = 'appsite/job_update.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)             # Obtém context padrão
+        context['list'] = List.objects.get(pk=self.kwargs['pk']) # Adiciona lista ao context
+
+        return context
 
     def get_form_kwargs(self):
         # Atualiza os kwargs do formulário com os dados da requisição,
@@ -406,22 +419,27 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
         return kwargs
 
     def post(self, request, *args, **kwargs):
-        ### Lida com o convite de novos usuários para a lista ###    
+        ### Lida com o convite de novos usuários para a lista ###
+
         username = request.POST['invite']
         list_obj = List.objects.get(pk=self.kwargs['pk'])
+
+        if username == "":
+            messages.error(request, f"Digite uma nome de usuário para convidar.")
+            return super().post(request, *args, **kwargs)
 
         try: 
             user = User.objects.get(username=username)
         except:
-            messages.error(request, "O usuário em questão não existe.")
+            messages.error(request, f"O usuário '{username}' não existe.")
             return super().post(request, *args, **kwargs)
         
         if user in list_obj.user.all():
-            messages.error(request, "O usuário em questão já faz parte dessa lista.")
+            messages.error(request, f"O usuário '{username}' já faz parte dessa lista.")
             return super().post(request, *args, **kwargs)
         else:
             Job.objects.create(user=user, list=list_obj, active_invite=True, type=1)
-            messages.success(request, "Convite enviado!")
+            messages.success(request, f"O usuário '{username}' recebeu um convite!")
             return super().post(request, *args, **kwargs)
 
 
@@ -498,15 +516,27 @@ class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
     def post(self, request, *args, **kwargs):
         post_data = dict(request.POST)
         post_data.pop('csrfmiddlewaretoken')
-        
+
         task_id = int( list(post_data.keys())[0] )
-        status = bool(int( list(post_data.values())[0][0] ))
-
         task = Task.objects.get(pk=task_id)
-        task.done = status
-        task.save()
 
-        return HttpResponseRedirect(reverse('appsite:list_detail', args=(self.kwargs['pk'], )))
+        # Atualização dos campos da tarefa
+        if 'name' in post_data or 'due_date' in post_data:
+            task.name = post_data['name'][0]
+            task.due_date = post_data['due_date_day'][0]   + '/' + \
+                            post_data['due_date_month'][0] + '/' + \
+                            post_data['due_date_year'][0]
+            task.save()
+
+        # Atualização apenas do status da tarefa
+        else:            
+            status = bool(int( list(post_data.values())[0][0] ))            
+            task.done = status
+            task.save()
+
+        list_id = List.objects.get(task=task).pk
+
+        return HttpResponseRedirect(reverse('appsite:list_detail', args=(list_id, )))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -1,12 +1,13 @@
-from django.urls import path, include
-from django.conf.urls import url
+from django.urls import path
+from django.contrib.auth import views as auth_views
 
-from . import views
+from .forms import CustomAuthForm
 from .views import *
 
 app_name='accounts'
 
 urlpatterns = [
-    path('', views.CreateUserView.as_view(), name='index'),
+    path('', CreateUserView.as_view(), name='index'),
     path('redirect', login_redirect, name='redirect'),
+    path('accounts/login/', auth_views.LoginView.as_view(authentication_form=CustomAuthForm), name='login')
 ]

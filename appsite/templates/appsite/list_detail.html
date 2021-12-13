@@ -8,7 +8,7 @@
 <div class="list-top">
     <header class="white-box list-header">
         <div class="list-header-upper">
-            <div class="list-symbol">
+            <div style="background-color: {{ list.color }}" class="list-symbol">
                 <h1>{{ list.symbol }}</h1>
             </div>
             <div class="list-header-info">
@@ -49,7 +49,9 @@
                 {% include 'components/task_table.html' with
                     headers=table_header 
                     data=table_data
-                    tasks_id=tasks_id %}
+                    tasks_id=tasks_id
+                    list_id=list.id 
+                    curr_user_jobtype=curr_user_job_type.0 %}
 
             {% else %}
             <div class="list-tasks-empty">
@@ -101,7 +103,7 @@
                     {% endfor %}
                 {% else %}
                     <div class="list-social-empty gradient-yellow">
-                        <p>Ninguém segue essa lista ainda.</p>
+                        <p>Ninguém apenas segue essa lista ainda.</p>
                     </div>
                 {% endif %}
             </section>
@@ -115,6 +117,5 @@
 {% endif %}
 
 <a href="{% url 'appsite:tag_create' list.id %}"><button>Criar tag</button></a>
-<a href="{% url 'appsite:invite' list.id %}"><button>Convidar</button></a>
 
 {% endblock content %}

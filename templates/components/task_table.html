@@ -1,6 +1,7 @@
 <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
+
 <script>
-    for (const i of "{{ task_ids }}" ) {
+    for (const i of "{{ tasks_id }}" ) {
         $(document).ready(function(){
             $("#form_task" + i).on("change", "input:checkbox", function(){
                 $("#form_task" + i).submit();
@@ -8,18 +9,28 @@
         });
     }
 </script>
+
 <script>
 function makeRowClickable() {
-    if (this.event.target.dataset.href) {
+    if (this.event.target.dataset.href && "{{ curr_user_jobtype }}" >=3) {
         window.location = this.event.target.dataset.href
     }    
 }
 </script>
 
+{% if curr_user_jobtype >= 3 %}
+<style>
+    tr:not(.header-row) { cursor: pointer }
+    
+    tr:hover:not(.header-row) { box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2) }
+</style>
+{% endif %}
+
 <table class="table">
     <thead>
         <tr class="header-row">
-            {% for header in headers %}
+            {% if curr_user_jobtype >= 3 %}<th>{{ headers.0 }}</th>{% endif %}
+            {% for header in headers|slice:"1:" %}
                 <th>{{ header }}</th>
             {% endfor %}
         </tr>
@@ -27,13 +38,15 @@ function makeRowClickable() {
     <tbody>
         {% for row in data %}
             <tr data-href="{% url 'appsite:task_update' row.0 %}" onclick="makeRowClickable()">
-                <td>
-                    <form id="form_task{{row.0}}" method="POST" action="{% url 'appsite:task_update' row.0 %}">
-                        {%csrf_token%}
-                        <input type="checkbox" value="1" {% if row.1 %} checked="checked" {% endif %} name="{{ row.0 }}" />
-                        <input type='hidden' value="0" name="{{ row.0 }}" />                     
-                    </form>
-                </td>
+                {% if curr_user_jobtype >= 3 %}
+                    <td>
+                        <form id="form_task{{row.0}}" method="POST" action="{% url 'appsite:task_update' row.0 %}">
+                            {%csrf_token%}
+                            <input type="checkbox" value="1" {% if row.1 %} checked="checked" {% endif %} name="{{ row.0 }}" />
+                            <input type='hidden' value="0" name="{{ row.0 }}" />                     
+                        </form>
+                    </td>
+                {% endif %}
                 {% for cell in row|slice:"2:" %}
                 <td data-href="{% url 'appsite:task_update' row.0 %}">
                     {% if cell %} <p data-href="{% url 'appsite:task_update' row.0 %}">{{ cell }}</p>

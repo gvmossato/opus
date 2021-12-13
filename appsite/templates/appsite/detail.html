@@ -42,7 +42,7 @@
         </div>
         <div class="lists-menu-buttons-container">
             {% if current_user.id == profile_user.id %}
-                <a href="{% url 'appsite:list_create' %}">
+                <a href="{% url 'appsite:list_create' profile_user.id %}">
                     <button class="blue-button create lists-menu-button">Criar lista</button>
                 </a>
             {% endif %}
@@ -54,6 +54,7 @@
                 {% include 'components/list_card.html' with
                     card_id=list.id
                     card_pic=list.picture
+                    card_color=list.color
                     card_symbol=list.symbol
                     card_name=list.name %}
 
@@ -86,6 +87,7 @@
                 {% include 'components/list_card_invite.html' with
                     card_id=list.id
                     card_pic=list.picture
+                    card_color=list.color
                     card_symbol=list.symbol
                     card_name=list.name
                     prof_user_id=profile_user.id

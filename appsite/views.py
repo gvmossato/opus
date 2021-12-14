@@ -10,9 +10,9 @@ from .models import List, Job, Profile, Tag, Follow, Task
 from .forms import ListForm, InviteForm, JobForm, ProfileForm, TagForm, TaskForm
 
 
-# ====== #
+# ===== #
 # MIXIN #
-# ====== #
+# ===== #
 
 class JobRequiredMixin(UserPassesTestMixin):
     # Testa se um usuário logado possui o nível de permissão mínimo
@@ -131,7 +131,7 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
                     pass # Skip them
                 else:
                     # Adding the task to the list
-                    task_copy = Task.objects.create(list_id=list_id, original_id=task.original_id, name=task.name, done=False)
+                    task_copy = Task.objects.create(list_id=list_id, original_id=task.original_id, name=task.name, date=task.date, done=False)
                     task_copy.save()
                     # Linking all the tags of the task that are followed to this newly created task (task_copy)
                     for tag_copy in [task_og for task_og in task.tag_set.filter() if task_og in tags]:
@@ -212,7 +212,7 @@ def task_recurrent(follows,task_new, tags_add):
             
             # Adding the task to the list: now task_new refers to the task created on the child-list
             # ( this is useful to shorten the length of the code )
-            task2_new = Task.objects.create(list_id=list_child.id, original_id = task_new.original_id, name = task_new.name, done = task_new.done)
+            task2_new = Task.objects.create(list_id=list_child.id, original_id=task_new.original_id, name=task_new.name, due_date=task_new.due_date, done=task_new.done)
             task2_new.save()
             
         # Finding the tags that the child list follow from the mother-list
@@ -273,8 +273,10 @@ class TagAddView(LoginRequiredMixin, generic.CreateView):
         post_data = dict(request.POST.lists())
         post_data.pop('csrfmiddlewaretoken')
 
+        print(post_data)
+
         # Getting tags selected to be added in the task from the dict passed on POST requisition
-        tags_id = [int(id) for id in list(post_data.keys())]
+        tags_id = [int(id[1:]) for id in list(post_data.keys())]
         tags_add = Tag.objects.filter(pk__in=tags_id) 
 
         # Getting the new task
@@ -433,6 +435,8 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
         ### Lida com o convite de novos usuários para a lista ###
         post_data = request.POST
         list_obj = List.objects.get(pk=self.kwargs['pk'])
+
+        print(post_data)
 
         # Trata requisições do tipo "Convidar"
         if 'invite' in post_data.keys():
@@ -609,6 +613,7 @@ class TaskDeleteView(LoginRequiredMixin, generic.DeleteView):
 
         return reverse_lazy('appsite:list_detail', args=(list_id, ))
 
+
 class ListDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = List
     template_name = 'appsite/list_delete.html'
@@ -625,6 +630,7 @@ class ListDeleteView(LoginRequiredMixin, generic.DeleteView):
         Job.objects.filter(list_id=self.kwargs['pk']).delete()
         return reverse_lazy('appsite:profile_detail', args=(self.request.user.id, ))
 
+
 class TagUnfollowView(LoginRequiredMixin, generic.UpdateView):
     model = List
     form_class = ListForm
@@ -632,16 +638,17 @@ class TagUnfollowView(LoginRequiredMixin, generic.UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        follows = Follow.objects.filter(list_id = self.kwargs['pk'])
+        follows = Follow.objects.filter(list_id=self.kwargs['pk'])
 
-        # Creating a list that each item will be a list of [tag,list,follow]
-        # So we can unpack the three together in the front-end, in order to obtain tag.name, list.name and follow.id
+        # Creating a list of objects like [tag, list, follow] to unpack the three together
+        # in the front-end, in order to obtain: tag.name, list.name and follow.id
         follows_list = []
         for follow in follows:
             follows_list.append([Tag.objects.get(pk=follow.tag_id), List.objects.get(pk=follow.source_id), follow])
         
         # Passing this list of lists in context (to the front)
         context['follows_list'] = follows_list
+
         return context
 
     def post(self, request, *args, **kwargs):
@@ -657,12 +664,15 @@ class TagUnfollowView(LoginRequiredMixin, generic.UpdateView):
         # Redirecting to lists's page
         return HttpResponseRedirect(reverse_lazy('appsite:list_detail', args=(list_id, )))
 
-class ListUntrackView(LoginRequiredMixin, generic.UpdateView):
-    model = List
+
+class ListUntrackView(LoginRequiredMixin, generic.DeleteView):
+    model = Follow
+    #form_class = JobForm
     template_name = 'appsite/list_untrack.html'
 
     def get_context_data(self, **kwargs):        
-        context = super().get_context_data(**kwargs)        
+        context = super().get_context_data(**kwargs)
+        print('aaaaaa', self.kwargs['pk'])
         context['list_id'] = self.kwargs['pk']
         return context
 
@@ -676,15 +686,15 @@ class ListUntrackView(LoginRequiredMixin, generic.UpdateView):
 
         return reverse_lazy('appsite:profile_detail', args=(self.request.user.id, ))
 
-class ListMenuTemplate(LoginRequiredMixin, generic.TemplateView):
 
+class ListMenuTemplate(LoginRequiredMixin, generic.TemplateView):
     template_name = "appsite/list_menu.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         list_id = self.kwargs['pk']
-        
+
         context['list_id'] = list_id
         
         return context

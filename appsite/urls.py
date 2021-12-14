@@ -23,7 +23,6 @@ urlpatterns = [
     path('list/<int:pk>/tag/follow/',  views.TagFollowView.as_view(),    name='tag_follow'),
     path('list/<int:pk>/tag/unfollow', views.TagUnfollowView.as_view(),  name='tag_unfollow'),
     
-
     ### Task ###
     path('task/<int:pk>/update/', views.TaskUpdateView.as_view(), name='task_update'),
     path('task/<int:pk>/delete/', views.TaskDeleteView.as_view(), name='task_delete'),

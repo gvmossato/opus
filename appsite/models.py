@@ -49,6 +49,10 @@ class List(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        self.symbol = self.symbol.upper()
+        super(List,self).save(*args,**kwargs)
+
 
 # Tabela intermediária de Users e Lists (NxN)
 class Job(models.Model):

@@ -500,10 +500,12 @@ img[alt="profile-config-icon"]:hover {
 
 .lists-menu-buttons-container {
     display: flex;
+    flex-direction: row;
     align-items: center;
     margin-top: 4.5vw;
     width: 28vw;
     height: 4vw;
+    background-color: yellow;
 }
 
 .lists-menu-button {
@@ -513,7 +515,13 @@ img[alt="profile-config-icon"]:hover {
     text-align: right;
     padding: 0.5vw 2vw 0.5vw 0.5vw;
     color: white;
-    flex-grow: 1;
+}
+
+input[type="submit"] {
+    border: none;
+    font-family: Comfortaa, Arial, monospace;
+    font-weight: 700;
+    font-size: 12pt;
 }
 
 .create::before {
@@ -532,28 +540,12 @@ img[alt="profile-config-icon"]:hover {
     background-color: rgb(0, 192, 0);
 }
 
-.accept::before {
-    display: flex;
-    position: absolute;
-    content: '✓';
-    top: 0.2vw;
-    font-size: 16pt;
-}
-
 .refuse {
     background-color: red;
 }
 
 .refuse:hover {
     background-color: rgb(199, 0, 0);
-}
-
-.refuse::before {
-    display: flex;
-    position: absolute;
-    content: 'X';
-    top: 0.45vw;
-    font-size: 16pt;
 }
 
 .lists-menu-empty {
@@ -669,10 +661,26 @@ img[alt="list-card-pic"] {
     margin: 1vw;
 }
 
+.list-header-buttons {
+    display: flex;
+    flex-direction: column;
+}
+
 .list-follow-button {
-    padding: 1vw;
-    margin-right: 1vw;
+    padding: 0.5vw;
     width: 7vw;
+    margin: 0.2vw;
+}
+
+.list-edit-button {
+    background-color: var(--color-pink1);
+    padding: 0.5vw;
+    margin: 0.2vw;
+    width: 7vw;
+}
+
+.list-edit-button:hover {
+    background-color: #b40054;
 }
 
 .list-header-description {
@@ -1018,3 +1026,23 @@ input[type="checkbox"]:disabled {
 .pad-top {
     padding-top: 10px;
 }
+
+li {
+    padding:5px 0;
+}
+
+.list-untrack-text {
+    padding: 20px
+}
+
+.list-untrack-box {
+    margin: 320px auto;
+}
+
+.action-button {
+    width: 2vw;
+    height: 2vw;
+    border-radius: 2vw;
+    margin: 10px;
+}
+

@@ -15,21 +15,22 @@
                 <h1 class="list-title">{{ list.name }}</h1>
                 <p>Criado por @{{ creator.first.username }} em {{ list.date }}</p>
             </div>
-            {% if curr_user_job_type.0 <= 1 %}
-            <a href="{% url 'appsite:tag_follow' list.id %}">
-                <button class="blue-button list-follow-button">Seguir</button>
-            </a>
-            {% else %}
-            <a href="{% url 'appsite:list_menu' list.id %}">
-                <button class="blue-button list-follow-button">Menu</button>
-            </a>
-            {% endif %}
-            {% if curr_user_job_type.0 >= 3 %}
-            <a href="{% url 'appsite:list_update' list.id %}">
-                <button class="blue-button list-follow-button">Editar</button>
-            </a>
-            {% endif %}
-
+            <section class="list-header-buttons">
+                {% if curr_user_job_type.0 == 1 %}
+                <a href="{% url 'appsite:tag_follow' list.id %}">
+                    <button class="blue-button list-follow-button">Seguir</button>
+                </a>
+                {% elif curr_user_job_type.0 >= 2 %}
+                <a href="{% url 'appsite:list_menu' list.id %}">
+                    <button class="blue-button list-follow-button">Menu</button>
+                </a>
+                {% endif %}
+                {% if curr_user_job_type.0 >= 3 %}
+                <a href="{% url 'appsite:list_update' list.id %}">
+                    <button class="blue-button list-edit-button">Editar</button>
+                </a>
+                {% endif %}
+            </section>
         </div>
         <p class="list-header-description">{{ list.description }}</p>
     </header>

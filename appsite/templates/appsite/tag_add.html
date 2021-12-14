@@ -9,6 +9,7 @@
         <p class="color-body pad-text">Escolha agora quais são as tags que você tem interesse.</p>
     </header>
     <form method="POST" action="{% url 'appsite:tag_add' task.id %}">
+    {% csrf_token %}
     {% with unique_tag_name=tags.0.name %}
         <h2 class="follow-tag-name">{{ unique_tag_name }}</h2>
         {% for tag in tags %}
@@ -20,13 +21,13 @@
             </div>
         {% endfor %}
     {% endwith %}
-    </form>
     <div class="form-box-buttons">
         <a href="{% url 'appsite:list_detail' task.list_id %}">
             <button class="gradient-button secondary-button" type="button">Voltar</button>
         </a>
-        <button class="gradient-button primary-button" type="submit">Próximo</button>
-    </div>            
+        <button class="gradient-button primary-button" type="submit">Criar</button>
+    </div>     
+    </form>       
 </section>
 
 {% endblock content %}

@@ -49,7 +49,7 @@ class List(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     color = models.CharField(max_length=7, default="#F20574")
     picture = models.URLField(
-        max_length=255,
+        max_length=510,
         default="https://images.unsplash.com/photo-1515847049296-a281d6401047?w=1920"
     )
 

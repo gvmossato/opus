@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from django.template import base
+import django_heroku
 from pathlib import Path
 import os
 import re
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -140,3 +142,17 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'opusactivate@gmail.com'
 EMAIL_HOST_PASSWORD = 'opusopus123'
 EMAIL_PORT = 587
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://opus-api.netlify.app",
+]
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+   r"^https://\w+\.csb\.app$",
+   r"^https://[\w-]+\.stackblitz\.io$",
+]
+
+# Activate Django-Heroku.
+django_heroku.settings(locals())

@@ -1,7 +1,5 @@
 # 🖥️ Opus
 
-![Heroku](https://heroku-badge.herokuapp.com/?app=devopus)
-
 Repositório destinado à implementação do projeto semestral de **PMR3304 - Sistemas de Informação**. Aqui encontra-se a aplicação **Opus**, desenvolvida com a *framework* [Dajngo](https://www.djangoproject.com/).
 
 # 📝 Projeto

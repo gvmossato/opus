@@ -403,6 +403,20 @@ class ListUpdateView(LoginRequiredMixin, generic.UpdateView):
     form_class = ListForm
     template_name = 'appsite/list_update.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        list_id = self.kwargs['pk']
+        list_obj = List.objects.get(pk=list_id)
+
+        user = self.request.user
+        jobtype = Job.objects.get(user=user, list=list_obj).type
+
+        context['list_id'] = list_id
+        context['curr_user_jobtype'] = jobtype
+        
+        return context
+
     def get_success_url(self):
         return reverse_lazy('appsite:list_detail', args=(self.object.id, ))
 
@@ -670,7 +684,6 @@ class ListUntrackView(LoginRequiredMixin, generic.DeleteView):
 
     def get_context_data(self, **kwargs):        
         context = super().get_context_data(**kwargs)
-        print('aaaaaa', self.kwargs['pk'])
         context['list_id'] = self.kwargs['pk']
         return context
 
@@ -701,4 +714,3 @@ class ListMenuTemplate(LoginRequiredMixin, generic.TemplateView):
         context['curr_user_jobtype'] = jobtype
         
         return context
-    

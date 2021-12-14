@@ -1014,10 +1014,6 @@ select[name="due_date_month"] {
 
 }
 
-.delete-task-box {
-    margin: 300px auto;
-
-}
 
 input[type="checkbox"]:disabled {
     opacity: 0.5;
@@ -1056,3 +1052,8 @@ li {
     margin: 10px;
 }
 
+.delete-wrapper {
+    justify-content: space-between;
+    align-items: flex-end;
+
+}

@@ -56,7 +56,7 @@ body {
   position: relative;
   margin: 0 auto;
   font-family: Comfortaa, Arial, monospace;  
-  background-image: url(/static/images/abstract.png);
+  background-image: url(https://i.ibb.co/TgnJLh1/abstract.jpg);
   color: var(--color-body);
   font-weight: 600;
 }
@@ -1057,4 +1057,9 @@ li {
     justify-content: space-between;
     align-items: flex-end;
 
+}
+
+.user-config-cog {
+    margin: auto;
+    width: 28px;
 }

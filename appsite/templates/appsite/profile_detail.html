@@ -27,7 +27,7 @@
     {% if current_user.id == profile_user.id %}
         <a href="{% url 'appsite:profile_update' profile_user.profile.id %}">
             <button class="profile-config-button">
-                <img src="{% static 'images/icons/cog.svg' %}" alt="profile-config-icon" />
+                <img class="user-config-cog" src="https://i.ibb.co/PrLfbbR/cog.png" alt="profile-config-icon" />
             </button>
         </a>
     {% endif %}

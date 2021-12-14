@@ -46,45 +46,6 @@ def signup(request):
     else:
         form = UserForm()
     return render(request, 'registration/index.html', {'form': form})
-
-
-"""
-class CreateUserView(generic.CreateView):
-    form_class = UserForm
-    template_name = 'registration/index.html'
-
-    def form_valid(self, form):
-        #If the form is valid, redirect to the supplied URL.
-        self.form = form    
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self):
-        if self.form.is_valid():
-            user = self.form.save(commit=False)
-            user.is_active = False
-            user.save()
-        #username = self.form.cleaned_data['username']
-        #user = User.objects.get(username=username)
-        #user.is_active = False
-        #user.save()
-            current_site = get_current_site(self.request)
-            mail_subject = 'Activate your blog account.'
-            message = render_to_string('accounts/acc_active_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid':urlsafe_base64_encode(force_bytes(user.pk)),
-                'token':account_activation_token.make_token(user),
-            })
-            to_email = user.email
-            email = EmailMessage(
-                        mail_subject, message, to=[to_email]
-            )
-            email.content_subtype = "html"
-            email.send()
-            
-            return reverse_lazy('login')
-
-"""
    
 
 @csrf_protect

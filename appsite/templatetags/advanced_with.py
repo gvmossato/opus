@@ -1,9 +1,7 @@
 from django import template
 
+register = template.Library()
 
+@register.simple_tag
 def update_with(value):
     return value
-
-
-register = template.Library()
-register.filter('update_with', update_with)

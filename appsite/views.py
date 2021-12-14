@@ -49,6 +49,12 @@ class TagCreateView(LoginRequiredMixin, generic.CreateView):
     form_class = TagForm
     template_name = "appsite/tag_create.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['list_id'] = self.kwargs['pk']
+
+        return context
+
     def get_success_url(self):       
         # Obtém lista em que foi criada a tag
         list_id = self.kwargs['pk']

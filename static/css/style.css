@@ -888,6 +888,7 @@ label {
 .two-forms-wrapper {
     margin: auto;
     display: flex;
+    flex-direction: row;
     width: 100%;
 }
 

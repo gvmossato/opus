@@ -3,12 +3,29 @@
 {% block title %} Criar tag {% endblock title %}
 
 {% block content %}
-<h1>Criar tag</h1>
 
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Criar</button>
-</form>
+<article class="white-box form-box edit-task-box">
+    <header class="create-list-title criador">
+        <h1>Criar tag</h1>
+    </header>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-box-field">
+            {{ form.name.label }}
+            {{ form.name }}
+        </div>
+        <div class="form-box-field">
+            {{ form.value.label }}              
+            {{ form.value }}
+        </div>
+        <div class="form-box-buttons">
+            <a href="{% url 'appsite:list_detail' list_id %}">
+                <button class="gradient-button secondary-button" type="button">Voltar</button>
+            </a>
+            <button class="gradient-button primary-button" type="submit">Criar</button>
+        </div>
+    </form>
+</article>
 
 {% endblock content %}

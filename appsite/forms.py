@@ -28,8 +28,7 @@ class ListForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ListForm, self).__init__(*args, **kwargs)
-
-        self.fields['picture'].initial = requests.get('https://source.unsplash.com/random/1920x1080/').url
+        self.fields['picture'].initial = requests.get('https://source.unsplash.com/1920x1080/?work').url
 
 
 class TaskForm(ModelForm):

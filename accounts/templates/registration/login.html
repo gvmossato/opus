@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block title %} Entrar {% endblock title %}
 
@@ -7,7 +6,7 @@
 
 <article class="form-page">
     <header class="form-header">
-        <img class="form-logo" src="{% static 'images/logo.png' %}" alt="logo" />
+        <img class="form-logo" src="https://i.ibb.co/QbRBhdq/logo.png" alt="logo" />
         <p class="form-text">
             Colabore, gerencie projetos e alcance novos picos de produtividade.
             Seu jeito de trabalhar é único e a Opus tem todos!
@@ -16,17 +15,17 @@
 
     <section class="form-window">
         <aside class="form-left">
-            <img src="{% static 'images/signin.png' %}" class="form-img" alt="register" />
+            <img src="https://i.ibb.co/RhT6zs4/signin.png" class="form-img" alt="login" />
             <h1 class="form-title">SIGN IN</h1>
         </aside>
         <form class="form-sign" method="POST">
             {% csrf_token %}
             <div class="form-field">
-                <img src="{% static 'images/icons/user-round.svg' %}" class="form-icon" alt="user-icon" />
+                <img src="https://i.ibb.co/bzkWbVL/user-round.png" class="form-icon" alt="user-icon" />
                 {{ form.username }}
             </div>
             <div class="form-field">
-                <img src="{% static 'images/icons/key-round.svg' %}" class="form-icon" alt="password1-icon" />
+                <img src="https://i.ibb.co/42LWDS3/key-round.png" class="form-icon" alt="password1-icon" />
                 {{ form.password }}
             </div>
             <div class="form-buttons">

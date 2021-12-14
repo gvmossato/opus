@@ -3,13 +3,15 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db import models
 
+from .avatars.get_avataaars import generate_avatar
+
 
 # Tabela complementar de usuários
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     picture = models.URLField(
-        default="https://avataaars.io/?avatarStyle=Transparent&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light",
-        max_length=255,
+        default="",
+        max_length=510,
         null=True
     )
     description = models.TextField(
@@ -18,6 +20,11 @@ class Profile(models.Model):
         null=True
     )
     date = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.picture:
+            self.picture = generate_avatar()
+        super(Profile, self).save(*args,**kwargs)
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -42,7 +49,7 @@ class List(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     color = models.CharField(max_length=7, default="#F20574")
     picture = models.URLField(
-        max_length=255,
+        max_length=510,
         default="https://images.unsplash.com/photo-1515847049296-a281d6401047?w=1920"
     )
 

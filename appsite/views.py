@@ -49,6 +49,12 @@ class TagCreateView(LoginRequiredMixin, generic.CreateView):
     form_class = TagForm
     template_name = "appsite/tag_create.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['list_id'] = self.kwargs['pk']
+
+        return context
+
     def get_success_url(self):       
         # Obtém lista em que foi criada a tag
         list_id = self.kwargs['pk']
@@ -204,15 +210,13 @@ def task_recurrent(follows,task_new, tags_add):
         # Seeing if the task is original
         task_filter = list_child.task_set.filter(original_id=task_new.original_id)
         
-        if (task_filter):
-           
+        if (task_filter):           
             task2_new = Task.objects.get(original_id = task_new.original_id, list_id = list_child.id) # Not adding tasks that share the same original_id
         
-        else:
-            
+        else:            
             # Adding the task to the list: now task_new refers to the task created on the child-list
             # ( this is useful to shorten the length of the code )
-            task2_new = Task.objects.create(list_id=list_child.id, original_id=task_new.original_id, name=task_new.name, due_date=task_new.due_date, done=task_new.done)
+            task2_new = Task.objects.create(list_id=list_child.id, original_id=task_new.original_id, name=task_new.name, due_date=task_new.due_date, done=False)
             task2_new.save()
             
         # Finding the tags that the child list follow from the mother-list
@@ -404,6 +408,20 @@ class ListUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = List
     form_class = ListForm
     template_name = 'appsite/list_update.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        list_id = self.kwargs['pk']
+        list_obj = List.objects.get(pk=list_id)
+
+        user = self.request.user
+        jobtype = Job.objects.get(user=user, list=list_obj).type
+
+        context['list_id'] = list_id
+        context['curr_user_jobtype'] = jobtype
+        
+        return context
 
     def get_success_url(self):
         return reverse_lazy('appsite:list_detail', args=(self.object.id, ))
@@ -672,7 +690,6 @@ class ListUntrackView(LoginRequiredMixin, generic.DeleteView):
 
     def get_context_data(self, **kwargs):        
         context = super().get_context_data(**kwargs)
-        print('aaaaaa', self.kwargs['pk'])
         context['list_id'] = self.kwargs['pk']
         return context
 
@@ -694,8 +711,12 @@ class ListMenuTemplate(LoginRequiredMixin, generic.TemplateView):
         context = super().get_context_data(**kwargs)
 
         list_id = self.kwargs['pk']
+        list_obj = List.objects.get(pk=list_id)
+
+        user = self.request.user
+        jobtype = Job.objects.get(user=user, list=list_obj).type
 
         context['list_id'] = list_id
+        context['curr_user_jobtype'] = jobtype
         
         return context
-    

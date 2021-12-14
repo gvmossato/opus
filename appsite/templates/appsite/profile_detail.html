@@ -27,7 +27,7 @@
     {% if current_user.id == profile_user.id %}
         <a href="{% url 'appsite:profile_update' profile_user.profile.id %}">
             <button class="profile-config-button">
-                <img src="{% static 'images/icons/cog.svg' %}" alt="profile-config-icon" />
+                <img class="user-config-cog" src="https://i.ibb.co/PrLfbbR/cog.png" alt="profile-config-icon" />
             </button>
         </a>
     {% endif %}
@@ -73,7 +73,7 @@
         </div>
         <div class="lists-menu-buttons-container">
             {% if current_user.id == profile_user.id %}
-                <form method="POST" action="{% url 'appsite:invite_update_all' profile_user.id %}">
+                <form class="lists-menu-buttons-form" method="POST" action="{% url 'appsite:invite_update_all' profile_user.id %}">
                     {%csrf_token%}
                     <input type="submit" class="accept lists-menu-button" name="accept" value="Aceitar tudo" />
                     <input type="submit" class="refuse lists-menu-button" name="refuse" value="Recusar tudo" />

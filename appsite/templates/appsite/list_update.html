@@ -34,11 +34,18 @@
             {{ form.color.label }}
             {{ form.color }}
         </div>
-        <div class="form-box-buttons">
-            <a href="{% url 'appsite:list_detail' list.id %}">
-                <button class="gradient-button secondary-button" type="button">Voltar</button>
-            </a>
-            <button class="gradient-button primary-button" type="submit">Salvar</button>
+        <div class="form-box-buttons delete-wrapper">
+            {% if curr_user_jobtype == 4 %}
+                <a href="{% url 'appsite:list_delete' list.id %}">
+                    <button class="gradient-button primary-button red-overlay" type="button">Excluir</button>
+                </a>
+            {% endif %}
+            <div class="form-box-buttons">
+                <a href="{% url 'appsite:list_detail' list.id %}">
+                    <button class="gradient-button secondary-button" type="button">Voltar</button>
+                </a>            
+                <button class="gradient-button primary-button" type="submit">Salvar</button>
+            </div>
         </div>
     </form>
 </article>

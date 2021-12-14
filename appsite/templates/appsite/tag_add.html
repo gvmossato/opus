@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load advanced_with %}
 
+{% block title %} Adicionar tags {% endblock title %}
+
 {% block content %}
 
 <section class="white-box form-box tag-select-box">    
@@ -10,11 +12,13 @@
     </header>
     <form method="POST" action="{% url 'appsite:tag_add' task.id %}">
     {% csrf_token %}
-    {% with unique_tag_name=tags.0.name %}
+
+    {% with tags.0.name as unique_tag_name %}
         <h2 class="follow-tag-name">{{ unique_tag_name }}</h2>
         {% for tag in tags %}
             {% if unique_tag_name != tag.name %}
-                <h2 class="follow-tag-name">{{ tag.name|update_with }}</h2>
+                {% update_with tag.name as unique_tag_name %}
+                <h2 class="follow-tag-name">{{ unique_tag_name }}</h2>
             {% endif %}
             <div class="follow-tag-choices">
                 <input type="checkbox" name="t{{ tag.id }}">{{ tag.value }}</input>

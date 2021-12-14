@@ -500,12 +500,16 @@ img[alt="profile-config-icon"]:hover {
 
 .lists-menu-buttons-container {
     display: flex;
-    flex-direction: row;
     align-items: center;
     margin-top: 4.5vw;
     width: 28vw;
     height: 4vw;
-    background-color: yellow;
+}
+
+.lists-menu-buttons-form {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
 }
 
 .lists-menu-button {
@@ -515,6 +519,7 @@ img[alt="profile-config-icon"]:hover {
     text-align: right;
     padding: 0.5vw 2vw 0.5vw 0.5vw;
     color: white;
+    margin-right: 10px;
 }
 
 input[type="submit"] {
@@ -834,8 +839,8 @@ img[alt="social-user-pic"] {
     display: flex;
     flex-direction: column;
     padding:2vw;
-    flex-grow: 1;
     width: 50%;
+    margin: auto;
 }
 
 .form-box-title {
@@ -883,7 +888,12 @@ label {
 .two-forms-wrapper {
     margin: auto;
     display: flex;
+    flex-direction: row;
     width: 100%;
+}
+
+.two-forms-wrapper-side {
+    margin: 1vw;
 }
 
 input[name="invite"]{
@@ -1005,22 +1015,19 @@ select[name="due_date_month"] {
 
 }
 
-.delete-task-box {
-    margin: 300px auto;
-
-}
 
 input[type="checkbox"]:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-.tag-select-box {
-    margin: 100px auto;
-}
+
 
 .list-menu-box {
-    margin: 150px auto;
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+
 }
 
 .pad-top {
@@ -1046,3 +1053,8 @@ li {
     margin: 10px;
 }
 
+.delete-wrapper {
+    justify-content: space-between;
+    align-items: flex-end;
+
+}

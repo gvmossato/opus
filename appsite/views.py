@@ -131,7 +131,7 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
                     pass # Skip them
                 else:
                     # Adding the task to the list
-                    task_copy = Task.objects.create(list_id=list_id, original_id=task.original_id, name=task.name, date=task.date, done=False)
+                    task_copy = Task.objects.create(list_id=list_id, original_id=task.original_id, name=task.name, due_date=task.due_date, done=False)
                     task_copy.save()
                     # Linking all the tags of the task that are followed to this newly created task (task_copy)
                     for tag_copy in [task_og for task_og in task.tag_set.filter() if task_og in tags]:

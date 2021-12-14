@@ -834,8 +834,8 @@ img[alt="social-user-pic"] {
     display: flex;
     flex-direction: column;
     padding:2vw;
-    flex-grow: 1;
     width: 50%;
+    margin: auto;
 }
 
 .form-box-title {
@@ -884,6 +884,10 @@ label {
     margin: auto;
     display: flex;
     width: 100%;
+}
+
+.two-forms-wrapper-side {
+    margin: 1vw;
 }
 
 input[name="invite"]{
@@ -1015,12 +1019,13 @@ input[type="checkbox"]:disabled {
     cursor: not-allowed;
 }
 
-.tag-select-box {
-    margin: 100px auto;
-}
+
 
 .list-menu-box {
-    margin: 150px auto;
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+
 }
 
 .pad-top {

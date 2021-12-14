@@ -131,7 +131,7 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
                     pass # Skip them
                 else:
                     # Adding the task to the list
-                    task_copy = Task.objects.create(list_id=list_id, original_id=task.original_id, name=task.name, date=task.date, done=False)
+                    task_copy = Task.objects.create(list_id=list_id, original_id=task.original_id, name=task.name, due_date=task.due_date, done=False)
                     task_copy.save()
                     # Linking all the tags of the task that are followed to this newly created task (task_copy)
                     for tag_copy in [task_og for task_og in task.tag_set.filter() if task_og in tags]:
@@ -204,15 +204,13 @@ def task_recurrent(follows,task_new, tags_add):
         # Seeing if the task is original
         task_filter = list_child.task_set.filter(original_id=task_new.original_id)
         
-        if (task_filter):
-           
+        if (task_filter):           
             task2_new = Task.objects.get(original_id = task_new.original_id, list_id = list_child.id) # Not adding tasks that share the same original_id
         
-        else:
-            
+        else:            
             # Adding the task to the list: now task_new refers to the task created on the child-list
             # ( this is useful to shorten the length of the code )
-            task2_new = Task.objects.create(list_id=list_child.id, original_id=task_new.original_id, name=task_new.name, due_date=task_new.due_date, done=task_new.done)
+            task2_new = Task.objects.create(list_id=list_child.id, original_id=task_new.original_id, name=task_new.name, due_date=task_new.due_date, done=False)
             task2_new.save()
             
         # Finding the tags that the child list follow from the mother-list
@@ -694,8 +692,13 @@ class ListMenuTemplate(LoginRequiredMixin, generic.TemplateView):
         context = super().get_context_data(**kwargs)
 
         list_id = self.kwargs['pk']
+        list_obj = List.objects.get(pk=list_id)
+
+        user = self.request.user
+        jobtype = Job.objects.get(user=user, list=list_obj).type
 
         context['list_id'] = list_id
+        context['curr_user_jobtype'] = jobtype
         
         return context
     

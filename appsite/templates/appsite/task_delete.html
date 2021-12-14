@@ -3,14 +3,26 @@
 {% block title %} Task {% endblock title %}
 
 {% block content %}
-<h1>Deletar task</h1>
 
-<form method="POST">
-    {% csrf_token %}
-    <p>Você tem certeza que deseja deletar essa task?</p>
-    <button type="submit">Deletar</button>
-</form>
+<article class="white-box form-box delete-task-box">
+    <header class="create-list-title delete">
+        <h1>Apagar</h1>
+    </header>
+    <p>Você tem certeza que deseja apagar a tarefa:</p>
+    <section class="delete-task-preview">
+        <p>{{ task.name }}</p>
+    </section>
 
-<a href="{% url 'appsite:task_update' task_id %}"><button>Voltar</button></a>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-box-buttons">
+            <a href="{% url 'appsite:list_detail' list_id %}">
+                <button class="gradient-button secondary-button" type="button">Voltar</button>
+            </a>
+            <button class="gradient-button primary-button red-overlay" type="submit">Apagar</button>
+        </div>
+    </form>
+
+</article>
 
 {% endblock content %}

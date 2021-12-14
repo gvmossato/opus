@@ -1,5 +1,7 @@
+from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
+from django.forms.widgets import PasswordInput, TextInput
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from django import forms
 
 
 # Transforma labels em placeholders
@@ -23,3 +25,8 @@ class UserForm(PlaceholderMixin, UserCreationForm):
             'username' : 'Usuário',
             'email'    : 'E-mail',
         }
+
+
+class CustomAuthForm(AuthenticationForm):
+    username = forms.CharField(widget=TextInput(attrs={'placeholder': 'Usuário'}))
+    password = forms.CharField(widget=PasswordInput(attrs={'placeholder':'Senha'}))

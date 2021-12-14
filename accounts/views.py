@@ -9,7 +9,7 @@ from appsite.models import Profile
 
 @login_required
 def login_redirect(request):
-    return redirect('appsite:detail', pk=request.user.pk)
+    return redirect('appsite:profile_detail', pk=request.user.pk)
 
 class CreateUserView(generic.CreateView):
     form_class = UserForm

@@ -3,31 +3,53 @@
 {% block title %} Social {% endblock title %}
 
 {% block content %}
+<div class="two-forms-wrapper">
+    <article class="white-box form-box two-forms-wrapper-side">
+        <header class="form-box-title criador">
+            <h1>Convidar</h1>
+        </header>
+        <form method="POST" action="{% url 'appsite:job_update' list.id %}">
+            {% csrf_token %}
+            <div class="form-field">
+                <label id="invite" for="invite">@</label>
+                <input type="text" name="invite" placeholder="Usuário"/>
+            </div>
+            <div class="form-box-buttons">
+                <a href="{% url 'appsite:list_detail' list.id %}">
+                    <button class="gradient-button secondary-button" type="button">Voltar</button>
+                </a>
+                <button class="gradient-button primary-button" type="submit">Convidar</button>
+            </div>
+        </form>
 
-<article class="white-box form-box">
-    <h1>Convidar usuário</h1>
-    <form method="POST" action="{% url 'appsite:job_update' 1 %}">
-        {% csrf_token %}
-        <label id="invite" for="invite">@</label>
-        <input type="text" name="invite" placeholder="Usuário"/>
-        <button type="submit">Convidar</button>
-    </form>
-</article>
+        <section class="gradient-blue1 form-box-messages">
+            {% if messages %}
+                {% for message in messages %}
+                <p>{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        </section>
+    </article>
 
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li  {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
-    {% endfor %}
-</ul>
-{% endif %}
-
-<article class="white-box form-box">
-    <h1>Gerenciar participantes</h1>
-    <form method="POST" action="{% url 'appsite:job_update' 1 %}">
-        {% csrf_token %}
-        {{ form.as_p }}
-    </form>
-</article>
+    <article class="white-box form-box two-forms-wrapper-side">
+        <header class="form-box-title administrador">
+            <h1>Gerenciar</h1>
+        </header>
+            <form method="POST" action="{% url 'appsite:job_update' list.id %}">
+                {% csrf_token %}
+                <label for="user">Usuário</label>
+                {{ form.user }}
+                <label for="type">Cargo</label>
+                {{ form.type }}
+                <input type="hidden" name="job" />
+                <div class="form-box-buttons">
+                    <a href="{% url 'appsite:list_detail' list.id %}">
+                        <button class="gradient-button secondary-button" type="button">Voltar</button>
+                    </a>
+                    <button class="gradient-button primary-button" type="submit">Salvar</button>
+                </div>
+            </form>
+    </article>
+</div>
 
 {% endblock content %}

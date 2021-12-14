@@ -1,36 +1,70 @@
 {% extends 'base.html' %}
+{% load advanced_with %}
 
 {% block title %} Seguir lista {% endblock title %}
 
 {% block content %}
 
-<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
-<script type='text/javascript'>
-    $(document).ready(function () {
-    $('input[type=radio]').change(function() {
-        $('input[type=radio]:checked').not(this).prop('checked', false);
-    });
-})
-</script>
+{% if user_allowed_lists and source_tags %}
+    <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
+    <script type='text/javascript'>
+        $(document).ready(function () {
+        $('input[type=radio]').change(function() {
+            $('input[type=radio]:checked').not(this).prop('checked', false);
+        });
+    })
+    </script>
 
-<h1>Suas listas</h1>
+    <form class="two-forms-wrapper" method="POST" action="{% url 'appsite:tag_follow' source.id %}">
+        {% csrf_token %}
+        <section class="white-box form-box two-forms-wrapper-side">
+            <header class="criador">
+                <h1>Listas</h1>
+                <p class="color-body pad-top">Escolha uma lista sua ou que você administra para encaminhar as novas tarefas.</p>
+            </header>
+            <section class="gradient-blue1 follow-tag-messages">
+                {% if messages %}
+                    {% for message in messages %}
+                    <p>{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+            </section>
+            {% for list in user_allowed_lists %}
+            <div class="follow-tag-choices">
+                <input type="radio" name="l{{ list.id }}">{{ list.name }}</input>
+            </div>
+            {% endfor %}
+        </section>
 
-<h1>Tags da lista</h1>
-
-
-
-<form method="POST" action="{% url 'appsite:tag_follow' source.id %}">
-    {% csrf_token %}
-
-    {% for list in user_allowed_lists %}
-        <input type="radio" name="l{{ list.id }}">{{ list.name }}</input>
-    {% endfor %}  
-
-    {% for tag in source_tags %}
-        <input type="checkbox" name="t{{ tag.id }}">{{ tag.name }} : {{ tag.value }}</input>
-    {% endfor %}
-
-    <button type="submit">Seguir</button>
-</form>
+        <section class="white-box form-box two-forms-wrapper-side">    
+            <header class="administrador">
+                <h1>Tags</h1>
+                <p class="color-body pad-top">Escolha agora quais são as tags que você tem interesse.</p>
+            </header>
+            {% with source_tags.0.name as unique_tag_name %}
+                <h2 class="follow-tag-name">{{ unique_tag_name }}</h2>
+                {% for tag in source_tags %}
+                    {% if unique_tag_name != tag.name %}
+                        {% update_with tag.name as unique_tag_name %}
+                        <h2 class="follow-tag-name">{{ unique_tag_name }}</h2>
+                    {% endif %}
+                    <div class="follow-tag-choices">
+                        <input type="checkbox" name="t{{ tag.id }}">{{ tag.value }}</input>
+                    </div>
+                {% endfor %}
+            {% endwith %}
+            <div class="form-box-buttons">
+                <a href="{% url 'appsite:list_detail' source.id %}">
+                    <button class="gradient-button secondary-button" type="button">Voltar</button>
+                </a>
+                <button class="gradient-button primary-button" type="submit">Seguir</button>
+            </div>            
+        </section>
+    </form>
+{% else %}
+    <section class="white-box forbidden">
+        <p>Parece que você ainda não possui listas para poder começar a seguir outras, ou então essa lista ainda não tem tags!</p>
+    </section>
+{% endif %}
 
 {% endblock content %}

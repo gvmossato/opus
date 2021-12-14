@@ -8,27 +8,29 @@
 <div class="list-top">
     <header class="white-box list-header">
         <div class="list-header-upper">
-            <div class="list-symbol">
+            <div style="background-color: {{ list.color }}" class="list-symbol">
                 <h1>{{ list.symbol }}</h1>
             </div>
             <div class="list-header-info">
                 <h1 class="list-title">{{ list.name }}</h1>
                 <p>Criado por @{{ creator.first.username }} em {{ list.date }}</p>
             </div>
-            {% if curr_user_job_type.0 == 1 %}
-            <a href="{% url 'appsite:tag_follow' list.id %}">
-                <button class="blue-button list-follow-button">Seguir</button>
-            </a>
-            {% elif curr_user_job_type.0 == 2 %}
-            <a href="">
-                <button class="blue-button list-follow-button">Deixar</button>
-            </a>
-            {% elif curr_user_job_type.0 >= 3 %}
-            <a href="{% url 'appsite:list_update' list.id %}">
-                <button class="blue-button list-follow-button">Editar</button>
-            </a>
-            {% endif %}
-
+            <section class="list-header-buttons">
+                {% if curr_user_job_type.0 == 1 %}
+                <a href="{% url 'appsite:tag_follow' list.id %}">
+                    <button class="blue-button list-follow-button">Seguir</button>
+                </a>
+                {% elif curr_user_job_type.0 >= 2 %}
+                <a href="{% url 'appsite:list_menu' list.id %}">
+                    <button class="blue-button list-follow-button">Menu</button>
+                </a>
+                {% endif %}
+                {% if curr_user_job_type.0 >= 3 %}
+                <a href="{% url 'appsite:list_update' list.id %}">
+                    <button class="blue-button list-edit-button">Editar</button>
+                </a>
+                {% endif %}
+            </section>
         </div>
         <p class="list-header-description">{{ list.description }}</p>
     </header>
@@ -45,10 +47,19 @@
 {% if curr_user_job_type.0 >= 1 %}
     <div class="list-bottom">
         <article class="list-tasks white-box">
-            {% include 'components/task_table.html' with
-                headers=table_header 
-                data=table_data %}
+            {% if tasks_id %}
+                {% include 'components/task_table.html' with
+                    headers=table_header 
+                    data=table_data
+                    tasks_id=tasks_id
+                    list_id=list.id 
+                    curr_user_jobtype=curr_user_job_type.0 %}
 
+            {% else %}
+            <div class="list-tasks-empty">
+                <p>Sem tarefas criadas até agora!</p>
+            </div>
+            {% endif %}
             {% if curr_user_job_type.0 >= 3 %}
             <a href="{% url 'appsite:task_create' list.id %}">
                 <button class="blue-button new-task-button">Nova Tarefa</button>
@@ -94,7 +105,7 @@
                     {% endfor %}
                 {% else %}
                     <div class="list-social-empty gradient-yellow">
-                        <p>Ninguém segue essa lista ainda.</p>
+                        <p>Ninguém apenas segue essa lista ainda.</p>
                     </div>
                 {% endif %}
             </section>
@@ -106,8 +117,5 @@
         <p>Parece que você ainda não foi convidado para acompanhar essa lista!</p>
     </section>
 {% endif %}
-
-<a href="{% url 'appsite:tag_create' list.id %}"><button>Criar tag</button></a>
-<a href="{% url 'appsite:invite' list.id %}"><button>Convidar</button></a>
 
 {% endblock content %}

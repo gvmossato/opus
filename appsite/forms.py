@@ -1,5 +1,6 @@
+import requests
 from django.contrib.auth.models import User
-from django.forms import ModelForm
+from django.forms import ModelForm, widgets
 from .models import List, Task, Tag, Job, Profile
 from django import forms
 
@@ -12,13 +13,23 @@ class ListForm(ModelForm):
             'symbol',
             'picture',
             'description',
+            'color',
         ]
         labels = {
             'name' : 'Nome',
             'symbol' : 'Ícone',
+            'color' : 'Cor',
             'picture' : 'Imagem (URL)',
             'description' : 'Descrição',
         }
+        widgets = {
+            "color": widgets.TextInput(attrs={"type": "color"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ListForm, self).__init__(*args, **kwargs)
+
+        self.fields['picture'].initial = requests.get('https://source.unsplash.com/random/1920x1080/').url
 
 
 class TaskForm(ModelForm):
@@ -26,9 +37,14 @@ class TaskForm(ModelForm):
         model = Task
         fields = [
             'name',
+            'due_date'
         ]
         labels = {
             'name' : 'Tarefa',
+            'due_date' : 'Entrega'
+        }
+        widgets = {
+            "due_date": forms.SelectDateWidget(),
         }
 
 
@@ -69,28 +85,24 @@ class JobForm(ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        # Extrai dados oriundos de JobUpdateView
+        # Extrai dados enviados pela JobUpdateView
         self.user = kwargs.pop('user')       # Usuário atual da página
         self.list_id = kwargs.pop('list_pk') # Id da lista atual
 
         super(JobForm, self).__init__(*args, **kwargs)
 
-        list_obj = List.objects.get(pk=self.list_id) # Obtém a lista
+        list_obj = List.objects.get(pk=self.list_id) # Obtém a lista atual
+        
+        # Obtém todos os ids de seguidores e administradores
+        subordinates_job = Job.objects.filter(list=list_obj, type__in=[2, 3])
+        subordinates_id = subordinates_job.values_list('user', flat=True)
 
-        # Obtém cargo do usuário atual na lista
-        job = Job.objects.get(user=self.user, list=list_obj)
-        job_type = job.type
+        # Define as transições de cargo possíveis
+        jobs_transitions = [(2, 'Seguidor'), (3, 'Administrador')]
 
-        # Obtém todos os usuários com cargos menor ou igual ao do usuário atual (exclui o criador)
-        subordinates = Job.objects.filter(list=list_obj, type__lte=job_type).exclude(type=4).values('user')
-        subordinates_id = subordinates.values_list('pk', flat=True)
-
-        # Obtém todos os cargos subordinados
-        inferior_jobs = [(2, 'Seguidor'), (3, 'Administrador')]
-
-        # Seleciona apenas os usuários subordinados ao atual
+        # Seleciona apenas os usuários subordinados
         self.fields['user'].queryset = User.objects.filter(pk__in=subordinates_id)
-        self.fields['type'] = forms.ChoiceField(choices=inferior_jobs)
+        self.fields['type'] = forms.ChoiceField(choices=jobs_transitions)
 
         
 class ProfileForm(ModelForm):
@@ -101,6 +113,6 @@ class ProfileForm(ModelForm):
             'description'
         ]
         labels = {
-            'picture' : 'Foto do perfil',
+            'picture' : 'Foto (URL)',
             'type' : 'Descrição'
         }

@@ -3,13 +3,15 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db import models
 
+from .avatars.get_avataaars import generate_avatar
 
-# Tabela auxiliar de usuários
+
+# Tabela complementar de usuários
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     picture = models.URLField(
-        default="https://avataaars.io/?avatarStyle=Transparent&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light",
-        max_length=255,
+        default="",
+        max_length=510,
         null=True
     )
     description = models.TextField(
@@ -18,6 +20,11 @@ class Profile(models.Model):
         null=True
     )
     date = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.picture:
+            self.picture = generate_avatar()
+        super(Profile, self).save(*args,**kwargs)
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -37,13 +44,21 @@ def save_user_profile(sender, instance, **kwargs):
 class List(models.Model):
     name = models.CharField(max_length=255)
     symbol = models.CharField(max_length=2)
-    picture = models.URLField(max_length=255)
-    description = models.CharField(max_length=255, null=True)
+    description = models.TextField(max_length=255, null=True)
     user = models.ManyToManyField(User, through='Job')
     date = models.DateTimeField(auto_now_add=True)
+    color = models.CharField(max_length=7, default="#F20574")
+    picture = models.URLField(
+        max_length=255,
+        default="https://images.unsplash.com/photo-1515847049296-a281d6401047?w=1920"
+    )
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        self.symbol = self.symbol.upper()
+        super(List,self).save(*args,**kwargs)
 
 
 # Tabela intermediária de Users e Lists (NxN)
@@ -63,7 +78,8 @@ class Task(models.Model):
     original_id = models.IntegerField(blank=True, null=True) 
     name = models.CharField(max_length=255)
     done = models.BooleanField(default=False)
-    date = models.DateTimeField(auto_now_add=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    due_date = models.CharField(max_length=10)
 
     def __str__(self):
         return self.name

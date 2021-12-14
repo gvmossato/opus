@@ -3,12 +3,41 @@
 {% block title %} Criar lista {% endblock title %}
 
 {% block content %}
-<h1>Criar lista</h1>
 
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Criar</button>
-</form>
+<article class="white-box form-box create-list-box">
+    <header class="form-box-title criador">
+        <h1>Criar Lista</h1>
+    </header>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-box-field">
+            {{ form.name.label }}
+            {{ form.name }}
+        </div>
+        <div class="form-box-field">
+            {{ form.symbol.label }}
+            {{ form.symbol }}
+        </div>
+        <div class="form-box-field">
+            {{ form.picture.label }}
+            {{ form.picture }}
+        </div>
+        <div class="form-box-field">
+            {{ form.description.label }}
+            {{ form.description }}
+        </div>
+        <div class="form-box-field">
+            {{ form.color.label }}
+            {{ form.color }}
+        </div>
+        <div class="form-box-buttons">
+            <a href="{% url 'appsite:profile_detail' user_id %}">
+                <button class="gradient-button secondary-button" type="button">Voltar</button>
+            </a>
+            <button class="gradient-button primary-button" type="submit">Criar</button>
+        </div>
+    </form>
+</article>
 
 {% endblock content %}

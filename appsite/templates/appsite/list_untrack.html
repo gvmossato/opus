@@ -3,16 +3,29 @@
 {% block title %} List {% endblock title %}
 
 {% block content %}
-<h1>Deletar lista</h1>
 
-<form method="POST">
-    {% csrf_token %}
-    <p>Você tem certeza que deseja dar untrack nessa lista?</p>
-    <p>Se der untrack não mais poderá seguir as tags nem mesmo ver as tasks dessa lista.</p>
-    <p>A lista não aparecerá mais em minhas listas.</p>
-    <button type="submit">Deletar</button>
-</form>
+<article class="white-box form-box list-untrack-box">
+    <header class="menu-box-title seguidor">
+        <h1>Deixar Lista</h1>
+    </header>
+    <div class="list-untrack-text">
+        <p><b>CUIDADO!</b> Você está prestes a se desvincular completamente dessa lista.</p>
+        <ul>
+            <li>Não receberá mais atualizações das tags que segue;</li>
+            <li>Não poderá mais acessar a lista para visualizar suas tarefas;</li>
+            <li>A lista desaparecerá do seu perfil.</li>
+        </ul>
+    </div>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-box-buttons">
+            <a href="{% url 'appsite:list_detail' list_id %}">
+                <button class="gradient-button secondary-button" type="button">Voltar</button>
+            </a>
+            <button class="gradient-button primary-button red-overlay" type="submit">Remover</button>
+        </div>
+    </form>
+</article>
 
-<a href="{% url 'appsite:list_detail' list_id %}"><button>Voltar</button></a>
 
 {% endblock content %}

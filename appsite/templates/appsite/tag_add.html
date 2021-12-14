@@ -1,19 +1,37 @@
 {% extends 'base.html' %}
+{% load advanced_with %}
+
+{% block title %} Adicionar tags {% endblock title %}
 
 {% block content %}
 
-<h2>Adicionar tags à task {{ task.name }}</h2>
-
-<form method="POST" action="{% url 'appsite:tag_add' task.id %}">
+<section class="white-box form-box tag-select-box">    
+    <header class="administrador">
+        <h1>Tags</h1>
+        <p class="color-body pad-text">Escolha agora quais são as tags que você tem interesse.</p>
+    </header>
+    <form method="POST" action="{% url 'appsite:tag_add' task.id %}">
     {% csrf_token %}
 
-    {% for tag in tags %}
-        <input type="checkbox" name="{{ tag.id }}">{{ tag.name }} : {{ tag.value }}</input>
-    {% endfor %}
-
-    <button type="submit">Adicionar tags</button>
-</form>
-
-<h2><a href="{% url 'appsite:list_detail' task.list_id %}">Voltar à lista</a></h2>
+    {% with tags.0.name as unique_tag_name %}
+        <h2 class="follow-tag-name">{{ unique_tag_name }}</h2>
+        {% for tag in tags %}
+            {% if unique_tag_name != tag.name %}
+                {% update_with tag.name as unique_tag_name %}
+                <h2 class="follow-tag-name">{{ unique_tag_name }}</h2>
+            {% endif %}
+            <div class="follow-tag-choices">
+                <input type="checkbox" name="t{{ tag.id }}">{{ tag.value }}</input>
+            </div>
+        {% endfor %}
+    {% endwith %}
+    <div class="form-box-buttons">
+        <a href="{% url 'appsite:list_detail' task.list_id %}">
+            <button class="gradient-button secondary-button" type="button">Voltar</button>
+        </a>
+        <button class="gradient-button primary-button" type="submit">Criar</button>
+    </div>     
+    </form>       
+</section>
 
 {% endblock content %}

@@ -3,12 +3,51 @@
 {% block title %} Editar lista {% endblock title %}
 
 {% block content %}
-<h1>Editar lista</h1>
 
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Editar</button>
-</form>
+<article class="white-box form-box create-list-box">
+    <header class="create-list-title criador">
+        <h1>Editar Lista</h1>
+        <a href="{% url 'appsite:tag_create' list.id %}">
+            <button class="gradient-button primary-button pink-overlay" type="button">Criar Tag</button>
+        </a>
+    </header>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-box-field">
+            {{ form.name.label }}
+            {{ form.name }}
+        </div>
+        <div class="form-box-field">
+            {{ form.symbol.label }}
+            {{ form.symbol }}
+        </div>
+        <div class="form-box-field">
+            {{ form.picture.label }}
+            {{ form.picture }}
+        </div>
+        <div class="form-box-field">
+            {{ form.description.label }}
+            {{ form.description }}
+        </div>
+        <div class="form-box-field">
+            {{ form.color.label }}
+            {{ form.color }}
+        </div>
+        <div class="form-box-buttons delete-wrapper">
+            {% if curr_user_jobtype == 4 %}
+                <a href="{% url 'appsite:list_delete' list.id %}">
+                    <button class="gradient-button primary-button red-overlay" type="button">Excluir</button>
+                </a>
+            {% endif %}
+            <div class="form-box-buttons">
+                <a href="{% url 'appsite:list_detail' list.id %}">
+                    <button class="gradient-button secondary-button" type="button">Voltar</button>
+                </a>            
+                <button class="gradient-button primary-button" type="submit">Salvar</button>
+            </div>
+        </div>
+    </form>
+</article>
 
 {% endblock content %}

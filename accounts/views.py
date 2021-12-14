@@ -8,7 +8,6 @@ from django.template.loader import render_to_string
 from .tokens import account_activation_token
 from django.core.mail import EmailMessage
 from django.urls import reverse_lazy
-from django.views import generic
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 from django.http import HttpResponse
@@ -17,7 +16,6 @@ from django.contrib.messages.views import SuccessMessageMixin
 
 
 from .forms import UserForm
-from appsite.models import Profile
 from django.views.decorators.csrf import csrf_protect
 
 @login_required

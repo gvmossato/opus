@@ -66,7 +66,7 @@ class TagCreateView(LoginRequiredMixin, generic.CreateView):
         # Linka a mova tag com a lista, através de Follow
         follow = Follow(list=list, tag=tag, source_id=list_id)
         follow.save()
-        return reverse_lazy('appsite:list_detail', args=(list_id, ))
+        return reverse_lazy('appsite:tag_create', args=(list_id, ))
 
 
 class TagFollowView(LoginRequiredMixin, generic.CreateView):

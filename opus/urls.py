@@ -24,7 +24,7 @@ urlpatterns = [
     path('', include('accounts.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('app/', include('appsite.urls')),
-    path('admin/', admin.site.urls),
-    url(r'^favicon\.ico$', RedirectView.as_view(url='https://i.ibb.co/CmX4rjz/favicon.png')), # fix favicon
+    path('admin/', admin.site.urls),    
     path('api/v1/', include('api.urls')),
+    path('favicon.ico', RedirectView.as_view(url="static/images/favicon.png")), # Fix favicon
 ]

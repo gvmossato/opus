@@ -74,8 +74,8 @@ Opus let you just go and copy the tasks by tags you are interested in into a lis
 This project was originally made possible through the direct work of:
 
 * [Gabriel Mossato](https://github.com/gvmossato)
-* [Higor Silva](https://github.com/Higor-Silva1)
 * [Henrique Ken](https://github.com/HenriqueKen)
+* [Higor Silva](https://github.com/Higor-Silva1)
 * [Paulino Veloso](https://github.com/pfvelu)
 
 With a special thanks for the support given by:

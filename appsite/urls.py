@@ -1,12 +1,11 @@
-from django.urls import path, include
+from django.urls import path
 from . import views
 
 app_name='appsite'
 
 urlpatterns = [
     ### Profile ###
-    path('user/<int:pk>/',             views.UserDetailView.as_view(),       name='profile_detail'),
-    path('user/<int:pk>/update/',       views.ProfileUpdateView.as_view(),   name='profile_update'),
+
     path('user/<int:pk>/invite/',       views.InviteUpdateView.as_view(),    name='invite_update'),
     path('user/<int:pk>/invite/all/',   views.InviteUpdateAllView.as_view(), name='invite_update_all'),
     path('user/<int:pk>/list/create/', views.ListCreateView.as_view(),       name='list_create'), 

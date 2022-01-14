@@ -17,7 +17,7 @@
                     <button class="blue-button profile-logout-button">Sair</button>
                 </a>
             {% else %}
-            <a href="{% url 'appsite:profile_detail' current_user.id %}">
+            <a href="{% url 'accounts:profile_detail' current_user.id %}">
                 <button class="blue-button profile-logout-button">Voltar</button>
             </a>
             {% endif %}
@@ -25,7 +25,7 @@
         <p>{{ profile_user.profile.description }}</p>
     </section>
     {% if current_user.id == profile_user.id %}
-        <a href="{% url 'appsite:profile_update' profile_user.profile.id %}">
+        <a href="{% url 'accounts:profile_update' profile_user.profile.id %}">
             <button class="profile-config-button">
                 <img class="user-config-cog" src="https://i.ibb.co/PrLfbbR/cog.png" alt="profile-config-icon" />
             </button>

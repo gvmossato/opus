@@ -1,22 +1,25 @@
-from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
-from django.forms.widgets import PasswordInput, TextInput
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django import forms
+
+from .models import Profile
 
 
 # Transforma labels em placeholders
 class PlaceholderMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        field_names = [field_name for field_name, _ in self.fields.items()]
+
+        field_names = list(self.fields.keys())
         for field_name in field_names:
             field = self.fields.get(field_name)
-            field.widget.attrs.update({'placeholder': field.label})
+            field.widget.attrs.update({'placeholder' : field.label})
 
 
 class UserForm(PlaceholderMixin, UserCreationForm):
     class Meta:
         model = User
+
         fields = [
             'username',
             'email',
@@ -28,5 +31,23 @@ class UserForm(PlaceholderMixin, UserCreationForm):
 
 
 class CustomAuthForm(AuthenticationForm):
-    username = forms.CharField(widget=TextInput(attrs={'placeholder': 'Usuário'}))
-    password = forms.CharField(widget=PasswordInput(attrs={'placeholder':'Senha'}))
+    username = forms.CharField(
+        widget=forms.widgets.TextInput(attrs={'placeholder' : 'Usuário'})
+    )
+    password = forms.CharField(
+        widget=forms.widgets.PasswordInput(attrs={'placeholder' : 'Senha'})
+    )
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+
+        fields = [
+            'picture',
+            'description'
+        ]
+        labels = {
+            'picture' : 'Foto (URL)',
+            'type' : 'Descrição'
+        }

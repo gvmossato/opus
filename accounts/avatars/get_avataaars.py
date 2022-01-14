@@ -1,7 +1,10 @@
 import random
+
 from .database import data
 
+
 global db
+
 db = data
 
 def generate_avatar():

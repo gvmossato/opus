@@ -6,8 +6,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 
-from .models import List, Job, Profile, Tag, Follow, Task
-from .forms import ListForm, InviteForm, JobForm, ProfileForm, TagForm, TaskForm
+from .models import List, Job, Tag, Follow, Task
+from .forms import ListForm, TagForm, TaskForm, JobForm
 
 
 # ===== #
@@ -300,38 +300,64 @@ class TagAddView(LoginRequiredMixin, generic.CreateView):
         task_recurrent(follows,task_new, tags_add)
 
         return HttpResponseRedirect(reverse_lazy('appsite:list_detail', args=(source.id, )))
+class InviteUpdateView(LoginRequiredMixin, generic.UpdateView):
+    model = Job
+    form_class = JobForm
+    template_name = 'accounts/profile/detail.html'
+
+    def post(self, request, *args, **kwargs):
+        # Obtém dados do formulário (frontend)
+        post_data = dict(request.POST.lists()).keys()
+        post_data = list(post_data)[1:]
+
+        response, list_id = post_data
+
+        list_obj = List.objects.get(pk=list_id)
+        user = User.objects.get(pk=self.kwargs['pk'])
+
+        job = Job.objects.get(user=user, list=list_obj)
+
+        if response == 'accept':
+            job.active_invite = False
+            job.save()                    
+        elif response == 'refuse':
+            job.delete()
+        else:
+            pass
+            
+        return HttpResponseRedirect( reverse_lazy('accounts:profile_detail', args=(self.kwargs['pk'], )) )
+
+class InviteUpdateAllView(LoginRequiredMixin, generic.UpdateView):
+    model = Job
+    form_class = JobForm
+    template_name = 'accounts/profile/detail.html'
+
+    def post(self, request, *args, **kwargs):
+        # Obtém dados do formulário (frontend)
+        post_data = dict(request.POST.lists()).keys()
+        post_data = list(post_data)[1:]
+
+        response = post_data[0]
+
+        user = User.objects.get(pk=self.kwargs['pk'])
+        jobs = Job.objects.filter(user=user, active_invite = True)
+
+        if response == 'accept':  
+            for job in jobs:
+                job.active_invite = False
+                job.save()          
+        elif response == 'refuse':
+            jobs.delete()
+        else:
+            pass
+            
+        return HttpResponseRedirect( reverse_lazy('accounts:profile_detail', args=(self.kwargs['pk'], )) )
+
 
 
 # ==== #
 # READ #
 # ==== #
-
-class UserDetailView(LoginRequiredMixin, generic.DetailView):
-    model = User
-    template_name = 'appsite/profile_detail.html'
-
-    # Envia para o template:
-    # - Qual usuário está logado e qual perfil foi acessado
-    # - As listas do perfil acessado
-    def get_context_data(self, **kwargs):        
-        current_user = self.request.user
-        profile_user = User.objects.get(pk=self.kwargs['pk'])
-
-        lists_id_pending = Job.objects.filter(user=profile_user, active_invite=True).values_list('list')
-        lists_id_confirmed = Job.objects.filter(user=profile_user, active_invite=False).values_list('list')
-
-        lists_pending = List.objects.filter(pk__in=lists_id_pending)
-        lists_confirmed = List.objects.filter(pk__in=lists_id_confirmed)
-          
-        context = {
-            'current_user'    : current_user,
-            'profile_user'    : profile_user,
-            'lists_pending'   : lists_pending,
-            'lists_confirmed' : lists_confirmed,
-        }
-
-        return context
-
 
 class ListDetailView(LoginRequiredMixin, generic.DetailView):
     model = List
@@ -496,66 +522,7 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
         return reverse_lazy('appsite:list_detail', args=(self.object.id, ))
 
 
-class InviteUpdateView(LoginRequiredMixin, generic.UpdateView):
-    model = Job
-    form_class = JobForm
-    template_name = 'appsite/profile_detail.html'
 
-    def post(self, request, *args, **kwargs):
-        # Obtém dados do formulário (frontend)
-        post_data = dict(request.POST.lists()).keys()
-        post_data = list(post_data)[1:]
-
-        response, list_id = post_data
-
-        list_obj = List.objects.get(pk=list_id)
-        user = User.objects.get(pk=self.kwargs['pk'])
-
-        job = Job.objects.get(user=user, list=list_obj)
-
-        if response == 'accept':
-            job.active_invite = False
-            job.save()                    
-        elif response == 'refuse':
-            job.delete()
-        else:
-            pass
-            
-        return HttpResponseRedirect( reverse_lazy('appsite:profile_detail', args=(self.kwargs['pk'], )) )
-
-class InviteUpdateAllView(LoginRequiredMixin, generic.UpdateView):
-    model = Job
-    form_class = JobForm
-    template_name = 'appsite/profile_detail.html'
-
-    def post(self, request, *args, **kwargs):
-        # Obtém dados do formulário (frontend)
-        post_data = dict(request.POST.lists()).keys()
-        post_data = list(post_data)[1:]
-
-        response = post_data[0]
-
-        user = User.objects.get(pk=self.kwargs['pk'])
-        jobs = Job.objects.filter(user=user, active_invite = True)
-
-        if response == 'accept':  
-            for job in jobs:
-                job.active_invite = False
-                job.save()          
-        elif response == 'refuse':
-            jobs.delete()
-        else:
-            pass
-            
-        return HttpResponseRedirect( reverse_lazy('appsite:profile_detail', args=(self.kwargs['pk'], )) )
-
-class ProfileUpdateView(LoginRequiredMixin, generic.UpdateView):
-    model = Profile
-    form_class = ProfileForm
-    template_name = 'appsite/profile_update.html'
-
-    def get_success_url(self):
-        return reverse_lazy('appsite:profile_detail', args=(self.request.user.id, )) 
 
 class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Task
@@ -646,7 +613,7 @@ class ListDeleteView(LoginRequiredMixin, generic.DeleteView):
         Follow.objects.filter(list_id = self.kwargs['pk']).delete()
         Task.objects.filter(list_id=self.kwargs['pk']).delete()
         Job.objects.filter(list_id=self.kwargs['pk']).delete()
-        return reverse_lazy('appsite:profile_detail', args=(self.request.user.id, ))
+        return reverse_lazy('accounts:profile_detail', args=(self.request.user.id, ))
 
 
 class TagUnfollowView(LoginRequiredMixin, generic.UpdateView):
@@ -701,7 +668,7 @@ class ListUntrackView(LoginRequiredMixin, generic.DeleteView):
 
         Job.objects.get(list_id=self.kwargs['pk'], user_id=self.request.user).delete()
 
-        return reverse_lazy('appsite:profile_detail', args=(self.request.user.id, ))
+        return reverse_lazy('accounts:profile_detail', args=(self.request.user.id, ))
 
 
 class ListMenuTemplate(LoginRequiredMixin, generic.TemplateView):

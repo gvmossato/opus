@@ -1,3 +1,4 @@
+import os
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordResetView
 from django.contrib.auth.models import User
@@ -48,7 +49,7 @@ def signup(request):
                 'domain': current_site.domain,
                 'uid'   : urlsafe_base64_encode(force_bytes(user.pk)),
                 'token' : account_activation_token.make_token(user),
-            })
+            }, request=request) # request=request is to use csrf_token
             to_email = form.cleaned_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])
             email.content_subtype = "html"

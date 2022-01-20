@@ -30,18 +30,21 @@ class JobRequiredMixin(UserPassesTestMixin):
 class ListCreateView(LoginRequiredMixin, generic.CreateView):
     form_class = ListForm
     template_name = 'appsite/list_create.html'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs) # Obtém context padrão
-        context['user_id'] = self.kwargs['pk']
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs) # Get default context data
+        context['user_id'] = self.kwargs['pk']
         return context
 
-    def get_success_url(self):
-        # Vincula criador e lista no banco de dados
+    def form_valid(self, form):
+        self.object = form.save() # Saves list to the database and set it as the view's object
+
+        # Links the creator to his list in the database
         job = Job(active_invite=False, list_id=self.object.id, user_id=self.request.user.id, type=4)
         job.save()
+        return HttpResponseRedirect(self.get_success_url())
 
+    def get_success_url(self):
         return reverse_lazy('appsite:list_detail', args=(self.object.id, ))
 
 
@@ -52,21 +55,21 @@ class TagCreateView(LoginRequiredMixin, generic.CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['list_id'] = self.kwargs['pk']
-
         return context
 
-    def get_success_url(self):       
-        # Obtém lista em que foi criada a tag
+    def form_valid(self, form):
+        self.object = form.save() # Saves tag to the database and set it as the view's object
+
+        # Links the tag to it's list in the database
         list_id = self.kwargs['pk']
         list = List.objects.get(pk=list_id)
-
-        # Obtém tag recém criada  
         tag = Tag.objects.get(pk=self.object.id)
-        
-        # Linka a mova tag com a lista, através de Follow
         follow = Follow(list=list, tag=tag, source_id=list_id)
         follow.save()
-        return reverse_lazy('appsite:tag_create', args=(list_id, ))
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse_lazy('appsite:tag_create', args=(self.kwargs['pk'], ))
 
 
 class TagFollowView(LoginRequiredMixin, generic.CreateView):

@@ -6,6 +6,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 
+from collections import defaultdict
+
 from .models import List, Job, Tag, Follow, Task
 from .forms import ListForm, TagForm, TaskForm, JobForm
 
@@ -81,24 +83,26 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         current_user = self.request.user
+        current_list = List.objects.get(pk=self.kwargs['pk'])
 
-        # Obtém todas as listas em que o usuário atual é pelo menos admistrador
+        # Gets all lists where the current user is at least an
+        # administrator and prevents a list from following itself
         jobs = Job.objects.filter(user=current_user, type__gte=3)
-        lists_id = jobs.values_list('list_id', flat=True)
-        lists = List.objects.filter(pk__in=lists_id)
+        all_list_ids = jobs.values_list('list_id', flat=True)
+        lists = List.objects.filter(pk__in=all_list_ids).exclude(pk=current_list.id)
 
-        # Obtém a lista atual
-        list = List.objects.get(pk=self.kwargs['pk'])
-
-        # Obtém todas as tags da lista
-        tags = list.tag_set.all().distinct()
+        # Gets and sorts all unique tags in list
+        tags = current_list.tag_set.all().distinct()
+        # Create or append to dictonary of lists
+        tags_dict = defaultdict(list)
+        for tag in tags:
+            tags_dict[tag.name].append(tag)
 
         context = {
-            'source': list,
-            'user_allowed_lists' : lists,
-            'source_tags' : tags
+            'source_list' : current_list,
+            'source_tags' : dict(tags_dict),
+            'user_lists'  : lists
         }
-
         return context
     
     def post(self, request, *args, **kwargs):

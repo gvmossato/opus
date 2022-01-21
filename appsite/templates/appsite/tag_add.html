@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
-{% load advanced_with %}
 
 {% block title %} Adicionar tags {% endblock title %}
 
 {% block content %}
+
+<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
 
 <section class="white-box form-box tag-select-box">    
     <header class="administrador">
@@ -11,27 +12,33 @@
         <p class="color-body pad-text">Escolha agora quais são as tags que você tem interesse.</p>
     </header>
     <form method="POST" action="{% url 'appsite:tag_add' task.id %}">
-    {% csrf_token %}
+        {% csrf_token %}
 
-    {% with tags.0.name as unique_tag_name %}
-        <h2 class="follow-tag-name">{{ unique_tag_name }}</h2>
-        {% for tag in tags %}
-            {% if unique_tag_name != tag.name %}
-                {% update_with tag.name as unique_tag_name %}
-                <h2 class="follow-tag-name">{{ unique_tag_name }}</h2>
-            {% endif %}
-            <div class="follow-tag-choices">
-                <input type="checkbox" name="t{{ tag.id }}">{{ tag.value }}</input>
-            </div>
+        {% for tag_name, tags in tags.items %}
+        <div id="{{ tag_name }}">
+            <script type='text/javascript'>
+                $(document).ready(function () {
+                    $('div#{{ tag_name }} input[type=radio]').change(function() {
+                        $('div#{{ tag_name }} input[type=radio]:checked').not(this).prop('checked', false);
+                    });
+                })
+            </script>
+            <h2 class="follow-tag-name">{{ tag_name }}</h2>
+            {% for tag in tags %}
+                <div class="follow-tag-choices">
+                    <input type="radio" name="{{ tag.id }}">{{ tag.value }}</input>
+                </div>
+            {% endfor %}
+        </div>
         {% endfor %}
-    {% endwith %}
-    <div class="form-box-buttons">
-        <a href="{% url 'appsite:list_detail' task.list_id %}">
-            <button class="gradient-button secondary-button" type="button">Voltar</button>
-        </a>
-        <button class="gradient-button primary-button" type="submit">Criar</button>
-    </div>     
-    </form>       
+
+        <div class="form-box-buttons">
+            <a href="{% url 'appsite:list_detail' task.list_id %}">
+                <button class="gradient-button secondary-button" type="button">Voltar</button>
+            </a>
+            <button class="gradient-button primary-button" type="submit">Criar</button>
+        </div>
+    </form>
 </section>
 
 {% endblock content %}

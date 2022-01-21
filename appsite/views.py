@@ -228,58 +228,44 @@ def task_recurrent(follows,task_new, tags_add):
 
 class TagAddView(LoginRequiredMixin, generic.CreateView):
     template_name = 'appsite/tag_add.html'
-    form_class = TaskForm
+    form_class = TaskForm # Throwable
 
     def get_context_data(self, **kwargs):
-        # Getting the new task from the pk passed in the URL
-        task_new = Task.objects.get(pk = self.kwargs['pk'])
-        
-        # Getting the mother-list of this task
-        source = List.objects.get(pk = task_new.list_id)
-        
-        # Getting the tags that this mother-list follows
-        tags = source.tag_set.all().distinct()
+        context = super().get_context_data(**kwargs) # Get default context data
 
-        # Getting the current user making the request
-        user = self.request.user
+        # Gets and sorts all unique tags in list
+        task = Task.objects.get(pk=self.kwargs['pk'])
+        current_list = List.objects.get(pk=task.list_id)
+        tags = current_list.tag_set.all().distinct()
+        # Create or append to dictonary of lists
+        tags_dict = defaultdict(list)
+        for tag in tags:
+            tags_dict[tag.name].append(tag)
 
-        context = {
-            'task': task_new,
-            'tags' : tags,
-            'user' : user
-        }
-
+        context['task'] = task
+        context['tags'] = dict(tags_dict)
+        context['user'] = self.request.user
         return context
 
     def post(self, request, *args, **kwargs):
+        # Gets form's data and removes csrf token
+        post_data = list( dict(request.POST.lists()).keys() )
+        post_data = post_data[1: ]
 
-        # Obtém dados do formulário (frontend)
-        post_data = dict(request.POST.lists())
-        post_data.pop('csrfmiddlewaretoken')
+        # Gets tags from form's data
+        tags_ids = [int(tag_id) for tag_id in post_data]
+        tags = Tag.objects.filter(pk__in=tags_ids)
 
-        print(post_data)
+        # Links task and tags
+        task = Task.objects.get(pk=self.kwargs['pk'])
+        for tag in tags:
+            tag.task.add(task)
 
-        # Getting tags selected to be added in the task from the dict passed on POST requisition
-        tags_id = [int(id[1:]) for id in list(post_data.keys())]
-        tags_add = Tag.objects.filter(pk__in=tags_id) 
-
-        # Getting the new task
-        task_new = Task.objects.get(pk = self.kwargs['pk'])
-
-        # Getting the mother-list
-        source = List.objects.get(pk = task_new.list_id)
-
-        # Adding the new task and the tags together:
-        for tag in tags_add:
-            tag.task.add(task_new)
-
-        # Getting all the lists that follow at least one of the tags of new task
-        follows = Follow.objects.filter(tag_id__in = tags_id, source_id = source.id).distinct()
-
-        # Starting the recursion
-        task_recurrent(follows,task_new, tags_add)
-
-        return HttpResponseRedirect(reverse_lazy('appsite:list_detail', args=(source.id, )))
+        # Propagates task to other lists that follow these tags
+        src_list = List.objects.get(pk=task.list_id)
+        to_lists = Follow.objects.filter(tag_id__in=tags_ids, source_id=src_list.id).distinct()
+        task_recurrent(to_lists, task, tags)
+        return HttpResponseRedirect( reverse_lazy('appsite:list_detail', args=(src_list.id, )) )
 
 # ==== #
 # READ #

@@ -8,10 +8,10 @@
     <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
     <script type='text/javascript'>
         $(document).ready(function () {
-        $('input[type=radio]').change(function() {
-            $('input[type=radio]:checked').not(this).prop('checked', false);
-        });
-    })
+            $('input[type=radio]').change(function() {
+                $('input[type=radio]:checked').not(this).prop('checked', false);
+            });
+        })
     </script>
 
     <form class="two-forms-wrapper" method="POST" action="{% url 'appsite:tag_follow' source_list.id %}">

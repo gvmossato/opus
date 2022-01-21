@@ -139,9 +139,9 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
                     task_copy = Task.objects.create(list_id=to_list_id, original_id=task.original_id, name=task.name, due_date=task.due_date, done=False)
                     task_copy.save()
                     # Links followed tags from the original task to the task_copy
-                    for tag_copy in [set(task.tag_set) & set(tags)]:
-                        tag_copy.task = task_copy
-                        tag_copy.save()
+                    intersection = list( set(task.tag_set.filter()) & set(tags) )
+                    for tag_copy in intersection:
+                        tag_copy.task.add(task_copy)
 
             # Links user to source list if tag hasn't been followed by him yet
             Follow.objects.get_or_create(list=to_list, tag=tag, source_id=src_list_id)

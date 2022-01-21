@@ -76,20 +76,18 @@ class TagCreateView(LoginRequiredMixin, generic.CreateView):
 
 class TagFollowView(LoginRequiredMixin, generic.CreateView):
     template_name = 'appsite/tag_follow.html'
-    form_class = TagForm
-
-    # Exibir (tag.name) e (tag.value) da lista a ser seguida
-    # Exibir todas as listas em que o usuário é criador
+    form_class = TagForm # Throwable
 
     def get_context_data(self, **kwargs):
-        current_user = self.request.user
+        context = super().get_context_data(**kwargs) # Get default context data
         current_list = List.objects.get(pk=self.kwargs['pk'])
+        current_user = self.request.user
 
         # Gets all lists where the current user is at least an
         # administrator and prevents a list from following itself
         jobs = Job.objects.filter(user=current_user, type__gte=3)
-        all_list_ids = jobs.values_list('list_id', flat=True)
-        lists = List.objects.filter(pk__in=all_list_ids).exclude(pk=current_list.id)
+        lists_ids = jobs.values_list('list_id', flat=True)
+        lists = List.objects.filter(pk__in=lists_ids).exclude(pk=current_list.id)
 
         # Gets and sorts all unique tags in list
         tags = current_list.tag_set.all().distinct()
@@ -98,109 +96,84 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
         for tag in tags:
             tags_dict[tag.name].append(tag)
 
-        context = {
-            'source_list' : current_list,
-            'source_tags' : dict(tags_dict),
-            'user_lists'  : lists
-        }
+        context['source_list'] = current_list
+        context['source_tags'] = dict(tags_dict)
+        context['user_lists']  = lists
         return context
-    
-    def post(self, request, *args, **kwargs):
-        # Obtém dados do formulário e remove token
-        post_data = list( dict(request.POST.lists()).keys() )
-        post_data = post_data[1:]
 
-        # Validação do POST
-        if not post_data: # Usuário não selecionou nada
+    def post(self, request, *args, **kwargs):
+        # Get form data and remove csrf token
+        post_data = list( dict(request.POST.lists()).keys() )
+        post_data = post_data[1: ]
+
+        # POST validation
+        if not post_data: # User selected nothing
             messages.error(request, "Selecione uma e lista e pelo menos uma tag.")
             return super().post(request, *args, **kwargs)
 
-        elif post_data[0][0] != 'l': # Usuário não selecionou uma lista
+        elif post_data[0][0] != 'l': # User don't selected a list
             messages.error(request, "Selecione uma lista.")
             return super().post(request, *args, **kwargs)
 
-        elif len(post_data) < 2: # Usuário selecionou uma lista, mas não uma tag
+        elif len(post_data) < 2: # User selected a list, but no tags
             messages.error(request, "Selecione pelo menos uma tag.")
             return super().post(request, *args, **kwargs)
 
-        # Recorta o valor numérico dos ids de lista e tag
-        ids = [int(id[1:]) for id in post_data]
+        # Gets all ids in POST and sorts them
+        ids = [int(id[1: ]) for id in post_data]
+        to_list_id  = ids[0]                     # ID of destiny list
+        tags_ids    = ids[1: ]                   # ID of followed tags
+        src_list_id = self.kwargs['pk']          # ID of source list
 
-        list_id = ids[0]              # ID da lista de destino
-        tags_id = ids[1:]             # ID das tags seguidas
-        source_id = self.kwargs['pk'] # ID da lista seguida
+        # Through IDs gets objects
+        to_list = List.objects.get(pk=to_list_id)
+        src_list = List.objects.get(pk=src_list_id)
+        tags = Tag.objects.filter(pk__in=tags_ids) 
 
-        list_obj = List.objects.get(pk=list_id)
-        source_obj = List.objects.get(pk=source_id)
-        tags = Tag.objects.filter(pk__in=tags_id) 
-
+        # Gets all tasks in the followed list with the given tag
         for tag in tags:
-            # Getting all tasks that have the tag and come from the followed list
-            tasks = tag.task.filter(list_id=source_id)
-            # Adding each of these tags to the user's list
+            tasks = tag.task.filter(list_id=src_list_id)
+            # Copies each of these tasks to destiny list if the original_id permits
             for task in tasks:
-                # Checking if the task is originally from the destination list
-                if list_obj.task_set.filter(original_id=task.original_id):
-                    pass # Skip them
-                else:
-                    # Adding the task to the list
-                    task_copy = Task.objects.create(list_id=list_id, original_id=task.original_id, name=task.name, due_date=task.due_date, done=False)
+                if not to_list.task_set.filter(original_id=task.original_id):
+                    task_copy = Task.objects.create(list_id=to_list_id, original_id=task.original_id, name=task.name, due_date=task.due_date, done=False)
                     task_copy.save()
-                    # Linking all the tags of the task that are followed to this newly created task (task_copy)
-                    for tag_copy in [task_og for task_og in task.tag_set.filter() if task_og in tags]:
-                        tag_copy.task.add(task_copy)
-        
-            # Creating new follow object of following list, tag being followed and followed list id
-            # checking if the user has already followed the tag (from the same source_id) with the same list
-            if ( Follow.objects.filter(list=List.objects.get(pk=list_id), tag=Tag.objects.get(pk=tag.id), source_id=source_id) ):
-                pass
-            else:
-                follow = Follow.objects.create(list=List.objects.get(pk=list_id), tag=Tag.objects.get(pk=tag.id), source_id=source_id)
-        
-        # Updating user's permission to follower and removing list invite
-        if Job.objects.filter(list=source_obj, user=request.user, type__gte=2):
-            pass # Skip job update to follower if user isn't a guest
-        else:
-            job = Job.objects.get(list=source_obj, user=request.user)
+                    # Links followed tags from the original task to the task_copy
+                    for tag_copy in [set(task.tag_set) & set(tags)]:
+                        tag_copy.task = task_copy
+                        tag_copy.save()
+
+            # Links user to source list if tag hasn't been followed by him yet
+            Follow.objects.get_or_create(list=to_list, tag=tag, source_id=src_list_id)
+
+        # If user is a guest, then become a follower
+        if Job.objects.filter(list=src_list, user=request.user, type=1):
+            job = Job.objects.get(list=src_list, user=request.user)
             job.active_invite = False
-            job.type=2
+            job.type = 2
             job.save()
+        return HttpResponseRedirect( reverse_lazy('appsite:list_detail', args=(src_list_id, )) )
 
-        # Redirecting to user's page
-        return HttpResponseRedirect(reverse_lazy('appsite:list_detail', args=(source_id, )))
 
-# This is the function responsible for adding a new task to a list
-def task_create(request, **kwargs):
-    # Getting the object that the new task will be created in
-    list_id = kwargs['pk']
-    list = get_object_or_404(List, pk=list_id)
+class TaskCreateView(LoginRequiredMixin, generic.CreateView):
+    form_class = TaskForm
+    template_name = 'appsite/task_create.html'
 
-    if request.method == 'POST': # If request method is POST (sent from the form)
-        form = TaskForm(request.POST)
-        if form.is_valid():
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs) # Get default context data
+        context['list'] = List.objects.get(pk=self.kwargs['pk'])
+        return context
 
-            # Getting the data form the form 
-            task_name = form.cleaned_data['name']
-            due_date = form.cleaned_data['due_date']
+    def form_valid(self, form):
+        current_list = List.objects.get(pk=self.kwargs['pk'])
+        self.object = form.save(commit=False) # Set task as the view's object with user inputed fields
+        self.object.list = current_list       # Links task to current list
+        self.object.save()                    # Saves task to the database
+        # There's no need to set original_id because the model will handle it (see appsite/models.py)
+        return HttpResponseRedirect(self.get_success_url())
 
-            # Original_id can now be NULL, so task_new is created without an original id
-            task_new = Task.objects.create(name=task_name, list_id=list_id, due_date=due_date)
-
-            # And then the original id is provided to the new task and the task is saved on the database
-            task_new.original_id = task_new.id
-            task_new.save()
-
-            # Redirecting to the view that will be responsible for adding tags to this new task
-            return HttpResponseRedirect(reverse_lazy('appsite:tag_add', args=(task_new.id, )))
-
-    else: # If request method is not POST
-
-        # The form that will be rendered in the page
-        form = TaskForm()
-
-    # Loading the page of task creation (a generic form)
-    context = {'form': form, 'list': list}
-    return render(request,'appsite/task_create.html', context)
+    def get_success_url(self):
+        return reverse_lazy('appsite:tag_add', args=(self.object.id, ))
 
 
 # Read tag_add first and then return here

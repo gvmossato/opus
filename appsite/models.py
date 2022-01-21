@@ -1,5 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.dispatch import receiver
+    
+
 
 
 
@@ -47,6 +50,12 @@ class Task(models.Model):
     def __str__(self):
         return self.name
 
+@receiver(models.signals.post_save, sender=Task)
+def set_original_id(sender, instance, created, **kwargs):
+    if created and not instance.original_id:
+        instance.original_id = instance.id
+        instance.save()
+
 
 class Tag(models.Model):
     task = models.ManyToManyField(Task)
@@ -63,3 +72,5 @@ class Follow(models.Model):
     list = models.ForeignKey(List, on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
     source_id = models.IntegerField()
+
+

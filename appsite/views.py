@@ -1,9 +1,8 @@
 from django.views import generic
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.models import User
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
 from django.contrib import messages
 
 from collections import defaultdict
@@ -12,34 +11,21 @@ from .models import List, Job, Tag, Follow, Task
 from .forms import ListForm, TagForm, TaskForm, JobForm
 
 
-# ===== #
-# MIXIN #
-# ===== #
-
-class JobRequiredMixin(UserPassesTestMixin):
-    # Testa se um usuário logado possui o nível de permissão mínimo
-    def test_func(self):
-        user = self.request.user
-        list_obj = List.objects.get(pk=self.kwargs['list_id'])
-        job_type = Job.objects.get(list=list_obj, user=user).type
-
-        return job_type >= self.kwargs['level_required']
-
 # ====== #
 # CREATE #
 # ====== #
 
 class ListCreateView(LoginRequiredMixin, generic.CreateView):
-    form_class = ListForm
     template_name = 'appsite/list_create.html'
+    form_class = ListForm
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs) # Get default context data
+        context = super().get_context_data(**kwargs) # Gets default context data
         context['user_id'] = self.kwargs['pk']
         return context
 
     def form_valid(self, form):
-        self.object = form.save() # Saves list to the database and set it as the view's object
+        self.object = form.save() # Saves the list to the database and set it as the view's object
 
         # Links the creator to his list in the database
         job = Job(active_invite=False, list_id=self.object.id, user_id=self.request.user.id, type=4)
@@ -51,8 +37,8 @@ class ListCreateView(LoginRequiredMixin, generic.CreateView):
 
 
 class TagCreateView(LoginRequiredMixin, generic.CreateView):
-    form_class = TagForm
     template_name = "appsite/tag_create.html"
+    form_class = TagForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -60,9 +46,9 @@ class TagCreateView(LoginRequiredMixin, generic.CreateView):
         return context
 
     def form_valid(self, form):
-        self.object = form.save() # Saves tag to the database and set it as the view's object
+        self.object = form.save() # Saves the tag to the database and set it as the view's object
 
-        # Links the tag to it's list in the database
+        # Links the tag to its list in the database
         list_id = self.kwargs['pk']
         list = List.objects.get(pk=list_id)
         tag = Tag.objects.get(pk=self.object.id)
@@ -79,7 +65,7 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
     form_class = TagForm # Throwable
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs) # Get default context data
+        context = super().get_context_data(**kwargs) # Gets default context data
         current_list = List.objects.get(pk=self.kwargs['pk'])
         current_user = self.request.user
 
@@ -91,7 +77,7 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
 
         # Gets and sorts all unique tags in list
         tags = current_list.tag_set.all().distinct()
-        # Create or append to dictonary of lists
+        # Dictionary of lists: create or append
         tags_dict = defaultdict(list)
         for tag in tags:
             tags_dict[tag.name].append(tag)
@@ -102,30 +88,29 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        # Get form data and remove csrf token
+        # Gets the form's data and removes csrf token
         post_data = list( dict(request.POST.lists()).keys() )
         post_data = post_data[1: ]
 
         # POST validation
-        if not post_data: # User selected nothing
+        if not post_data: # The user selected nothing
             messages.error(request, "Selecione uma e lista e pelo menos uma tag.")
             return super().post(request, *args, **kwargs)
 
-        elif post_data[0][0] != 'l': # User don't selected a list
+        elif post_data[0][0] != 'l': # The user doesn't select a list
             messages.error(request, "Selecione uma lista.")
             return super().post(request, *args, **kwargs)
 
-        elif len(post_data) < 2: # User selected a list, but no tags
+        elif len(post_data) < 2: # The user selected a list, but no tags
             messages.error(request, "Selecione pelo menos uma tag.")
             return super().post(request, *args, **kwargs)
 
         # Gets all ids in POST and sorts them
         ids = [int(id[1: ]) for id in post_data]
-        to_list_id  = ids[0]                     # ID of destiny list
-        tags_ids    = ids[1: ]                   # ID of followed tags
-        src_list_id = self.kwargs['pk']          # ID of source list
+        to_list_id  = ids[0]                     # The ID of destiny list
+        tags_ids    = ids[1: ]                   # The IDs of followed tags
+        src_list_id = self.kwargs['pk']          # The ID of source list
 
-        # Through IDs gets objects
         to_list = List.objects.get(pk=to_list_id)
         src_list = List.objects.get(pk=src_list_id)
         tags = Tag.objects.filter(pk__in=tags_ids) 
@@ -133,20 +118,20 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
         # Gets all tasks in the followed list with the given tag
         for tag in tags:
             tasks = tag.task.filter(list_id=src_list_id)
-            # Copies each of these tasks to destiny list if the original_id permits
+            # Copies each of these tasks to the destiny list if the original_id permits
             for task in tasks:
                 if not to_list.task_set.filter(original_id=task.original_id):
                     task_copy = Task.objects.create(list_id=to_list_id, original_id=task.original_id, name=task.name, due_date=task.due_date, done=False)
                     task_copy.save()
-                    # Links followed tags from the original task to the task_copy
+                    # Links the followed tags from the original task to the task_copy
                     intersection = list( set(task.tag_set.filter()) & set(tags) )
                     for tag_copy in intersection:
                         tag_copy.task.add(task_copy)
 
-            # Links user to source list if tag hasn't been followed by him yet
+            # Links user to source list if the tag hasn't been followed by him yet
             Follow.objects.get_or_create(list=to_list, tag=tag, source_id=src_list_id)
 
-        # If user is a guest, then become a follower
+        # If the user is a guest, then becomes a follower
         if Job.objects.filter(list=src_list, user=request.user, type=1):
             job = Job.objects.get(list=src_list, user=request.user)
             job.active_invite = False
@@ -156,20 +141,20 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
 
 
 class TaskCreateView(LoginRequiredMixin, generic.CreateView):
-    form_class = TaskForm
     template_name = 'appsite/task_create.html'
+    form_class = TaskForm
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs) # Get default context data
+        context = super().get_context_data(**kwargs) # Gets default context data
         context['list'] = List.objects.get(pk=self.kwargs['pk'])
         return context
 
     def form_valid(self, form):
         current_list = List.objects.get(pk=self.kwargs['pk'])
-        self.object = form.save(commit=False) # Set task as the view's object with user inputed fields
-        self.object.list = current_list       # Links task to current list
-        self.object.save()                    # Saves task to the database
-        # There's no need to set original_id because the model will handle it (see appsite/models.py)
+        self.object = form.save(commit=False) # Set the task as the view's object along with user-inputted fields
+        self.object.list = current_list       # Links the task to the current list
+        self.object.save()                    # Saves the task to the database
+        # There's no need to set the original_id because the task's model will handle it (see appsite/models.py)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
@@ -181,13 +166,13 @@ class TagAddView(LoginRequiredMixin, generic.CreateView):
     form_class = TaskForm # Throwable
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs) # Get default context data
+        context = super().get_context_data(**kwargs) # Gets default context data
 
         # Gets and sorts all unique tags in list
         task = Task.objects.get(pk=self.kwargs['pk'])
         current_list = List.objects.get(pk=task.list_id)
         tags = current_list.tag_set.all().distinct()
-        # Create or append to dictonary of lists
+        # Dictionary of lists: create or append
         tags_dict = defaultdict(list)
         for tag in tags:
             tags_dict[tag.name].append(tag)
@@ -198,20 +183,20 @@ class TagAddView(LoginRequiredMixin, generic.CreateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        # Gets form's data and removes csrf token
+        # Gets the form's data and removes csrf token
         post_data = list( dict(request.POST.lists()).keys() )
         post_data = post_data[1: ]
 
-        # Gets tags from form's data
+        # Gets the tags from the form's data
         tags_ids = [int(tag_id) for tag_id in post_data]
         tags = Tag.objects.filter(pk__in=tags_ids)
 
-        # Links task and tags
+        # Links the task and the tags
         task = Task.objects.get(pk=self.kwargs['pk'])
         for tag in tags:
             tag.task.add(task)
 
-        # Propagates task to other lists that follow any of these tags
+        # Propagates the task to other lists that follow any of these tags
         src_list = List.objects.get(pk=task.list_id)
         followers = Follow.objects.filter(tag_id__in=tags_ids, source_id=src_list.id).exclude(list_id=src_list.id).distinct()
         self.propagate_tasks(followers, task, tags)
@@ -219,17 +204,22 @@ class TagAddView(LoginRequiredMixin, generic.CreateView):
 
     def propagate_tasks(self, followers, task, tags):
         """
-        followers: all Follow objects that relate those lists 
-        task: created task
-        tags: all added tags
-        """
+        Custom recursive method responsible to deep copy a task to its followers, based on the added tags.
 
+            Params:
+                followers (QuerySet): all unique Follow instances that relate a source list to its followers
+                task      (QuerySet): the Task instance which had tags added to
+                tags      (QuerySet): all added tags instances
+            Retuns:
+                None
+        """
         for follow in followers:
+            print(type(followers), type(task), type(tags))
             src_list = List.objects.get(pk=follow.source_id)
             to_list = List.objects.get(pk=follow.list_id)
 
-            # if there's already a task in the to_list with the same original_id => return
-            # otherwise => create a task with the original_id plus other fields
+            # If there's already a task in the to_list with the same original_id => Returns
+            # Otherwise => Creates a task with the original_id plus the other fields
             if Task.objects.filter(list_id=to_list.id, original_id=task.original_id):
                 return
             else:
@@ -241,25 +231,24 @@ class TagAddView(LoginRequiredMixin, generic.CreateView):
                     done=False
                 )
 
-            # Gets which tags to_list actually follows from src_list
+            # Gets which tags the to_list actually follows from src_list
             followed_tags_ids = Follow.objects.filter(list_id=to_list.id, source_id=src_list.id).values_list('tag_id')
             followed_tags = Tag.objects.filter(pk__in=followed_tags_ids)
 
             # Gets all tags available to the task in the to_list, an intersection:
-            # tags that to_list follows from src_list & tags added to task
+            # tags that to_list follows from src_list & tags added to the task
             available_tags = list( set(followed_tags) & set(tags) )
 
             # From available tags, gets only ones that aren't already linked to the task
             absent_tags = list( set(available_tags) - set(task_copy.tag_set.all()) )
-
             if absent_tags:
                 for tag in absent_tags:
                     tag.task.add(task_copy)
 
-                # Start next level of propagation
-                available_tags_ids = [tag.id for tag in available_tags]       
-                deeper_followers = Follow.objects.filter(tag_id__in=available_tags_ids, source_id=to_list.id).exclude(list_id=src_list.id).distinct()
-                self.propagate_tasks(deeper_followers, task_copy, available_tags)
+            # Starts next level of propagation
+            available_tags_ids = [tag.id for tag in available_tags]
+            deeper_followers = Follow.objects.filter(tag_id__in=available_tags_ids, source_id=to_list.id).exclude(list_id=src_list.id).distinct()
+            self.propagate_tasks(deeper_followers, task_copy, available_tags)
         return
 
 # ==== #

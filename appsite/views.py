@@ -3,7 +3,7 @@ from django.urls import reverse_lazy, reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.contrib import messages
 
 from collections import defaultdict
@@ -176,56 +176,6 @@ class TaskCreateView(LoginRequiredMixin, generic.CreateView):
         return reverse_lazy('appsite:tag_add', args=(self.object.id, ))
 
 
-# Review later #################################################
-# Read tag_add first and then return here
-def task_recurrent(follows,task_new, tags_add):
-    # Iterating over each list the follows mother-list
-    for follow in follows:
-
-        # Getting the id of mother-list:
-        source_id = task_new.list_id
-
-        # Getting one of the child-lists that the mother-list provided
-        list_child = get_object_or_404(List, pk = follow.list_id)
-
-        # Seeing if the task is original
-        task_filter = list_child.task_set.filter(original_id=task_new.original_id)
-        
-        if (task_filter):           
-            task2_new = Task.objects.get(original_id = task_new.original_id, list_id = list_child.id) # Not adding tasks that share the same original_id
-        
-        else:            
-            # Adding the task to the list: now task_new refers to the task created on the child-list
-            # ( this is useful to shorten the length of the code )
-            task2_new = Task.objects.create(list_id=list_child.id, original_id=task_new.original_id, name=task_new.name, due_date=task_new.due_date, done=False)
-            task2_new.save()
-            
-        # Finding the tags that the child list follow from the mother-list
-        temp_child_follows = Follow.objects.filter(list_id = list_child, source_id = source_id)
-        tags_child_follows = [Tag.objects.get(pk = follow.tag_id) for follow in temp_child_follows]
-        
-        # Filtering the tags that the new task from mother-list has AND this new list follows from the mother-list
-        tags_filtered = [tag for tag in tags_child_follows if (tag in tags_add)]
-        # Getting the ids of these filtered tasks
-        tags_filtered_id = [tag.id for tag in tags_filtered]
-        # Finding the tags that have not been added yet to the new task
-        tags_filtered_new = [tag for tag in tags_filtered if tag not in task2_new.tag_set.all()]
-
-        if (tags_filtered_new):
-            # Linking the filtered tags that haven't been linked yet to this newly created task
-            for tag in tags_filtered_new:
-                tag.task.add(task2_new)
-        
-            # Finding the lists that follow the tags of the new created task from child list
-            follows2 = Follow.objects.filter(tag_id__in = tags_filtered_id, source_id = list_child.id).distinct()
-        
-            # Continuing the recurrence
-            task_recurrent(follows2, task2_new, tags_filtered)
-
-    return True
-# Review later #################################################
-
-
 class TagAddView(LoginRequiredMixin, generic.CreateView):
     template_name = 'appsite/tag_add.html'
     form_class = TaskForm # Throwable
@@ -261,11 +211,56 @@ class TagAddView(LoginRequiredMixin, generic.CreateView):
         for tag in tags:
             tag.task.add(task)
 
-        # Propagates task to other lists that follow these tags
+        # Propagates task to other lists that follow any of these tags
         src_list = List.objects.get(pk=task.list_id)
-        to_lists = Follow.objects.filter(tag_id__in=tags_ids, source_id=src_list.id).distinct()
-        task_recurrent(to_lists, task, tags)
+        followers = Follow.objects.filter(tag_id__in=tags_ids, source_id=src_list.id).exclude(list_id=src_list.id).distinct()
+        self.propagate_tasks(followers, task, tags)
         return HttpResponseRedirect( reverse_lazy('appsite:list_detail', args=(src_list.id, )) )
+
+    def propagate_tasks(self, followers, task, tags):
+        """
+        followers: all Follow objects that relate those lists 
+        task: created task
+        tags: all added tags
+        """
+
+        for follow in followers:
+            src_list = List.objects.get(pk=follow.source_id)
+            to_list = List.objects.get(pk=follow.list_id)
+
+            # if there's already a task in the to_list with the same original_id => return
+            # otherwise => create a task with the original_id plus other fields
+            if Task.objects.filter(list_id=to_list.id, original_id=task.original_id):
+                return
+            else:
+                task_copy = Task.objects.create(
+                    list_id=to_list.id,
+                    original_id=task.original_id,
+                    name=task.name,
+                    due_date=task.due_date,
+                    done=False
+                )
+
+            # Gets which tags to_list actually follows from src_list
+            followed_tags_ids = Follow.objects.filter(list_id=to_list.id, source_id=src_list.id).values_list('tag_id')
+            followed_tags = Tag.objects.filter(pk__in=followed_tags_ids)
+
+            # Gets all tags available to the task in the to_list, an intersection:
+            # tags that to_list follows from src_list & tags added to task
+            available_tags = list( set(followed_tags) & set(tags) )
+
+            # From available tags, gets only ones that aren't already linked to the task
+            absent_tags = list( set(available_tags) - set(task_copy.tag_set.all()) )
+
+            if absent_tags:
+                for tag in absent_tags:
+                    tag.task.add(task_copy)
+
+                # Start next level of propagation
+                available_tags_ids = [tag.id for tag in available_tags]       
+                deeper_followers = Follow.objects.filter(tag_id__in=available_tags_ids, source_id=to_list.id).exclude(list_id=src_list.id).distinct()
+                self.propagate_tasks(deeper_followers, task_copy, available_tags)
+        return
 
 # ==== #
 # READ #

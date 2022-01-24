@@ -261,65 +261,66 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
     context_object_name = 'list'
 
     def get_context_data(self, **kwargs):        
-        context = super().get_context_data(**kwargs) # Obtém context padrão
+        context = super().get_context_data(**kwargs) # Gets default context data
 
+        ### Gets the list's users sorted by job ###
+        jobs_map = {
+            1 : 'guest',
+            2 : 'follower',
+            3 : 'admin',
+            4 : 'creator'
+        }
 
-        ### Obtém usuários da lista separados por cargo ###
-        keys = [None, 'guest', 'follower', 'admin', 'creator'] # Mapeia um número para cada cargo
+        for job_num in jobs_map.keys():
+            # Gets all users IDs with a given job
+            users_ids = Job.objects.filter(list_id=self.kwargs['pk'], type=job_num).values_list('user_id', flat=True)
 
-        for job_type in range(1, 5):            
-            user_job = Job.objects.filter(list_id=self.kwargs['pk'], type=job_type) # Obtém usuários com um cargo específico
-            user_id = user_job.values_list('user_id', flat=True)                    # Utiliza o cargo para obter o id do usuário
+            # Gets the users objects or None if there's no user with the given job
+            if users_ids:
+                users = User.objects.filter(pk__in=users_ids)
+            else:
+                users = None
 
-            try: # Obtém o objeto usuário atavés do id
-                user = User.objects.filter(pk__in=user_id) 
-            except: # Caso não existam usuários com o cargo da iteração
-                user = None 
+            context[jobs_map[job_num]] = users
 
-            context[keys[job_type]] = user # Atualiza context
+        ### Gets the current user job in the list ###
+        current_user = self.request.user
+        current_list = List.objects.get(pk=self.kwargs['pk'])
 
+        try:
+            current_user_job_type = Job.objects.get(user=current_user, list=current_list).type
+        except: # The user actually isn't in the list
+            current_user_job_type = 0
 
-        ### Obtém cargo do usuário logado na lista atual ###        
-        current_user = self.request.user                  # Obtém o usuário logado 
-        list_obj = List.objects.get(pk=self.kwargs['pk']) # Obtém lista atual
+        context['current_user'] = {
+            'object'        : current_user,
+            'job_type_num'  : current_user_job_type,
+            'job_type_name' : jobs_map[current_user_job_type]
+        }
 
-        try: # Obtém cargo do usuário na lista
-            curr_user_job_type = Job.objects.get(user=current_user, list=list_obj).type
-        except: # Caso usuário nem sequer pertença à lista
-            curr_user_job_type = 0
+        ### Gets and sorts tasks and tags from current list to build the list's table ###
+        tags_names = Tag.objects.filter(list=current_list).values_list('name', flat=True)
 
+        # Prevents duplicates in the table header
+        table_header = list(set(tags_names))
+        tasks = Task.objects.filter(list=current_list)
 
-        ### Obtém taks e tags da lista atual para construir a tabela ###  
-        tags_obj = Tag.objects.filter(list=list_obj)
-        tags_name = tags_obj.values_list('name', flat=True)
-
-        headers = list(set(tags_name))             # Remove headers duplicados
-        tasks = Task.objects.filter(list=list_obj) # Obtém todas as tarefas da lista atual
-
-        table_data = []   
-        tasks_id = []  
-
+        table_body = []
         for task in tasks:
-            task_data = [task.id, task.done, task.name, task.due_date] # Dados obrigatórios da tarefa            
-            tag_data = []                                              # Dados opcionais da tarefa
-            tasks_id += [task.id]                                      # Lista à parte, ids das tasks
+            task_data = [task.id, task.done, task.name, task.due_date] # Mandatory task data
+            tag_data  = []                                             # Optional task data (aka tag data)
+            # Concatenates tag's value in the same order that tag's name appears in headers
+            for tag_name in table_header:                
+                tag_data += [Tag.objects.get(list=current_list, task=task, name=tag_name).value]
 
-            for tag_name in headers:
-                tag_obj = Tag.objects.filter(list=list_obj, task=task, name=tag_name)
-                tag_data += [tag_obj.values_list('value', flat=True).first()] # Concatena Tag.value de cada header
+            row_data = task_data + tag_data
+            table_body.append(row_data)
 
-            row_data = task_data + tag_data # Une dados obrigatórios e opicionais
-            table_data.append(row_data)     # Adiciona linha à tabela
+        context['table_body']   = table_body
+        context['table_header'] = ['Done', 'Task', 'Date'] + table_header
 
-        ### Constrói context ###        
-        keys_translate = [None, 'convidado', 'seguidor', 'administrador', 'criador'] # Cargos assim como renderizados no front
-
-        context['current_user'] = current_user
-        context['table_data'] = table_data
-        context['table_header'] = ['Concluído', 'Tarefa', 'Data'] + headers
-        context['curr_user_job_type'] = [curr_user_job_type, keys_translate[curr_user_job_type]] # [número_do_cargo, nome_do_cargo]
-        context['tasks_id'] = tasks_id
-        
+        ### Gets the tasks IDs (needed for jQuery functions in frontend) ###
+        context['tasks_id'] = tasks.values_list('id', flat=True)
         return context
 
 

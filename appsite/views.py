@@ -256,7 +256,6 @@ class TagAddView(LoginRequiredMixin, generic.CreateView):
 # ==== #
 
 class ListDetailView(LoginRequiredMixin, generic.DetailView):
-    model = List
     template_name = 'appsite/list_detail.html'
     context_object_name = 'list'
 
@@ -267,7 +266,7 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
         jobs_map = {
             1 : 'guest',
             2 : 'follower',
-            3 : 'admin',
+            3 : 'administrator',
             4 : 'creator'
         }
 
@@ -293,9 +292,11 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
             current_user_job_type = 0
 
         context['current_user'] = {
-            'object'        : current_user,
-            'job_type_num'  : current_user_job_type,
-            'job_type_name' : jobs_map[current_user_job_type]
+            'object'   : current_user,
+            'job_type' : {
+                'code' : current_user_job_type,
+                'name' : jobs_map[current_user_job_type]
+            }
         }
 
         ### Gets and sorts tasks and tags from current list to build the list's table ###
@@ -326,19 +327,19 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
 
 class ListMenuTemplate(LoginRequiredMixin, generic.TemplateView):
     template_name = "appsite/list_menu.html"
+    context_object_name = 'list'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        list_id = self.kwargs['pk']
-        list_obj = List.objects.get(pk=list_id)
+        current_list = List.objects.get(pk=self.kwargs['pk'])
+        job_type = Job.objects.get(user=self.request.user, list=current_list).type
 
-        user = self.request.user
-        jobtype = Job.objects.get(user=user, list=list_obj).type
-
-        context['list_id'] = list_id
-        context['curr_user_jobtype'] = jobtype
-        
+        context['current_user'] = {
+            'job_type' : {
+                'code' : job_type
+            }
+        }
         return context
 
 # ====== #

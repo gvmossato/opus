@@ -1,4 +1,3 @@
-import os
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordResetView
 from django.contrib.auth.models import User
@@ -125,3 +124,47 @@ class ProfileUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('accounts:profile_detail', args=(self.request.user.id, ))
+
+
+class InviteUpdateView(LoginRequiredMixin, generic.UpdateView):
+    template_name = 'accounts/profile/detail.html'
+    model = Job
+
+    def post(self, request, *args, **kwargs):
+        post_data = request.POST.dict() # Gets the form's data
+        response, list_id = list(post_data.keys())[1: ]
+
+        list_obj = List.objects.get(pk=list_id)
+        user = User.objects.get(pk=self.kwargs['pk'])
+        job = Job.objects.get(user=user, list=list_obj)
+
+        if response == 'accept':
+            job.active_invite = False
+            job.save()
+        elif response == 'refuse':
+            job.delete()
+        else:
+            raise ValueError("Expected 'accept' or 'refuse' as response.")
+        return HttpResponseRedirect( reverse_lazy('accounts:profile_detail', args=(self.kwargs['pk'], )) )
+
+
+class InviteUpdateAllView(LoginRequiredMixin, generic.UpdateView):
+    template_name = 'accounts/profile/detail.html'
+    model = Job
+
+    def post(self, request, *args, **kwargs):
+        post_data = request.POST.dict() # Gets the form's data
+        response = list(post_data.keys())[1]
+
+        user = User.objects.get(pk=self.kwargs['pk'])
+        jobs = Job.objects.filter(user=user, active_invite=True)
+
+        if response == 'accept':
+            for job in jobs:
+                job.active_invite = False
+                job.save()
+        elif response == 'refuse':
+            jobs.delete()
+        else:
+            raise ValueError("Expected 'accept' or 'refuse' as response.")
+        return HttpResponseRedirect( reverse_lazy('accounts:profile_detail', args=(self.kwargs['pk'], )) )

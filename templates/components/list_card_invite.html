@@ -11,7 +11,7 @@
                 <h2>{{ card_name }}</h2>
             </div>
             {% if prof_user_id == curr_user_id %}
-            <form method="POST" action="{% url 'appsite:invite_update' prof_user_id %}">
+            <form method="POST" action="{% url 'accounts:invite_update' prof_user_id %}">
                 {%csrf_token%}
                 <input type="submit" class="action-button accept" name="accept" value="" />
                 <input type="submit" class="action-button refuse" name="refuse" value="" />

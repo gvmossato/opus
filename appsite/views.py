@@ -1,15 +1,15 @@
 from django.views import generic
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
-from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist
 
 from collections import defaultdict
 
 from .models import List, Job, Tag, Follow, Task
-from .forms import ListForm, TagForm, TaskForm, JobForm
+from .forms import ListForm, JobForm, TagForm, TaskForm
 
 
 # ====== #
@@ -390,7 +390,6 @@ class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
     def post(self, request, *args, **kwargs):
         # Gets the form's data
         post_data = request.POST.dict()
-        print(post_data)
 
         task_id = int( list(post_data.keys())[1] )
         task = Task.objects.get(pk=task_id)
@@ -409,7 +408,7 @@ class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
             task.save()
 
         list_id = List.objects.get(task=task).id
-        return HttpResponseRedirect( reverse('appsite:list_detail', args=(list_id, )) )
+        return HttpResponseRedirect( reverse_lazy('appsite:list_detail', args=(list_id, )) )
 
 
 class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
@@ -466,52 +465,6 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
             job.type = post_data['type']
             job.save()
             return HttpResponseRedirect( reverse_lazy('appsite:list_detail', args=(self.kwargs['pk'], )) )
-
-
-class InviteUpdateView(LoginRequiredMixin, generic.UpdateView):
-    template_name = 'accounts/profile/detail.html'
-    form_class = JobForm
-    model = Job
-
-    def post(self, request, *args, **kwargs):
-        post_data = request.POST.dict() # Gets the form's data
-        response, list_id = list(post_data.keys())[1: ]
-
-        list_obj = List.objects.get(pk=list_id)
-        user = User.objects.get(pk=self.kwargs['pk'])
-        job = Job.objects.get(user=user, list=list_obj)
-
-        if response == 'accept':
-            job.active_invite = False
-            job.save()
-        elif response == 'refuse':
-            job.delete()
-        else:
-            raise ValueError("Expected 'accept' or 'refuse' as response.")
-        return HttpResponseRedirect( reverse_lazy('accounts:profile_detail', args=(self.kwargs['pk'], )) )
-
-
-class InviteUpdateAllView(LoginRequiredMixin, generic.UpdateView):
-    template_name = 'accounts/profile/detail.html'
-    form_class = JobForm
-    model = Job
-
-    def post(self, request, *args, **kwargs):
-        post_data = request.POST.dict() # Gets the form's data
-        response = list(post_data.keys())[1]
-
-        user = User.objects.get(pk=self.kwargs['pk'])
-        jobs = Job.objects.filter(user=user, active_invite=True)
-
-        if response == 'accept':
-            for job in jobs:
-                job.active_invite = False
-                job.save()
-        elif response == 'refuse':
-            jobs.delete()
-        else:
-            raise ValueError("Expected 'accept' or 'refuse' as response.")
-        return HttpResponseRedirect( reverse_lazy('accounts:profile_detail', args=(self.kwargs['pk'], )) )
 
 # ====== #
 # DELETE #

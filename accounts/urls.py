@@ -35,4 +35,6 @@ urlpatterns = [
     # Profile
     path('user/<int:pk>/', UserDetailView.as_view(), name='profile_detail'),
     path('user/<int:pk>/update/', ProfileUpdateView.as_view(), name='profile_update'),
+    path('user/<int:pk>/invite/',      InviteUpdateView.as_view(),    name='invite_update'),
+    path('user/<int:pk>/invite/all/',  InviteUpdateAllView.as_view(), name='invite_update_all'),
 ]

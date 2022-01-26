@@ -1,7 +1,7 @@
 <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
 
 <script>
-    for (const i of "{{ tasks_ids }}" ) {
+    for (const i of {{ tasks_ids }} ) {
         $(document).ready(function(){
             $("#form_task" + i).on("change", "input:checkbox", function(){
                 $("#form_task" + i).submit();
@@ -12,7 +12,7 @@
 
 <script>
     function makeRowClickable() {
-        if (this.event.target.dataset.href && "{{ current_user_job_type }}" >= 3) {
+        if (this.event.target.dataset.href && {{ current_user_job_type }} >= 3) {
             window.location = this.event.target.dataset.href
         }
     }
@@ -39,6 +39,7 @@
                 <td>
                     <form id="form_task{{row.0}}" method="POST" action="{% url 'appsite:task_update' row.0 %}">
                         {%csrf_token%}
+                        <input type="hidden" value="0" name="{{ row.0 }}" />
                         <input
                             type="checkbox"
                             value="1"
@@ -46,7 +47,7 @@
                             {% if current_user_job_type < 3 %} disabled="disabled" {% endif %}
                             {% if row.1 %} checked="checked" {% endif %}
                         />
-                        <input type='hidden' value="0" name="{{ row.0 }}" />
+                        
                     </form>
                 </td>
                 {% for cell in row|slice:"2:" %}

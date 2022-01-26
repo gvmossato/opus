@@ -326,13 +326,12 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
         context['table_header'] = ['Done', 'Task', 'Date'] + table_header
 
         ### Gets the tasks IDs (needed for jQuery functions in frontend) ###
-        context['tasks_ids'] = tasks.values_list('id', flat=True)
+        context['tasks_ids'] = list(tasks.values_list('id', flat=True))
         return context
 
 
 class ListMenuTemplate(LoginRequiredMixin, generic.TemplateView):
     template_name = "appsite/list_menu.html"
-    context_object_name = 'list'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -375,59 +374,43 @@ class ListUpdateView(LoginRequiredMixin, generic.UpdateView):
         return reverse_lazy('appsite:list_detail', args=(self.object.id, ))
 
 
-class InviteUpdateView(LoginRequiredMixin, generic.UpdateView):
-    model = Job
-    form_class = JobForm
-    template_name = 'accounts/profile/detail.html'
+class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
+    template_name = 'appsite/task_update.html'
+    context_object_name = 'task'
+    form_class = TaskForm
+    model = Task
+
+    def get_context_data(self, **kwargs):
+         context = super().get_context_data(**kwargs)
+
+         list_id = Task.objects.get(pk=self.kwargs['pk']).list_id
+
+         context['list'] = List.objects.get(pk=list_id)
+         return context
 
     def post(self, request, *args, **kwargs):
-        # Obtém dados do formulário (frontend)
-        post_data = dict(request.POST.lists()).keys()
-        post_data = list(post_data)[1:]
+        # Gets the form's data
+        post_data = request.POST.dict()
+        print(post_data)
 
-        response, list_id = post_data
+        task_id = int( list(post_data.keys())[1] )
+        task = Task.objects.get(pk=task_id)
 
-        list_obj = List.objects.get(pk=list_id)
-        user = User.objects.get(pk=self.kwargs['pk'])
-
-        job = Job.objects.get(user=user, list=list_obj)
-
-        if response == 'accept':
-            job.active_invite = False
-            job.save()                    
-        elif response == 'refuse':
-            job.delete()
+        # The user wants to update task name and/or due date
+        if 'name' in post_data.keys():
+            task.name = post_data['name']
+            task.due_date = post_data['due_date_day']   + '/' + \
+                            post_data['due_date_month'] + '/' + \
+                            post_data['due_date_year']
+            task.save()
+        # The user checked or unchecked a task's done field
         else:
-            pass
-            
-        return HttpResponseRedirect( reverse_lazy('accounts:profile_detail', args=(self.kwargs['pk'], )) )
+            new_status = int(post_data[str(task_id)])
+            task.done = new_status
+            task.save()
 
-
-class InviteUpdateAllView(LoginRequiredMixin, generic.UpdateView):
-    model = Job
-    form_class = JobForm
-    template_name = 'accounts/profile/detail.html'
-
-    def post(self, request, *args, **kwargs):
-        # Obtém dados do formulário (frontend)
-        post_data = dict(request.POST.lists()).keys()
-        post_data = list(post_data)[1:]
-
-        response = post_data[0]
-
-        user = User.objects.get(pk=self.kwargs['pk'])
-        jobs = Job.objects.filter(user=user, active_invite = True)
-
-        if response == 'accept':  
-            for job in jobs:
-                job.active_invite = False
-                job.save()          
-        elif response == 'refuse':
-            jobs.delete()
-        else:
-            pass
-            
-        return HttpResponseRedirect( reverse_lazy('accounts:profile_detail', args=(self.kwargs['pk'], )) )
+        list_id = List.objects.get(task=task).id
+        return HttpResponseRedirect( reverse('appsite:list_detail', args=(list_id, )) )
 
 
 class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
@@ -499,51 +482,59 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
         return reverse_lazy('appsite:list_detail', args=(self.object.id, ))
 
 
-class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
-    model = Task
-    form_class = TaskForm
-    template_name = 'appsite/task_update.html'
+class InviteUpdateView(LoginRequiredMixin, generic.UpdateView):
+    model = Job
+    form_class = JobForm
+    template_name = 'accounts/profile/detail.html'
 
     def post(self, request, *args, **kwargs):
-        post_data = dict(request.POST)
-        post_data.pop('csrfmiddlewaretoken')
+        # Obtém dados do formulário (frontend)
+        post_data = dict(request.POST.lists()).keys()
+        post_data = list(post_data)[1:]
 
-        task_id = int( list(post_data.keys())[0] )
-        task = Task.objects.get(pk=task_id)
+        response, list_id = post_data
 
-        # Atualização dos campos da tarefa
-        if 'name' in post_data or 'due_date' in post_data:
-            task.name = post_data['name'][0]
-            task.due_date = post_data['due_date_day'][0]   + '/' + \
-                            post_data['due_date_month'][0] + '/' + \
-                            post_data['due_date_year'][0]
-            task.save()
+        list_obj = List.objects.get(pk=list_id)
+        user = User.objects.get(pk=self.kwargs['pk'])
 
-        # Atualização apenas do status da tarefa
-        else:            
-            status = bool(int( list(post_data.values())[0][0] ))            
-            task.done = status
-            task.save()
+        job = Job.objects.get(user=user, list=list_obj)
 
-        list_id = List.objects.get(task=task).pk
+        if response == 'accept':
+            job.active_invite = False
+            job.save()
+        elif response == 'refuse':
+            job.delete()
+        else:
+            pass
+            
+        return HttpResponseRedirect( reverse_lazy('accounts:profile_detail', args=(self.kwargs['pk'], )) )
 
-        return HttpResponseRedirect(reverse('appsite:list_detail', args=(list_id, )))
 
-    def get_context_data(self, **kwargs):
-         context = super().get_context_data(**kwargs)
+class InviteUpdateAllView(LoginRequiredMixin, generic.UpdateView):
+    model = Job
+    form_class = JobForm
+    template_name = 'accounts/profile/detail.html'
 
-         task_id = self.kwargs['pk']
-         task = Task.objects.get(pk=task_id)
+    def post(self, request, *args, **kwargs):
+        # Obtém dados do formulário (frontend)
+        post_data = dict(request.POST.lists()).keys()
+        post_data = list(post_data)[1:]
 
-         list_id = List.objects.get(task=task).id
+        response = post_data[0]
 
-         context['task_id'] = task_id
-         context['list_id'] = list_id
+        user = User.objects.get(pk=self.kwargs['pk'])
+        jobs = Job.objects.filter(user=user, active_invite = True)
 
-         return context
-
-    def get_success_url(self):
-        return reverse_lazy('appsite:list_detail', args=(Task.objects.get(pk = self.kwargs['pk']).list_id, ))
+        if response == 'accept':  
+            for job in jobs:
+                job.active_invite = False
+                job.save()          
+        elif response == 'refuse':
+            jobs.delete()
+        else:
+            pass
+            
+        return HttpResponseRedirect( reverse_lazy('accounts:profile_detail', args=(self.kwargs['pk'], )) )
 
 # ====== #
 # DELETE #

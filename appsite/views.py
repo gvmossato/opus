@@ -215,7 +215,6 @@ class TagAddView(LoginRequiredMixin, generic.CreateView):
                 None
         """
         for follow in followers:
-            print(type(followers), type(task), type(tags))
             src_list = List.objects.get(pk=follow.source_id)
             to_list = List.objects.get(pk=follow.list_id)
 
@@ -435,8 +434,7 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
         return kwargs
 
     def post(self, request, *args, **kwargs):
-        ### Lida com o convite de novos usuários para a lista ###
-        post_data = request.POST.dict()
+        post_data = request.POST.dict() # Gets the form's data
         current_list = List.objects.get(pk=self.kwargs['pk'])
 
         # The user wants to invite a new user to current_list
@@ -471,20 +469,16 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
 
 
 class InviteUpdateView(LoginRequiredMixin, generic.UpdateView):
-    model = Job
-    form_class = JobForm
     template_name = 'accounts/profile/detail.html'
+    form_class = JobForm
+    model = Job
 
     def post(self, request, *args, **kwargs):
-        # Obtém dados do formulário (frontend)
-        post_data = dict(request.POST.lists()).keys()
-        post_data = list(post_data)[1:]
-
-        response, list_id = post_data
+        post_data = request.POST.dict() # Gets the form's data
+        response, list_id = list(post_data.keys())[1: ]
 
         list_obj = List.objects.get(pk=list_id)
         user = User.objects.get(pk=self.kwargs['pk'])
-
         job = Job.objects.get(user=user, list=list_obj)
 
         if response == 'accept':
@@ -493,36 +487,30 @@ class InviteUpdateView(LoginRequiredMixin, generic.UpdateView):
         elif response == 'refuse':
             job.delete()
         else:
-            pass
-            
+            raise ValueError("Expected 'accept' or 'refuse' as response.")
         return HttpResponseRedirect( reverse_lazy('accounts:profile_detail', args=(self.kwargs['pk'], )) )
 
 
 class InviteUpdateAllView(LoginRequiredMixin, generic.UpdateView):
-    model = Job
-    form_class = JobForm
     template_name = 'accounts/profile/detail.html'
+    form_class = JobForm
+    model = Job
 
     def post(self, request, *args, **kwargs):
-        # Obtém dados do formulário (frontend)
-        post_data = dict(request.POST.lists()).keys()
-        post_data = list(post_data)[1:]
-
-        response = post_data[0]
+        post_data = request.POST.dict() # Gets the form's data
+        response = list(post_data.keys())[1]
 
         user = User.objects.get(pk=self.kwargs['pk'])
+        jobs = Job.objects.filter(user=user, active_invite=True)
 
-        jobs = Job.objects.filter(user=user, active_invite = True)
-
-        if response == 'accept':  
+        if response == 'accept':
             for job in jobs:
                 job.active_invite = False
-                job.save()          
+                job.save()
         elif response == 'refuse':
             jobs.delete()
         else:
-            pass
-            
+            raise ValueError("Expected 'accept' or 'refuse' as response.")
         return HttpResponseRedirect( reverse_lazy('accounts:profile_detail', args=(self.kwargs['pk'], )) )
 
 # ====== #

@@ -1,6 +1,7 @@
 import requests
 from django.forms import ModelForm, widgets
 from .models import List, Task, Tag, Job
+from django.contrib.auth.models import User
 from django import forms
 
 
@@ -19,7 +20,7 @@ class JobForm(ModelForm):
     def __init__(self, *args, **kwargs):
         # Extrai dados enviados pela JobUpdateView
         self.user = kwargs.pop('user')       # Usuário atual da página
-        self.list_id = kwargs.pop('list_pk') # Id da lista atual
+        self.list_id = kwargs.pop('list_id') # Id da lista atual
 
         super(JobForm, self).__init__(*args, **kwargs)
 

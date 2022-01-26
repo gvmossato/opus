@@ -334,7 +334,7 @@ class ListMenuTemplate(LoginRequiredMixin, generic.TemplateView):
     template_name = "appsite/list_menu.html"
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs) # Gets default context data
 
         current_list = List.objects.get(pk=self.kwargs['pk'])
         job_type = Job.objects.get(user=self.request.user, list=current_list).type
@@ -358,7 +358,7 @@ class ListUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = List
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs) # Gets default context data
 
         current_list = List.objects.get(pk=self.kwargs['pk'])
         job_type = Job.objects.get(user=self.request.user, list=current_list).type
@@ -381,7 +381,7 @@ class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Task
 
     def get_context_data(self, **kwargs):
-         context = super().get_context_data(**kwargs)
+         context = super().get_context_data(**kwargs) # Gets default context data
 
          list_id = Task.objects.get(pk=self.kwargs['pk']).list_id
 
@@ -414,72 +414,60 @@ class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
 
 
 class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
-    model = Job
-    form_class = JobForm
     template_name = 'appsite/job_update.html'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)             # Obtém context padrão
-        context['list'] = List.objects.get(pk=self.kwargs['pk']) # Adiciona lista ao context
+    form_class = JobForm
+    model = Job
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)  # Gets default context data
+
+        context['list'] = List.objects.get(pk=self.kwargs['pk'])
         return context
 
     def get_form_kwargs(self):
-        # Atualiza os kwargs do formulário com os dados da requisição,
-        # permitindo filtrar os dados do formulário (vide forms.py)
-        kwargs = super(JobUpdateView, self).get_form_kwargs()
+        # Adds new data (kwargs) to forms so it becomes
+        # possible to filter form data in appsite/forms.py
+        kwargs = super(JobUpdateView, self).get_form_kwargs() # Gets default forms kwargs
         kwargs.update({
-            'user': self.request.user,
-            'list_pk':self.kwargs['pk']
+            'user'    : self.request.user,
+            'list_id' : self.kwargs['pk']
         })
-
         return kwargs
 
     def post(self, request, *args, **kwargs):
         ### Lida com o convite de novos usuários para a lista ###
-        post_data = request.POST
-        list_obj = List.objects.get(pk=self.kwargs['pk'])
+        post_data = request.POST.dict()
+        current_list = List.objects.get(pk=self.kwargs['pk'])
 
-        print(post_data)
-
-        # Trata requisições do tipo "Convidar"
+        # The user wants to invite a new user to current_list
         if 'invite' in post_data.keys():
             username = post_data['invite']
 
-            if username == "": # Verifica se foi digitado um username
+            if not username: # Tests if the user inputted a username
                 messages.error(request, f"Digite uma nome de usuário para convidar.")
                 return super().post(request, *args, **kwargs)
 
-            try: # Verifica se o usuário existe
+            try: # Tests if the inputted username exists
                 user = User.objects.get(username=username)
-            except:
+            except ObjectDoesNotExist: # In case the task doesn't have the tag
                 messages.error(request, f"O usuário '{username}' não existe.")
                 return super().post(request, *args, **kwargs)
-            
-            if user in list_obj.user.all(): # Verifica se o usuário faz parte da lista
+
+            if user in current_list.user.all(): # Tests if the inputted username already is in the list
                 messages.error(request, f"O usuário '{username}' já faz parte dessa lista.")
                 return super().post(request, *args, **kwargs)
-            else:
-                Job.objects.create(user=user, list=list_obj, active_invite=True, type=1)
-                messages.success(request, f"O usuário '{username}' recebeu um convite!")
-                return super().post(request, *args, **kwargs)
-        
-        # Trata requisições do tipo "Gerenciar"
+
+            Job.objects.create(user=user, list=current_list, active_invite=True, type=1)
+            messages.success(request, f"O usuário '{username}' recebeu um convite!")
+            return super().post(request, *args, **kwargs)
+
+        # The user wants to change a current_list user's job
         else:
-            target_id = post_data['user'] # ID do usuário a ter o cargo modificado
-            new_job = post_data['type']   # Novo cargo (pode ser igual ao atual)
-
-            target = User.objects.get(pk=target_id)
-
-            # Atualiza o cargo
-            job = Job.objects.get(user=target, list=list_obj)
-            job.type = new_job
+            target_user = User.objects.get(pk=post_data['user'])
+            job = Job.objects.get(user=target_user, list=current_list)
+            job.type = post_data['type']
             job.save()
-
             return HttpResponseRedirect( reverse_lazy('appsite:list_detail', args=(self.kwargs['pk'], )) )
-
-    def get_success_url(self):
-        return reverse_lazy('appsite:list_detail', args=(self.object.id, ))
 
 
 class InviteUpdateView(LoginRequiredMixin, generic.UpdateView):
@@ -523,6 +511,7 @@ class InviteUpdateAllView(LoginRequiredMixin, generic.UpdateView):
         response = post_data[0]
 
         user = User.objects.get(pk=self.kwargs['pk'])
+
         jobs = Job.objects.filter(user=user, active_invite = True)
 
         if response == 'accept':  

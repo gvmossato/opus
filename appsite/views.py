@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 
 from collections import defaultdict
 
@@ -209,7 +210,7 @@ class TagAddView(LoginRequiredMixin, generic.CreateView):
             Params:
                 followers (QuerySet): all unique Follow instances that relate a source list to its followers
                 task      (QuerySet): the Task instance which had tags added to
-                tags      (QuerySet): all added tags instances
+                tags      (QuerySet): all added Tag instances
             Retuns:
                 None
         """
@@ -258,6 +259,7 @@ class TagAddView(LoginRequiredMixin, generic.CreateView):
 class ListDetailView(LoginRequiredMixin, generic.DetailView):
     template_name = 'appsite/list_detail.html'
     context_object_name = 'list'
+    model = List
 
     def get_context_data(self, **kwargs):        
         context = super().get_context_data(**kwargs) # Gets default context data
@@ -311,8 +313,11 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
             task_data = [task.id, task.done, task.name, task.due_date] # Mandatory task data
             tag_data  = []                                             # Optional task data (aka tag data)
             # Concatenates tag's value in the same order that tag's name appears in headers
-            for tag_name in table_header:                
-                tag_data += [Tag.objects.get(list=current_list, task=task, name=tag_name).value]
+            for tag_name in table_header:
+                try:
+                    tag_data += [Tag.objects.get(list=current_list, task=task, name=tag_name).value]
+                except ObjectDoesNotExist: # In case the task doesn't have the tag
+                    tag_data += ['------']
 
             row_data = task_data + tag_data
             table_body.append(row_data)
@@ -321,7 +326,7 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
         context['table_header'] = ['Done', 'Task', 'Date'] + table_header
 
         ### Gets the tasks IDs (needed for jQuery functions in frontend) ###
-        context['tasks_id'] = tasks.values_list('id', flat=True)
+        context['tasks_ids'] = tasks.values_list('id', flat=True)
         return context
 
 
@@ -335,6 +340,7 @@ class ListMenuTemplate(LoginRequiredMixin, generic.TemplateView):
         current_list = List.objects.get(pk=self.kwargs['pk'])
         job_type = Job.objects.get(user=self.request.user, list=current_list).type
 
+        context['list'] = current_list
         context['current_user'] = {
             'job_type' : {
                 'code' : job_type
@@ -347,22 +353,22 @@ class ListMenuTemplate(LoginRequiredMixin, generic.TemplateView):
 # ====== #
 
 class ListUpdateView(LoginRequiredMixin, generic.UpdateView):
-    model = List
-    form_class = ListForm
     template_name = 'appsite/list_update.html'
+    context_object_name = 'list'
+    form_class = ListForm
+    model = List
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        list_id = self.kwargs['pk']
-        list_obj = List.objects.get(pk=list_id)
+        current_list = List.objects.get(pk=self.kwargs['pk'])
+        job_type = Job.objects.get(user=self.request.user, list=current_list).type
 
-        user = self.request.user
-        jobtype = Job.objects.get(user=user, list=list_obj).type
-
-        context['list_id'] = list_id
-        context['curr_user_jobtype'] = jobtype
-        
+        context['current_user'] = {
+            'job_type' : {
+                'code' : job_type
+            }
+        }
         return context
 
     def get_success_url(self):

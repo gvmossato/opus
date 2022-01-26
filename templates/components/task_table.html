@@ -51,11 +51,7 @@
                 </td>
                 {% for cell in row|slice:"2:" %}
                     <td data-href="{% url 'appsite:task_update' row.0 %}">
-                        {% if cell %}
-                            <p data-href="{% url 'appsite:task_update' row.0 %}">{{ cell }}</p>
-                        {% else %}
-                            <p data-href="{% url 'appsite:task_update' row.0 %}">----</p>
-                        {% endif%}
+                        <p data-href="{% url 'appsite:task_update' row.0 %}">{{ cell }}</p>
                     </td>
                 {% endfor %}
             </tr>

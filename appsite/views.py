@@ -418,7 +418,7 @@ class JobUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Job
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)  # Gets default context data
+        context = super().get_context_data(**kwargs) # Gets default context data
 
         context['list'] = List.objects.get(pk=self.kwargs['pk'])
         return context
@@ -518,97 +518,86 @@ class InviteUpdateAllView(LoginRequiredMixin, generic.UpdateView):
 # ====== #
 
 class ListDeleteView(LoginRequiredMixin, generic.DeleteView):
-    model = List
     template_name = 'appsite/list_delete.html'
+    context_object_name = 'list'
+    model = List
 
-    def get_context_data(self, **kwargs):        
-        context = super().get_context_data(**kwargs)        
-        context['list_id'] = self.kwargs['pk']
-        return context
-
-    def get_success_url(self):
-        Follow.objects.filter(source_id = self.kwargs['pk']).delete()
-        Follow.objects.filter(list_id = self.kwargs['pk']).delete()
+    def form_valid(self, form):
+        Follow.objects.filter(source_id=self.kwargs['pk']).delete()
+        Follow.objects.filter(list_id=self.kwargs['pk']).delete()
         Task.objects.filter(list_id=self.kwargs['pk']).delete()
         Job.objects.filter(list_id=self.kwargs['pk']).delete()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
         return reverse_lazy('accounts:profile_detail', args=(self.request.user.id, ))
 
 
 class ListUntrackView(LoginRequiredMixin, generic.DeleteView):
-    model = Follow
-    #form_class = JobForm
     template_name = 'appsite/list_untrack.html'
+    model = Follow
 
-    def get_context_data(self, **kwargs):        
-        context = super().get_context_data(**kwargs)
-        context['list_id'] = self.kwargs['pk']
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs) # Gets default context data
+
+        context['list'] = List.objects.get(pk=self.kwargs['pk'])
         return context
 
+    def form_valid(self, form):
+        user_lists_ids = self.request.user.list_set.values_list('id', flat=True)
+        Follow.objects.filter(source_id=self.kwargs['pk'], list_id__in=user_lists_ids).delete()
+
+        Job.objects.get(list_id=self.kwargs['pk'], user_id=self.request.user.id).delete()
+        return HttpResponseRedirect(self.get_success_url())
+
     def get_success_url(self):
-        Follow.objects.filter(
-            source_id=self.kwargs['pk'],
-            list_id__in=self.request.user.list_set.values_list('id', flat=True)
-        ).delete()
-
-        Job.objects.get(list_id=self.kwargs['pk'], user_id=self.request.user).delete()
-
         return reverse_lazy('accounts:profile_detail', args=(self.request.user.id, ))
 
 
-class TagUnfollowView(LoginRequiredMixin, generic.UpdateView):
-    model = List
-    form_class = ListForm
+class TagUnfollowView(LoginRequiredMixin, generic.DeleteView):
     template_name = 'appsite/tag_unfollow.html'
+    context_object_name = 'list'
+    form_class = ListForm
+    model = List
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        follows = Follow.objects.filter(list_id=self.kwargs['pk'])
+        context = super().get_context_data(**kwargs) # Gets default context data
+        followed = Follow.objects.filter(list_id=self.kwargs['pk'])
 
-        # Creating a list of objects like [tag, list, follow] to unpack the three together
-        # in the front-end, in order to obtain: tag.name, list.name and follow.id
-        follows_list = []
-        for follow in follows:
-            follows_list.append([Tag.objects.get(pk=follow.tag_id), List.objects.get(pk=follow.source_id), follow])
-        
-        # Passing this list of lists in context (to the front)
-        context['follows_list'] = follows_list
+        # Dictionary of lists of dictionaries: create or append
+        followed_dict = defaultdict(list)
+        for follow in followed:
+            followed_list = List.objects.get(pk=follow.source_id)
+            followed_tag = Tag.objects.get(pk=follow.tag_id)
+            followed_dict[followed_list.name].append( {'tag':followed_tag, 'follow':follow} )
 
+        context['followed'] = dict(followed_dict)
         return context
 
     def post(self, request, *args, **kwargs):
-        # Obtém dados do formulário (frontend)
-        post_data = dict(request.POST)
-        post_data.pop('csrfmiddlewaretoken')
+        post_data = request.POST.dict() # Gets the form's data
+        response = list(post_data.keys())[1: ]
+        follows_ids = [int(id) for id in response]
 
-        # Deleting selected follows_objects
-        follow_ids = [int(id) for id in list(post_data.keys())]
-        Follow.objects.filter(pk__in=follow_ids).delete()
-        
-        list_id = self.kwargs['pk']
-        # Redirecting to lists's page
-        return HttpResponseRedirect(reverse_lazy('appsite:list_detail', args=(list_id, )))
+        Follow.objects.filter(pk__in=follows_ids).delete()
+        return HttpResponseRedirect(reverse_lazy('appsite:list_detail', args=(self.kwargs['pk'], )))
 
 
 class TaskDeleteView(LoginRequiredMixin, generic.DeleteView):
-    model = Task
     template_name = 'appsite/task_delete.html'
+    context_object_name = 'task'
+    model = Task
 
     def get_context_data(self, **kwargs):
-         context = super().get_context_data(**kwargs)
+         context = super().get_context_data(**kwargs) # Gets default context data
 
-         task_id = self.kwargs['pk']
-         task = Task.objects.get(pk=task_id)
+         task = Task.objects.get(pk=self.kwargs['pk'])
+         current_list = List.objects.get(task=task)
 
-         list_id = List.objects.get(task=task).id
-
-         context['task_id'] = task_id
-         context['list_id'] = list_id
-
+         context['list'] = current_list
          return context
 
     def get_success_url(self):
-        task_id = self.kwargs['pk']
-        task = Task.objects.get(pk=task_id)
+        task = Task.objects.get(pk=self.kwargs['pk'])
         list_id = List.objects.get(task=task).id
-
         return reverse_lazy('appsite:list_detail', args=(list_id, ))

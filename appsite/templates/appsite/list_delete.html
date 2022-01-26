@@ -17,7 +17,7 @@
     <form method="POST">
         {% csrf_token %}
         <div class="form-box-buttons">
-            <a href="{% url 'appsite:list_detail' list_id %}">
+            <a href="{% url 'appsite:list_detail' list.id %}">
                 <button class="gradient-button secondary-button" type="button">Voltar</button>
             </a>
             <button class="gradient-button primary-button red-overlay" type="submit">Apagar</button>

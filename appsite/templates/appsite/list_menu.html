@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %} Menu {% endblock title %}
+{% block title %} {{ list.name }}: Menu {% endblock title %}
 
 {% block content %}
 
@@ -11,40 +11,40 @@
             <p class="color-body pad-top">Interesse em algo novo? Então siga outras tags!</p>
         </header>
         <div class="form-box-buttons">
-            <a href="{% url 'appsite:tag_follow' list_id %}">
+            <a href="{% url 'appsite:tag_follow' list.id %}">
                 <button class="gradient-button primary-button large-button" type="button">Seguir tags</button>
             </a>
         </div>
     </section>
 
-    {% if curr_user_jobtype == 3 or curr_user_jobtype == 4 %}
+    {% if current_user.job_type.code == 3 or current_user.job_type.code == 4 %}
     <section class="list-menu-unfollow">
         <header class="form-box-title administrador">
             <h1>Deixar tags</h1>
             <p class="color-body pad-top">Muitas tags? Então deixe de acompanhar as que não te interessam mais!</p>
         </header>
         <div class="form-box-buttons">
-            <a href="{% url 'appsite:tag_unfollow' list_id %}">
+            <a href="{% url 'appsite:tag_unfollow' list.id %}">
                 <button class="gradient-button primary-button pink-overlay large-button" type="button">Deixar tags</button>
             </a>
         </div>
     </section>
     {% endif %}
 
-    {% if curr_user_jobtype == 2 or curr_user_jobtype == 3 %}
+    {% if current_user.job_type.code == 2 or current_user.job_type.code == 3 %}
         <section class="list-menu-follow">
             <header class="form-box-title seguidor">
                 <h1>Deixar lista</h1>
                 <p class="color-body pad-top">Nada mais do seu interesse? Talvez então seja um boa hora para partir!</p>
             </header>
             <div class="form-box-buttons">
-                <a href="{% url 'appsite:list_untrack' list_id %}">
+                <a href="{% url 'appsite:list_untrack' list.id %}">
                     <button class="gradient-button primary-button yellow-overlay large-button" type="button">Deixar lista</button>
                 </a>
             </div>
         </section>
     {% endif %}
-    <a href="{% url 'appsite:list_detail' list_id %}">
+    <a href="{% url 'appsite:list_detail' list.id %}">
         <button class="gradient-button secondary-button" type="button">Voltar</button>
     </a>
 </article>

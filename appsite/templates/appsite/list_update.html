@@ -35,7 +35,7 @@
             {{ form.color }}
         </div>
         <div class="form-box-buttons delete-wrapper">
-            {% if curr_user_jobtype == 4 %}
+            {% if current_user.job_type.code == 4 %}
                 <a href="{% url 'appsite:list_delete' list.id %}">
                     <button class="gradient-button primary-button red-overlay" type="button">Excluir</button>
                 </a>

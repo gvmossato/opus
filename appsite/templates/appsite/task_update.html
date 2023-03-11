@@ -7,14 +7,14 @@
 <article class="white-box form-box edit-task-box">
     <header class="create-list-title criador">
         <h1>Editar Tarefa</h1>
-        <a href="{% url 'appsite:task_delete' task_id %}">
+        <a href="{% url 'appsite:task_delete' task.id %}">
             <button class="gradient-button primary-button red-overlay" type="button">Apagar</button>
         </a>
     </header>
 
     <form method="POST">
         {% csrf_token %}
-        <input type="hidden" name="{{ task_id }}" />
+        <input type="hidden" name="{{ task.id }}" />
         <div class="form-box-field">
             {{ form.name.label }}
             {{ form.name }}
@@ -26,7 +26,7 @@
             </section>
         </div>
         <div class="form-box-buttons">
-            <a href="{% url 'appsite:list_detail' list_id %}">
+            <a href="{% url 'appsite:list_detail' list.id %}">
                 <button class="gradient-button secondary-button" type="button">Voltar</button>
             </a>
             <button class="gradient-button primary-button" type="submit">Salvar</button>

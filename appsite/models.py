@@ -1,44 +1,10 @@
-from django.db.models.signals import post_save
 from django.contrib.auth.models import User
-from django.dispatch import receiver
 from django.db import models
-
-from .avatars.get_avataaars import generate_avatar
-
-
-# Tabela complementar de usuários
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    picture = models.URLField(
-        default="",
-        max_length=510,
-        null=True
-    )
-    description = models.TextField(
-        default="Adicione uma descrição pra completar seu perfil.",
-        max_length=255,
-        null=True
-    )
-    date = models.DateTimeField(auto_now_add=True)
-
-    def save(self, *args, **kwargs):
-        if not self.picture:
-            self.picture = generate_avatar()
-        super(Profile, self).save(*args,**kwargs)
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-  if created:
-    Profile.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-  instance.profile.save()
+from django.dispatch import receiver
+    
 
 
-# Tabela de usuários (nativa do Django)
-# class Users(models.Model):
-# ...
+
 
 
 class List(models.Model):
@@ -84,6 +50,12 @@ class Task(models.Model):
     def __str__(self):
         return self.name
 
+@receiver(models.signals.post_save, sender=Task)
+def set_original_id(sender, instance, created, **kwargs):
+    if created and not instance.original_id:
+        instance.original_id = instance.id
+        instance.save()
+
 
 class Tag(models.Model):
     task = models.ManyToManyField(Task)
@@ -100,3 +72,5 @@ class Follow(models.Model):
     list = models.ForeignKey(List, on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
     source_id = models.IntegerField()
+
+

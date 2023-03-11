@@ -1,10 +1,9 @@
 import random
+
 from .database import data
 
-global db
-db = data
 
-def generate_avatar():
+def generate_avatar(db=data):
     url = 'https://avataaars.io/?avatarStyle=Transparent'
 
     for key, value in db.items():

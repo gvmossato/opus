@@ -18,8 +18,11 @@
 <form method="POST" action="{% url 'appsite:tag_unfollow' list.id %}">
     {% csrf_token %}
 
-    {% for tag,list,follow in follows_list %}
-        <input type="checkbox" name="{{ follow.id }}">{{ tag.name }} ({{ list.name }})</input>
+    {% for list_name, list_relations in followed.items %}
+        <h2>{{ list_name }}</h2>
+        {% for relation in list_relations %}
+            <input type="checkbox" name="{{ relation.follow.id }}">{{ relation.tag.name }} | {{ relation.tag.value }}</input>
+        {% endfor %}
     {% endfor %}
 
     <button type="submit">Unfollow</button>

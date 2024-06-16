@@ -1,30 +1,26 @@
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import PasswordResetView
-from django.contrib.auth.models import User
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login
-from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.contrib.auth.views import PasswordResetView
 from django.contrib.messages.views import SuccessMessageMixin
-
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
 from django.http import HttpResponse
 from django.http.response import HttpResponseRedirect
-
-from django.utils.encoding import force_bytes, force_text
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-
+from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
+from django.urls import reverse_lazy
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views import generic
 from django.views.decorators.csrf import csrf_protect
 
-from django.urls import reverse_lazy
-from django.shortcuts import redirect, render
-from django.core.mail import EmailMessage
-from django.template.loader import render_to_string
-
-from .forms import UserForm, ProfileForm
-from .tokens import account_activation_token
-from .models import Profile
-
 from appsite.models import Job, List
+
+from .forms import ProfileForm, UserForm
+from .models import Profile
+from .tokens import account_activation_token
 
 
 @login_required
@@ -63,7 +59,7 @@ def signup(request):
 @csrf_protect
 def activate(request, uidb64, token):
     try:
-        uid = force_text(urlsafe_base64_decode(uidb64))
+        uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
     except(TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
@@ -97,7 +93,7 @@ class UserDetailView(LoginRequiredMixin, generic.DetailView):
     # Envia para o template:
     # - Qual usuário está logado e qual perfil foi acessado
     # - As listas do perfil acessado
-    def get_context_data(self, **kwargs):        
+    def get_context_data(self, **kwargs):
         current_user = self.request.user
         profile_user = User.objects.get(pk=self.kwargs['pk'])
 
@@ -106,7 +102,7 @@ class UserDetailView(LoginRequiredMixin, generic.DetailView):
 
         lists_pending = List.objects.filter(pk__in=lists_id_pending)
         lists_confirmed = List.objects.filter(pk__in=lists_id_confirmed)
-          
+
         context = {
             'current_user'    : current_user,
             'profile_user'    : profile_user,

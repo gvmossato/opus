@@ -1,10 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.dispatch import receiver
-    
-
-
-
 
 
 class List(models.Model):
@@ -41,7 +37,7 @@ class Task(models.Model):
     list = models.ForeignKey(List, on_delete=models.CASCADE)
     # original_id is set to null so we can assign the original_id = id
     # when creating the task
-    original_id = models.IntegerField(blank=True, null=True) 
+    original_id = models.IntegerField(blank=True, null=True)
     name = models.CharField(max_length=255)
     done = models.BooleanField(default=False)
     creation_date = models.DateTimeField(auto_now_add=True)

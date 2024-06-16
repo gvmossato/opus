@@ -6,6 +6,6 @@
 # python manage.py runserver --settings=opus.settings.prod
 
 
-from .common import * # Import common settings
+from .common import *  # Import common settings
 
 DEBUG = False

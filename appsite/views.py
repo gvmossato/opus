@@ -1,16 +1,15 @@
-from django.views import generic
-from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect
-from django.core.exceptions import ObjectDoesNotExist
-from django.contrib import messages
-from django.contrib.auth.models import User
-from django.contrib.auth.mixins import LoginRequiredMixin
-
 from collections import defaultdict
 
-from .models import List, Job, Tag, Follow, Task
-from .forms import ListForm, JobForm, TagForm, TaskForm
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy
+from django.views import generic
 
+from .forms import JobForm, ListForm, TagForm, TaskForm
+from .models import Follow, Job, List, Tag, Task
 
 # ====== #
 # CREATE #
@@ -114,7 +113,7 @@ class TagFollowView(LoginRequiredMixin, generic.CreateView):
 
         to_list = List.objects.get(pk=to_list_id)
         src_list = List.objects.get(pk=src_list_id)
-        tags = Tag.objects.filter(pk__in=tags_ids) 
+        tags = Tag.objects.filter(pk__in=tags_ids)
 
         # Gets all tasks in the followed list with the given tag
         for tag in tags:
@@ -260,7 +259,7 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
     context_object_name = 'list'
     model = List
 
-    def get_context_data(self, **kwargs):        
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs) # Gets default context data
 
         ### Gets the list's users sorted by job ###

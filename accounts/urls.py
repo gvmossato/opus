@@ -4,7 +4,6 @@ from django.urls import path
 from .forms import CustomAuthForm
 from .views import *
 
-
 app_name='accounts'
 
 urlpatterns = [

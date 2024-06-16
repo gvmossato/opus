@@ -1,8 +1,9 @@
 import requests
-from django.forms import ModelForm, widgets
-from .models import List, Task, Tag, Job
-from django.contrib.auth.models import User
 from django import forms
+from django.contrib.auth.models import User
+from django.forms import ModelForm, widgets
+
+from .models import Job, List, Tag, Task
 
 
 class JobForm(ModelForm):
@@ -25,7 +26,7 @@ class JobForm(ModelForm):
         super(JobForm, self).__init__(*args, **kwargs)
 
         list_obj = List.objects.get(pk=self.list_id) # Obtém a lista atual
-        
+
         # Obtém todos os ids de seguidores e administradores
         subordinates_job = Job.objects.filter(list=list_obj, type__in=[2, 3])
         subordinates_id = subordinates_job.values_list('user', flat=True)

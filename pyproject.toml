@@ -1,0 +1,35 @@
+[project]
+name = "opus"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "gvmossato" },
+]
+dependencies = [
+    "django>=5.0.6",
+    "django-environ>=0.11.2",
+    "whitenoise>=6.6.0",
+    "djangorestframework>=3.15.1",
+    "django-cors-headers>=4.3.1",
+    "six>=1.16.0",
+    "requests>=2.32.3",
+]
+requires-python = "==3.12.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.pdm.scripts]
+start = "python manage.py runserver"
+migrate = "python manage.py migrate"
+collect_static = "python manage.py collectstatic"
+make_migrations = "python manage.py makemigrations"
+create_su = "python manage.py createsuperuser"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "mypy>=1.10.0",
+    "black>=24.4.2",
+    "isort>=5.13.2",
+]
+[tool.pdm]
+distribution = false

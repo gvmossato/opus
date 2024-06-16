@@ -1,14 +1,13 @@
-import django_heroku
-import environ # django-environ package
+# import django_heroku
 import os
 import re
-
-from django.template import base
 from pathlib import Path
 
+import environ  # django-environ package
+from django.template import base
 
 # Initializes environment
-env = environ.Env() 
+env = environ.Env()
 environ.Env.read_env(os.path.join(Path(__file__).resolve().parent, '.env'))
 
 # Hacky: multiple lines template tags
@@ -38,9 +37,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',    
+    'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',    
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -141,4 +140,4 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 # Deploy
 WSGI_APPLICATION = 'opus.wsgi.application'
 
-django_heroku.settings(locals())
+# django_heroku.settings(locals())

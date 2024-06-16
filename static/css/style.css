@@ -28,7 +28,7 @@
     --color-white2: #eeeeee;
     --color-white3: #dfdfdf;
     --color-white4: #c2c2c2;
-    --color-body: #707070;    
+    --color-body: #707070;
 
     /* Gradientes */
     --gradient-b1b2: linear-gradient(90deg, var(--color-blue1)   0%, var(--color-blue2)   100%);
@@ -55,7 +55,7 @@ body {
   flex-direction: column;
   position: relative;
   margin: 0 auto;
-  font-family: Comfortaa, Arial, monospace;  
+  font-family: Comfortaa, Arial, monospace;
   background-image: url(https://i.ibb.co/TgnJLh1/abstract.jpg);
   color: var(--color-body);
   font-weight: 600;
@@ -125,12 +125,12 @@ input[type="checkbox"] {
     cursor: pointer;
     -webkit-appearance: none;
 }
-  
+
 input[type="checkbox"]:before {
     content: '';
     display: block;
 }
-  
+
 input[type="checkbox"]:checked:before {
     width: 5px;
     height: 10px;
@@ -155,13 +155,13 @@ td {
 }
 
 td:first-child {
-    border-top-left-radius: 5px; 
+    border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
 }
 
 td:last-child {
-    border-bottom-right-radius: 5px; 
-    border-top-right-radius: 5px; 
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
 }
 
 a {
@@ -349,14 +349,14 @@ p {
 
 .form-text {
     text-align: center;
-    margin: auto 1.2vw;    
+    margin: auto 1.2vw;
     font-weight: 700;
     color: white;
 }
 
 .form-window {
     display: flex;
-    background-color: white;    
+    background-color: white;
     border-radius: 10vw var(--default-border-radius) var(--default-border-radius) 10vw;
     height: clamp(400px, 25vw, 600px);
 }
@@ -430,7 +430,7 @@ button[type="button"] {
     width: 6vw;
     height: 6vw;
     border-radius: 100vw;
-    background-color: var(--color-blue-support);    
+    background-color: var(--color-blue-support);
     overflow: hidden;
     margin: 1vw;
 }
@@ -936,7 +936,7 @@ input[type="color"] {
     background: var(--gradient-p1y1);
     padding:5px;
     color: white;
-    border-radius: 5px; 
+    border-radius: 5px;
 }
 
 .follow-tag-choices {
@@ -968,7 +968,7 @@ input[type="radio"]:before {
     content: '';
     display: block;
 }
-  
+
 input[type="radio"]:checked:before {
     width: 4px;
     height: 4px;

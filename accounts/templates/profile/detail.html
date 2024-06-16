@@ -48,7 +48,7 @@
             {% endif %}
         </div>
         {% if lists_confirmed %}
-            <div class="lists-menu-cards">            
+            <div class="lists-menu-cards">
                 {% for list in lists_confirmed %}
 
                 {% include 'components/list_card.html' with
@@ -64,7 +64,7 @@
             <div class="lists-menu-empty gradient-blue1">
                 <p>Ainda não existem listas criadas ou seguidas.</p>
             </div>
-        {% endif %}        
+        {% endif %}
     </section>
 
     <section class="white-box lists-menu">
@@ -81,7 +81,7 @@
             {% endif %}
         </div>
         {% if lists_pending %}
-            <div class="lists-menu-cards">            
+            <div class="lists-menu-cards">
                 {% for list in lists_pending %}
 
                 {% include 'components/list_card_invite.html' with
@@ -100,7 +100,7 @@
                 <p>Sem novos convites por hoje!</p>
             </div>
         {% endif %}
-        
+
     </section>
 
 </article>

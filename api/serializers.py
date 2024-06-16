@@ -17,7 +17,7 @@ class TaskSerializer(serializers.ModelSerializer):
         primitive_repr['Start_Date'] = primitive_repr['due_date']
         primitive_repr['Start_Time'] = ''
         primitive_repr['End_Date'] = primitive_repr.pop('due_date')
-        primitive_repr['End_Time'] = '' 
+        primitive_repr['End_Time'] = ''
         primitive_repr['All_Day_Event'] = 'TRUE'
         primitive_repr['Description'] = ''
         primitive_repr['Location'] = ''
@@ -30,4 +30,4 @@ class TaskSerializer(serializers.ModelSerializer):
         primitive_repr.pop('done')
         primitive_repr.pop('creation_date')
 
-        return primitive_repr  
+        return primitive_repr

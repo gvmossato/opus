@@ -1,5 +1,4 @@
 data = {
-
     'accessoriesType': [
         "Blank",
         "Kurt",
@@ -9,7 +8,6 @@ data = {
         "Sunglasses",
         "Wayfarers",
     ],
-
     'hairColor': [
         "Auburn",
         "Black",
@@ -22,7 +20,6 @@ data = {
         "Red",
         "SilverGray",
     ],
-
     'clotheColor': [
         "Black",
         "Blue01",
@@ -40,7 +37,6 @@ data = {
         "Red",
         "White",
     ],
-
     'facialHairType': [
         "Blank",
         "BeardMedium",
@@ -49,7 +45,6 @@ data = {
         "MoustacheFancy",
         "MoustacheMagnum",
     ],
-
     'clotheType': [
         "BlazerShirt",
         "BlazerSweater",
@@ -61,7 +56,6 @@ data = {
         "ShirtScoopNeck",
         "ShirtVNeck",
     ],
-
     'eyeType': [
         "Close",
         "Cry",
@@ -76,7 +70,6 @@ data = {
         "Wink",
         "WinkWacky",
     ],
-
     'eyebrowType': [
         "Angry",
         "AngryNatural",
@@ -91,7 +84,6 @@ data = {
         "UpDown",
         "UpDownNatural",
     ],
-    
     'mouthType': [
         "Concerned",
         "Default",
@@ -106,7 +98,6 @@ data = {
         "Twinkle",
         "Vomit",
     ],
-
     'skinColor': [
         "Tanned",
         "Yellow",
@@ -116,7 +107,6 @@ data = {
         "DarkBrown",
         "Black",
     ],
-
     'topType': [
         "NoHair",
         "Eyepatch",
@@ -154,5 +144,4 @@ data = {
         "ShortHairTheCaesar",
         "ShortHairTheCaesarSidePart",
     ],
-
-};
+}

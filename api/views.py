@@ -1,7 +1,9 @@
 from rest_framework import generics
 
 from appsite.models import Task
+
 from .serializers import TaskSerializer
+
 
 class ListTask(generics.ListAPIView):
     """
@@ -14,4 +16,3 @@ class ListTask(generics.ListAPIView):
     #permission_classes = [permissions.IsAdminUser]
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-    

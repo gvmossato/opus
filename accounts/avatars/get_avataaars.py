@@ -9,5 +9,4 @@ def generate_avatar(db=data):
     for key, value in db.items():
         item = random.choice(value)
         url += f'&{key}={item}'
-
     return url

@@ -6,7 +6,7 @@
             <img class="user-config-cog" src="https://i.ibb.co/PrLfbbR/cog.png" alt="profile-config-icon" />
         </button>
     </a>
-    
+
     <a class="user-card-link" href="{% url 'accounts:profile_detail' user_id %}">
         <div class="user-card-round-mask">
             <img src="{{ user_picture }}" alt="user-card-pic" />
@@ -17,8 +17,8 @@
         </div>
     </a>
 
-    <h3 class="job-title {{ user_job }}">{% if user_job %} {{ user_job }} {% endif %}</h3>        
-    
+    <h3 class="job-title {{ user_job }}">{% if user_job %} {{ user_job }} {% endif %}</h3>
+
     <a href="{% url 'logout' %}">
         <button class="blue-button user-card-logout-button">Sair</button>
     </a>

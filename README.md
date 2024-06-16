@@ -5,12 +5,11 @@
 </p>
 
 <p align="center">  
-  <a href="https://www.djangoproject.com/">
-    <img src="https://img.shields.io/badge/Django-3.2.10-brightgreen?style=for-the-badge&logo=django&logoColor=brightgreen" alt="django-badge" />
+  <a href="https://www.python.org/">
+    <img src="https://img.shields.io/badge/Python%203.12-3776AB?style=for-the-badge&logo=python&logoColor=yellow&color=3776AB" alt="python-badge" />
   </a>
-  <a href="https://github.com/gvmossato/opus/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/Under-Development%20-yellow?style=for-the-badge&logo=data:image/png;base64,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"
-         alt="development-badge" />
+  <a href="https://www.djangoproject.com/">
+    <img src="https://img.shields.io/badge/Django%205.0.6-gree?style=for-the-badge&logo=django&logoColor=white" alt="django-badge" />
   </a>
   <a href="https://github.com/gvmossato/opus/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/gvmossato/opus?color=blue&style=for-the-badge" alt="license-badge" />
@@ -22,11 +21,12 @@
 <p align="center">
   <a href="#-about">📚 About</a> | 
   <a href="#-site">🌎 Site</a>   | 
+  <a href="#-getting-started">🚀 Getting Started</a> |
   <a href="#-collaborators">🧙 Collaborators</a>
 </p>
 
 <p align="center">
-  <b>Opus</b> is a productivity tool motivated at first by a college project for Information Systems. From there to here, it became a way to organize your to-do lists collaboratively, helped by friends, coworkers, and, why not, new people around the platform!
+  Opus began as a college project for an Information Systems course and evolved into a collaborative productivity tool. It allows users to organize their to-do lists with the help of friends, coworkers, and even new acquaintances on the platform!
 </p>
   
 <h4 align="center">
@@ -36,38 +36,107 @@
 ## 📚 About
 
 <p>
-  <img src="https://i.ibb.co/d5GX0Mp/opus-about.png" alt="about" />
+  <img src="https://i.ibb.co/37DmPv3/opus-about.png" alt="about" />
 </p>
 
-Our main focus with Opus is to create a place where keeping organized isn't so boring that you just give it up, but how to do it? By our beliefs, **split the tasks**, **join the forces** and **delete the rework**!
+Our main goal with Opus is to make staying organized enjoyable rather than a chore. We believe in **splitting tasks**, **joining forces**, and **eliminating rework** to achieve this.
 
-### Split the tasks
+### Split the Tasks
 
-When creating your to-do lists, have you ever thought that someone else also has the same tasks to accomplish? And if you are in school, college, or maybe already working for a company, these chances definitely would increase.
+When creating your to-do lists, have you ever considered that others might have the same tasks to accomplish? Whether you're in school, college, or already working, this is often the case.
 
-At this point Opus becomes handy: you can create a to-do list and invite each one of your colleagues to collaborate, naming who's going to be able to also invite new people and create tasks, and who's going to be able to just check what has to be done.
+This is where Opus shines: you can create a to-do list and invite your colleagues to collaborate. You can assign roles, determining who can invite new members and create tasks, and who can simply view the tasks that need to be done.
 
-### Join the forces
+### Join the Forces
 
-Now with everyone knowing their jobs, you don't need anymore to stress trying to remember all the projects and homework that you got to do. A friend can cover one subject and you handle another, this way both of you come with half the effort and all the tasks.
+With everyone knowing their responsibilities, you no longer need to stress about remembering all the projects and assignments you have. A friend can handle one subject while you cover another, resulting in half the effort for all the tasks.
 
-Going on a trip or getting some days off? No problem! Promote other people from your list to also help keep things organized, so when you come back there's no need to deal with a pile of old tasks to be updated.
+Taking a trip or some days off? No problem! Promote others from your list to help keep things organized, ensuring you don't return to a backlog of tasks.
 
-### Delete the rework
+### Eliminate the Rework
 
-Invited to a cool list but the owner doesn't add some tasks that are important to you? Or maybe you just don't need to know about every task in this list? Don't even consider spending time recreating what matters on your list.
+Invited to a list but missing some tasks important to you? Or perhaps you don't need to see every task on the list? Don't waste time recreating what matters on your list.
 
-Opus let you just go and copy the tasks by tags you are interested in into a list you got the permissions, and this doesn't stop here:
+Opus allows you to copy tasks by tags you're interested in to a list you have permissions for, and it doesn't stop there:
 
-* The tasks become yours, so edit the details as you wish!
-
-* New tasks with the chosen tags will come from the original list to your list automatically, upon creation!
+* The tasks become yours, so you can edit the details as you wish!
+* New tasks with the chosen tags will automatically sync from the original list to yours upon creation!
 
 ## 🌎 Site
 
-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.  
-🚧 **UNDER CONSTRUCTION** 🚧  
-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.  
+To get started with Opus, simply create an account:
+
+<img src="https://i.ibb.co/RcQXZBg/1-1-Homepage-Registrar-2x.png" alt="signup" />
+
+And log in:
+
+<img src="https://i.ibb.co/dBSwv3C/1-2-Homepage-Entrar-2x.png" alt="signin" />
+
+After that, you are free to edit your profile as you like:
+
+<img src="https://i.ibb.co/tz8q98W/2-1-Perfil-Configura-es-2x.png" alt="edit-profile" />
+
+From there, just create a list:
+
+<img src="https://i.ibb.co/qJ1JMnz/2-2-Perfil-Criar-lista-2x.png" alt="create-list" />
+
+And start managing your tasks:
+
+<img src="https://i.ibb.co/RS5jbB5/3-1-Lista-Vis-o-do-Administrador-2x.png" alt="list-administrator" />
+
+Oh, and don't forget! Collaboration is the essence of Opus, so invite and manage users as you see fit:
+
+<img src="https://i.ibb.co/NNfpW2h/3-4-Lista-Gerenciar-Usu-rios-2x.png" alt="social" />
+
+We'll notify you of all the list invitations you receive:
+
+<p align="center">
+  <img src="https://i.ibb.co/j8H0SMS/2-Perfil-2x.png" alt="invites" width="450px" />
+</p>
+
+And you only need to indicate what interests you from there:
+
+<img src="https://i.ibb.co/fn54WNv/3-5-Lista-Seguir-Lista-1-2-2x.png" alt="follow-list-tags" />
+
+To bring them into your lists:
+
+<img src="https://i.ibb.co/2ZPRj7Z/3-5-Lista-Seguir-Lista-2-2-2x.png" alt="follow-list-target" />
+
+## 🚀 Getting Started
+
+Although it may not be evident from this repository, Opus was never officially launched. However, it was deployed in production via [Heroku](https://www.heroku.com/), utilizing the now-defunct free tier. Despite being just a college project, we achieved all the essential functionalities of the application, including user creation with email authentication tokens, list management with different user permissions, and automatic task sharing between followed lists.
+
+If you're interested in running the application locally, you need to install [Python Development Master](https://pdm-project.org/en/latest/) (PDM). It's also recommended to use [Pyenv](https://github.com/pyenv/pyenv) (optional).
+
+Once you have the required packages installed, clone this repository and install the dependencies (Python 3.12 is expected):
+
+```
+pdm install
+```
+
+Next, create a `.env` file in the same directory as the [template](https://github.com/gvmossato/opus/blob/main/opus/settings/.env.example) with the environment variables and run the database migrations:
+
+```
+pdm run migrations
+```
+
+
+Finally, handle the static files using:
+
+```
+pdm run collect_static
+```
+
+All set! Start the server by running:
+
+```
+pdm run start
+```
+
+While developing, if any models modifications are made, you will need to execute `pdm run make_migrations` and then apply the `migrations` script.
+
+> [!NOTE]
+> After this first initial setup you can always start the server by executing the `start` script.
 
 ## 🧙 Collaborators
 

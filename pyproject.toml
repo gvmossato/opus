@@ -1,9 +1,12 @@
 [project]
 name = "opus"
 version = "0.1.0"
-description = "Default template for PDM package"
+description = "To-do lists done together!"
 authors = [
-    {name = "gvmossato" },
+    {name = "gvmossato"},
+    {name = "HenriqueKen"},
+    {name = "Higor-Silva1"},
+    {name = "pfvelu"},
 ]
 dependencies = [
     "django>=5.0.6",
@@ -16,7 +19,7 @@ dependencies = [
 ]
 requires-python = "==3.12.*"
 readme = "README.md"
-license = {text = "MIT"}
+license = {text = "AGPL-3.0"}
 
 [tool.pdm.scripts]
 start = "python manage.py runserver"
